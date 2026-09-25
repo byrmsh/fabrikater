@@ -83,6 +83,6 @@ These describe the shapes planned for M1 onward. The first milestone to build ea
 
 1. Write the store in `AppModel` as a `@MainActor @Observable final class`. Its initializer takes the protocols it needs. Its input methods update state synchronously, then start any host work in a `Task`.
 2. Test it on Linux with fake services: state after each input, what happens when a service errors, and stale data kept while offline.
-3. Write the view in `AppUI/<Feature>/`. It reads the store and calls its methods, and holds only view-local state (`@ViewState private var`). Review it against the vendored skills in `.claude/skills/`, where the repo's rules win.
+3. Write the view in `AppUI/<Feature>/`. It reads the store and calls its methods, and holds only view-local state (`@ViewState private var`). Design and review it with `.claude/skills/macos-design` and the vendored skills in `.claude/skills/`, where the repo's rules win.
 4. Wire the store once in the composition root in `fabrikater`.
 5. Anything visual goes on the PR's "manual on the Mac" checklist.
