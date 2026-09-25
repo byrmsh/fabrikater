@@ -34,8 +34,11 @@ jobs:
     # Xcode 27 image (macOS 27, arm64); it also ships Command Line Tools 27.0, the user's toolchain.
     runs-on: xcode-27
     timeout-minutes: 20
+    strategy:
+      matrix:
+        toolchain: [clt, xcode]
     env:
-      DEVELOPER_DIR: ${{ inputs.toolchain == 'xcode' && '/Applications/Xcode.app/Contents/Developer' || '/Library/Developer/CommandLineTools' }}
+      DEVELOPER_DIR: ${{ matrix.toolchain == 'xcode' && '/Applications/Xcode.app/Contents/Developer' || '/Library/Developer/CommandLineTools' }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -48,8 +51,8 @@ jobs:
       - uses: actions/cache@v6
         with:
           path: .build
-          key: macos-${{ inputs.toolchain || 'clt' }}-spm-${{ hashFiles('Package.swift', 'Package.resolved') }}-${{ github.sha }}
-          restore-keys: macos-${{ inputs.toolchain || 'clt' }}-spm-${{ hashFiles('Package.swift', 'Package.resolved') }}-
+          key: macos-${{ matrix.toolchain }}-spm-${{ hashFiles('Package.swift', 'Package.resolved') }}-${{ github.sha }}
+          restore-keys: macos-${{ matrix.toolchain }}-spm-${{ hashFiles('Package.swift', 'Package.resolved') }}-
       - run: scripts/check.sh
       - run: scripts/bundle.sh
       - name: Ad-hoc signature
@@ -68,6 +71,6 @@ jobs:
       - uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: screenshot
+          name: screenshot-${{ matrix.toolchain }}
           path: fabrikater.png
           if-no-files-found: ignore
