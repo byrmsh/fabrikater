@@ -40,3 +40,7 @@ These agent skills are vendored for Claude Code sessions. They are not part of t
 | `swift-testing-pro` | https://github.com/twostraws/Swift-Testing-Agent-Skill (`swift-testing-pro/`) | 2d6bba14a3c8bf3694f218b92fffe617c41ae43e | Copyright (c) 2026 Paul Hudson |
 
 The concurrency and testing skills were found through the index at https://github.com/twostraws/swift-agent-skills. Only `SKILL.md`, `references/` and, for `swiftui-expert-skill`, `scripts/` were copied. Logos and agent manifests for other tools were left out.
+
+## Adapted rules in `.claude/skills/macos-design`
+
+`macos-design` is fabrikater's own skill. Its `references/hig-rules.md` is adapted from `skills/macos/SKILL.md` in https://github.com/ehmo/platform-design-skills at commit dc2be825d8b439caea78e9eaa8fb3ac23b0ff3e9 (MIT, Copyright (c) 2026, the platform-design-skills authors). The licence is kept as `references/LICENSE.platform-design-skills`. Nothing else from that repository was copied (in particular not its `Apple_HIG.pdf`).
