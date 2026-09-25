@@ -15,7 +15,7 @@ One SwiftPM package. Each layer is its own target, so the compiler enforces the 
 | `PromptKit` | Linux, macOS | M5 (planned) | ANSI parsing, the screen grammars and the answer guard ([parsing.md](parsing.md) section 4). | Core |
 | `AppModel` | Linux, macOS | M1 (planned) | `@MainActor @Observable` stores: herd/sidebar, selection, drafts, connection state, and so on. Each store gets its services through protocols, injected by its initializer. | Core, and HerdrKit, TranscriptKit and PromptKit through their protocols |
 | `AppUI` | macOS | M0 | Thin SwiftUI views over `AppModel`, one folder per feature (`Sidebar/`, `Conversation/`, `Composer/`, …), plus `ViewState`. | AppModel (from M1) |
-| `fabrikater` | macOS | M0 | The executable: `FabrikaterApp` and the single composition root. It wires the real services, or the replay ones when launched with `FABRIKATER_FIXTURES=<dir>` (from M1). | everything |
+| `fabrikater` | macOS | M0 | The executable: `FabrikaterApp` and the single composition root. It wires the real services, or the replay ones when launched with `FABRIKATER_FIXTURES=<dir>` (from M1, in debug and release builds). The host alias comes from `FABRIKATER_HOST` (default `arch`) until the Settings scene exists. | everything |
 
 ```
 FabrikaterCore ◄── HostKit ◄── HerdrKit ◄──┐
