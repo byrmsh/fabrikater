@@ -22,6 +22,8 @@ CI-verifiable: the snapshot decodes leniently from `Tests/Fixtures/snapshot.synt
 
 Manual on the Mac (after `scripts/bundle.sh`): the sidebar lists the same workspaces and panes as `ssh arch herdr api snapshot | jq '.result.snapshot.workspaces[].label'`; a pane's status dot changes within about 2 s when the agent in it starts or finishes work; `FABRIKATER_FIXTURES=Tests/Fixtures build/fabrikater.app/Contents/MacOS/fabrikater` (the bundled release binary; `open` does not pass the variable on) shows the fixture herd without touching the host.
 
+Open for M1, put to the user in the plan: [architecture.md](architecture.md), "Events", subscribes to `pane.agent_status_changed` per pane, which means reopening the events channel whenever the set of agent panes changes (about 40 today). Every event only triggers a snapshot re-read, so one fixed subscription (`pane.updated`, `pane.agent_detected`, `workspace.updated`, …) plus the safety poll may give the same latency. Which of these events fire on a status change is unverified: build the fixed subscription behind the same interface, and put the check (a status dot changes within 2 s in `fabrikater-test`, with the stream logged) on the manual list. Fall back to per-pane subscriptions if it fails.
+
 ## M2: Claude conversation, read-only
 
 Session log resolution and the Claude JSONL parser from [parsing.md](parsing.md), with the tail window, backfill on scroll-up, and the live `tail -F` follow. The conversation view renders user turns, markdown assistant text, tool rows with expandable input and result, summaries and notes.
@@ -37,6 +39,8 @@ The composer with per-pane drafts, Return to send, the key bar, and the send seq
 CI-verifiable: drafts are kept per pane and survive a relaunch; Return sends and Shift-Return inserts a newline; the composer clears only after a successful send and keeps the text with an error on failure; user text travels only on stdin (the argument vector never contains it); the send sequence and its race guard follow parsing.md 4.4 against screen fixtures; `SendPolicy` blocks sends outside `fabrikater-test`.
 
 Manual on the Mac: in the scratch pane (see [../CLAUDE.md](../CLAUDE.md)), start `claude` and send a one-line and a multi-line prompt from the app; both are submitted (the pane goes `working`) and appear in the conversation view. Esc and Ctrl-C from the key bar reach the pane. Record which of `pane send-text` and `agent prompt` submits multi-line text correctly in architecture.md.
+
+Open for M3, put to the user in the plan: [design.md](design.md) says Return sends. The app types into live agents, so a stray Return is costly; the alternative is ⌘Return to send by default, with Return-to-send as an opt-in. The user has not decided.
 
 ## M4: Terminal view
 
@@ -61,6 +65,8 @@ The "Needs you" group, Dock badge, and notifications on `blocked` and `working` 
 CI-verifiable: the "Needs you" store: which panes it lists, in which order, how they leave it when opened, and the badge count; which status transitions notify, and when the pane is selected and the app frontmost, that none do.
 
 Manual on the Mac: with the app in the background, a scratch-pane agent finishing a turn produces a notification; clicking it selects that pane; the Dock badge matches the "Needs you" group.
+
+Open for M6: the "Needs you" list reorders as panes change state, so ⌘1…⌘9 can land on a different pane from the one the user just saw. They only select a pane and must never send or answer anything; confirm this reading of [design.md](design.md) with the user.
 
 ## M7: Other agents
 
