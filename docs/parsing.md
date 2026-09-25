@@ -2,7 +2,7 @@
 
 ## 0. Scope, sources and how to read this
 
-fabrikater is a native macOS SwiftUI app. It reaches one Linux host (`ssh archz`) and nothing else: no server process runs there. On that host coding agents run as interactive TUIs inside Herdr panes (Herdr is a terminal multiplexer built for coding agents, with a Unix-socket JSON API and a `herdr` CLI over it). The app needs two things Collie already solves: (a) render each agent's conversation from the agent's own on-disk session log, and (b) recognise blocking dialogs on the pane's screen (permission prompts, questions, plan approvals) and answer them with keystrokes. This document specifies both well enough to port, and names the Collie files to translate.
+fabrikater is a native macOS SwiftUI app. It reaches one Linux host (`ssh arch`) and nothing else: no server process runs there. On that host coding agents run as interactive TUIs inside Herdr panes (Herdr is a terminal multiplexer built for coding agents, with a Unix-socket JSON API and a `herdr` CLI over it). The app needs two things Collie already solves: (a) render each agent's conversation from the agent's own on-disk session log, and (b) recognise blocking dialogs on the pane's screen (permission prompts, questions, plan approvals) and answer them with keystrokes. This document specifies both well enough to port, and names the Collie files to translate.
 
 Reference: Collie (MIT, upstream `github.com/AltanS/collie`), pinned at commit `b7ddc17a25af76e87cd9b437053bf51821371055` (2026-09-24, "Merge pull request #284 from AltanS/packaging/1.13.1"). Every citation below is `path:lines` at that commit; prefix `https://github.com/AltanS/collie/blob/b7ddc17a25af76e87cd9b437053bf51821371055/` to open it.
 
@@ -14,7 +14,7 @@ Verified live on the host on 2026-09-24: herdr CLI 0.9.1 against a 0.9.0 server 
 
 ### 1.1 The session reference
 
-`herdr api snapshot` prints `{"id":…,"result":{"type":"session_snapshot","snapshot":{version,protocol,workspaces[],tabs[],panes[],agents[],layouts[],focused_*}}}`. Each `agents[]` entry is a pane record carrying `agent` (e.g. `"claude"`) and, when that harness's Herdr integration is installed, `agent_session: {source:"herdr:<agent>", agent:"<agent>", kind:"id"|"path", value}`. Live on this host: 41 Claude panes with `kind:"id"` UUIDs, one OpenCode pane with `kind:"id"` value `ses_…`.
+`herdr api snapshot` prints `{"id":…,"result":{"type":"session_snapshot","snapshot":{version,protocol,workspaces[],tabs[],panes[],agents[],layouts[],focused_*}}}`. Each `agents[]` entry is a pane record carrying `agent` (e.g. `"claude"`) and, when that harness's Herdr integration is installed, `agent_session: {source:"herdr:<agent>", agent:"<agent>", kind:"id"|"path", value}`. In the 2026-09-25 capture (`Tests/Fixtures/snapshot.json`): 35 Claude panes with `kind:"id"` UUIDs and one OpenCode pane with `kind:"id"` value `ses_…` (the scrub replaces session ids, see [structure.md](structure.md), "Fixtures").
 
 Two rules from Collie that the app must copy:
 
@@ -39,7 +39,7 @@ Host observations. pi names cwd dirs `--home-mesh--`, omp names them relative to
 
 **Claude cwd mangling.** Claude Code names the project dir by replacing every non-alphanumeric character of the absolute cwd with `-`: `/home/mesh/Projects/Compatify` → `-home-mesh-Projects-Compatify`, `/home/mesh/Documents/BLNG/.synth-verify` → `-home-mesh-Documents-BLNG--synth-verify` (both present on the host). Collie deliberately does not use this rule (`bridge/journal/claude.ts:316-323`): it is lossy, and the pane's reported cwd drifts into subdirectories while the session file stays under the launch cwd. Port the scan instead; use the mangled name only as a first guess. Whether Claude Code truncates or hashes very long cwd names is **UNVERIFIED**, one more reason to scan. The scan must stay one level deep: Claude now writes subagent transcripts to `<project>/<uuid>/subagents/agent-*.jsonl` beside the main log (seen on the host), and those are not the pane's conversation.
 
-Over SSH the Claude lookup is one command: `ssh archz "ls -1 ~/.claude/projects/*/'<uuid>.jsonl' 2>/dev/null"`.
+Over SSH the Claude lookup is one command: `ssh arch "ls -1 ~/.claude/projects/*/'<uuid>.jsonl' 2>/dev/null"`.
 
 ### 1.3 Claude: the conversation moves to a new file
 
@@ -130,7 +130,7 @@ No file per session. Open the database read-only and run exactly these queries w
 - Part mapping (`opencodePart`, `:417-464`): `text` → text; `reasoning` → thinking; `tool` → tool part named `tool` (V1) or `name` (V2), summarised from `state.input`. The result comes from `state.status`: `completed` takes `state.output` (V1) or the joined text of `state.content[]` (V2); `error` takes `state.error` as a string or `.message`, with `isError`; pending or running has no result. `step-start` and `step-finish` are dropped. Timestamps come from `data.time.created` (ms) or the row's `time_created`.
 - Change detection (`:194-225`): row count stands in for size and `max(time_updated)` for mtime.
 
-Over SSH: `ssh archz sqlite3 -readonly -json ~/.local/share/opencode/opencode.db "<query>"` (sqlite3 is at `/usr/bin/sqlite3` on the host). The id must pass the `ses_` regex before interpolation, because the sqlite3 CLI cannot bind parameters.
+Over SSH: `ssh arch sqlite3 -readonly -json ~/.local/share/opencode/opencode.db "<query>"` (sqlite3 is at `/usr/bin/sqlite3` on the host). The id must pass the `ses_` regex before interpolation, because the sqlite3 CLI cannot bind parameters.
 
 ### 2.5 Grok — `bridge/journal/grok.ts:95-226`
 
@@ -147,7 +147,7 @@ Recommended client design (not in Collie):
 - First open: if the size exceeds the cap, start from `size - cap`, discard up to the first newline, and set `fileTruncated`. Load older history on demand by reading earlier byte ranges (`tail -c +A | head -c B`), which avoids re-reading the whole file the way Collie does.
 - Reset and re-parse from zero when the inode changes or the size drops below `offset`. Claude never truncates in practice; this is a guard.
 - Re-resolve the file (§1.3) whenever the pane's `agent_session.value` changes in a snapshot, and every so often while the pane is active, because the conversation can move to a sibling file without Herdr noticing. A switch to a new path is a fresh load, not an append.
-- For a live pane, `ssh archz tail -c +K -F "$f"` over a persistent connection (ssh `ControlMaster`) is cheaper than polling. It still needs the same carry handling, and it misses a move to a sibling file.
+- For a live pane, `ssh arch tail -c +K -F "$f"` over a persistent connection (ssh `ControlMaster`) is cheaper than polling. It still needs the same carry handling, and it misses a move to a sibling file.
 - OpenCode is a database, not a file: poll the change-detection query and re-run the message query on change.
 
 ## 4. Dialog detection from screen text
@@ -226,7 +226,7 @@ Socket protocol (`HERDR_API.md:9-28`): Unix socket `$HERDR_SOCKET_PATH`, default
 | `events.subscribe` (`:384-495`) | as above | no: socket only |
 | not used by Collie: `agent.prompt` | `{target, text, wait?}` | `herdr agent prompt <target> <text> [--wait]` |
 
-From the Mac: plain CLI calls work (`ssh archz herdr pane send-keys w3:pQ 1`). For anything that needs `revision`, or for events, pipe raw JSON through socat, which is installed: `ssh archz 'socat -t 2 - UNIX-CONNECT:$HOME/.config/herdr/herdr.sock'` with the request on stdin. That was verified read-only for `pane.read`. For events, hold that SSH session open and read lines. A non-interactive SSH shell may not export `HERDR_SOCKET_PATH`, so use the default path explicitly.
+From the Mac: plain CLI calls work (`ssh arch herdr pane send-keys w3:pQ 1`). For anything that needs `revision`, or for events, pipe raw JSON through socat, which is installed: `ssh arch 'socat -t 2 - UNIX-CONNECT:$HOME/.config/herdr/herdr.sock'` with the request on stdin. That was verified read-only for `pane.read`. For events, hold that SSH session open and read lines. A non-interactive SSH shell may not export `HERDR_SOCKET_PATH`, so use the default path explicitly.
 
 Submitting a reply. Collie uses `send_text` then `send_keys(submitKeys)`, never `agent.prompt`. According to `herdr --skill`, `agent prompt` uses the pane's bracketed-paste mode, sends Enter in the same ordered write, and refuses an agent sitting at an approval dialog with `agent_blocked`. That makes it a simpler first reply path, but it skips the draft verification above. The user's own notes record that `agent prompt` left multi-line text unsubmitted in the past: **UNVERIFIED** on 0.9.1, so probe before relying on it. Answering a dialog always uses `send-keys`.
 
