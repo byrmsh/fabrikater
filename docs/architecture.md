@@ -2,7 +2,7 @@
 
 fabrikater is a native macOS app for watching and driving coding agents that run on a remote Linux host. The agents (mostly Claude Code, also Codex, pi/omp, OpenCode and Grok) run as interactive TUIs inside [Herdr](https://herdr.dev), a terminal multiplexer built for coding agents that organises terminals into workspaces, tabs and panes and recognises the agent running in each pane. The app replaces "SSH in and scroll a remote TUI" with a local window: the conversation is rendered on the Mac from the agent's own session log, typing happens in a local text field, and scrolling never waits on the network.
 
-Nothing runs on the host for fabrikater. The app reaches the host only through `/usr/bin/ssh` to the alias `arch` (configurable), and everything it does there is a plain command: the `herdr` CLI, `socat` onto Herdr's API socket, and `tail`/`dd`/`stat` on session logs. Herdr stays the source of truth for layout and agent state; the agent's session log is the source of truth for the conversation.
+Nothing runs on the host for fabrikater. The app reaches the host only through `/usr/bin/ssh` to the alias in `FABRIKATER_HOST` (default `arch`), and everything it does there is a plain command: the `herdr` CLI, `socat` onto Herdr's API socket, and `tail`/`dd`/`stat` on session logs. Herdr stays the source of truth for layout and agent state; the agent's session log is the source of truth for the conversation.
 
 Facts below marked **verified** were checked on the host on 2026-09-24 against herdr 0.9.1 (server 0.9.0, API protocol 22).
 
@@ -76,3 +76,13 @@ Pass the text on stdin, never on the command line: `ssh arch 'herdr pane send-te
 ## Safety
 
 The app types into live agents that can run commands with the user's full privileges. Two rules follow. The app sends only in response to an explicit user action (Send, a key button, a prompt-card choice), never automatically. During development and testing, send only into a scratch pane created for the purpose (see [../CLAUDE.md](../CLAUDE.md)); every other pane belongs to the user's running work.
+
+### Send allowlist
+
+Every mutating command (send text, send keys, prompt) goes through `SendPolicy` in `HerdrKit`. It reads `FABRIKATER_SEND_ALLOWLIST`, a comma-separated list of workspace labels (`FABRIKATER_SEND_ALLOWLIST=fabrikater-test`):
+
+- Set and non-empty: a send is allowed only into a pane whose workspace label is on the list. Entries are trimmed of surrounding whitespace, and empty entries are ignored.
+- Set but empty (`FABRIKATER_SEND_ALLOWLIST=`): every send is refused.
+- Unset: debug builds behave as if it were `fabrikater-test`; release builds have no limit.
+
+Labels can be renamed, so when a list applies, `SendPolicy` looks the pane's workspace label up in a snapshot read at send time, not in the cached herd. If that read fails, or the pane or its workspace is missing from it, the send is refused.
