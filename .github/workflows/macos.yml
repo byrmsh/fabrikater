@@ -37,7 +37,7 @@ jobs:
     env:
       DEVELOPER_DIR: ${{ inputs.toolchain == 'xcode' && '/Applications/Xcode.app/Contents/Developer' || '/Library/Developer/CommandLineTools' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Toolchain
@@ -47,7 +47,7 @@ jobs:
           ls /Library/Developer/CommandLineTools/SDKs
           ls "${DEVELOPER_DIR}/usr/lib/swift/host/plugins"
           find /Library/Developer/CommandLineTools /Applications/Xcode.app/Contents/Developer -name '*TestingMacros*' -maxdepth 8 2>/dev/null || true
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: .build
           key: macos-${{ inputs.toolchain || 'clt' }}-spm-${{ hashFiles('Package.swift', 'Package.resolved') }}-${{ github.sha }}
@@ -67,7 +67,7 @@ jobs:
       - name: Screenshot
         continue-on-error: true
         run: screencapture -x fabrikater.png
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: screenshot
