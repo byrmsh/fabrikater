@@ -56,7 +56,7 @@ A small indicator in the sidebar footer: connected, reconnecting (with the last 
 
 ## Settings
 
-Host alias (default `archz`), notification preferences, Return-to-send behaviour, font sizes for conversation and terminal. Settings live in `UserDefaults`.
+Host alias (default `arch`), notification preferences, Return-to-send behaviour, font sizes for conversation and terminal. Settings live in `UserDefaults`.
 
 ## Visual style
 

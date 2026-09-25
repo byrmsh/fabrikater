@@ -1,11 +1,11 @@
 #!/bin/bash
 # Run on the Mac. Captures host data into Tests/Fixtures with read-only commands only, scrubbed of personal
 # paths and names by scrub-snapshot.jq. Review the diff before committing.
-#   FABRIKATER_HOST=archz   the ssh alias to read from
+#   FABRIKATER_HOST=arch   the ssh alias to read from
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-host="${FABRIKATER_HOST:-archz}"
+host="${FABRIKATER_HOST:-arch}"
 ssh_cmd=(/usr/bin/ssh -o BatchMode=yes "${host}")
 out="Tests/Fixtures/snapshot.json"
 raw="$(mktemp)"
