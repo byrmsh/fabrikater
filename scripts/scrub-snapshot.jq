@@ -3,14 +3,22 @@
 # maps to the same placeholder, so panes and agents that share a cwd or session still match after scrubbing.
 
 def table($values; f): reduce ($values | unique | to_entries[]) as $e ({}; .[$e.value] = ($e.key + 1 | f));
-def fake_uuid: "00000000-0000-4000-8000-" + ("000000000000" + tostring)[-12:];
+def pad12: ("000000000000" + tostring)[-12:];
+# Keeps the id's shape, so validation that depends on it (UUID, OpenCode's `ses_`, a path) still applies.
+def fake_session($original):
+    if $original | test("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"; "i")
+    then "00000000-0000-4000-8000-" + pad12
+    elif $original | startswith("ses_") then "ses_" + pad12
+    elif $original | startswith("/") then "/home/user/session-\(.)"
+    else "session-\(.)" end;
 
 [.. | objects | (.cwd?, .foreground_cwd?) | strings] as $paths
 | [.. | objects | (.terminal_title?, .terminal_title_stripped?) | strings] as $titles
 | [.. | objects | .agent_session? | objects | .value | strings] as $sessions
 | table($paths; "/home/user/project-\(.)") as $path
 | table($titles; "Title \(.)") as $title
-| table($sessions; fake_uuid) as $session
+| (reduce ($sessions | unique | to_entries[]) as $e ({}; .[$e.value] = ($e.key + 1 | fake_session($e.value))))
+    as $session
 | walk(
     if type == "object" then
         (if (.cwd | type) == "string" then .cwd = $path[.cwd] else . end)
