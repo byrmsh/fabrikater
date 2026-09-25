@@ -1,6 +1,6 @@
 # fabrikater
 
-A native macOS SwiftUI app that shows and drives coding agents running in Herdr on the Linux host `archz`, entirely over SSH. Read these before changing anything:
+A native macOS SwiftUI app that shows and drives coding agents running in Herdr on the Linux host `arch`, entirely over SSH. Read these before changing anything:
 
 - [docs/architecture.md](docs/architecture.md): where every piece of data comes from and the exact host commands.
 - [docs/design.md](docs/design.md): what the app looks like and how it behaves.
@@ -15,7 +15,7 @@ A native macOS SwiftUI app that shows and drives coding agents running in Herdr 
 
 ## Cloud session (Linux, CI, no host)
 
-Cloud sessions run on Linux with no macOS, no Xcode and no access to `archz`.
+Cloud sessions run on Linux with no macOS, no Xcode and no access to `arch`.
 
 - The SessionStart hook (`.claude/hooks/session-start.sh`) installs Swift 6.4 under `~/.cache/fabrikater` and puts it on `PATH`. If `swift` is missing, run the hook by hand: `CLAUDE_CODE_REMOTE=true CLAUDE_ENV_FILE=/dev/null .claude/hooks/session-start.sh`, then `export PATH="$HOME/.cache/fabrikater/swift-6.4.0/usr/bin:$PATH"`.
 - On Linux, `Package.swift` leaves out `AppUI` and the `fabrikater` executable. `scripts/check.sh` builds and tests every other target. Put all logic there, test it there, and keep views thin.
@@ -36,7 +36,7 @@ This Mac has Apple's Command Line Tools, not Xcode. Everything builds with Swift
 
 ### The host
 
-`ssh archz` reaches the host non-interactively; the app uses the same alias. You may run read-only commands there freely to answer questions the docs do not: `herdr api snapshot`, `herdr pane read`, `herdr agent list`, `stat`, `tail`, `ls ~/.claude/projects`, and reading Collie's source at `~/Projects/Hobby/collie` (upstream `AltanS/collie`, pinned commit in parsing.md).
+`ssh arch` reaches the host non-interactively; the app uses the same alias. You may run read-only commands there freely to answer questions the docs do not: `herdr api snapshot`, `herdr pane read`, `herdr agent list`, `stat`, `tail`, `ls ~/.claude/projects`, and reading Collie's source at `~/Projects/Hobby/collie` (upstream `AltanS/collie`, pinned commit in parsing.md).
 
 The host runs the user's live work. Every Herdr pane except the scratch pane below belongs to it. Never send text or keys to, close, rename, move or start anything in those panes, and never run a mutating `herdr` command (`pane send-text`, `pane send-keys`, `agent prompt`, `agent send-keys`, `pane close`, `workspace create`, …) against them. Never run bare `herdr` (it attaches the TUI) or `herdr server stop`.
 

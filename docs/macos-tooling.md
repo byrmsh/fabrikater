@@ -1,6 +1,6 @@
 # fabrikater: macOS tooling research (2026-09-24)
 
-Research for a native SwiftUI macOS app built with only Apple's Command Line Tools (CLT) and SwiftPM, talking to the Linux host `archz` over SSH. Versions were checked on 2026-09-24 against Apple's software-update catalog, xcodereleases.com and the GitHub API. Claims marked **[unverified]** come from memory or a single secondhand source.
+Research for a native SwiftUI macOS app built with only Apple's Command Line Tools (CLT) and SwiftPM, talking to the Linux host `arch` over SSH. Versions were checked on 2026-09-24 against Apple's software-update catalog, xcodereleases.com and the GitHub API. Claims marked **[unverified]** come from memory or a single secondhand source.
 
 ## Recommended stack
 
@@ -8,7 +8,7 @@ Toolchain: Command Line Tools for Xcode 27.0 (Swift 6.4, macOS 27.0 SDK), built 
 
 Deployment target: `.macOS(.v15)`. Textual needs macOS 15, and CLT 27 itself only installs on macOS 26.6 or later, so the build Mac is already newer than that.
 
-SSH: spawn `/usr/bin/ssh` through `Process`. One long-lived `ssh -T archz <remote helper or tail command>` carries events and streams. A ControlMaster/ControlPersist master connection makes the one-off commands cheap. Do not use a Swift SSH library. Build without the App Sandbox and distribute outside the App Store.
+SSH: spawn `/usr/bin/ssh` through `Process`. One long-lived `ssh -T arch <remote helper or tail command>` carries events and streams. A ControlMaster/ControlPersist master connection makes the one-off commands cheap. Do not use a Swift SSH library. Build without the App Sandbox and distribute outside the App Store.
 
 Terminal view: SwiftTerm (MIT). Pin it to v1.20.0 or a tested commit on main, and feed it bytes with `TerminalView.feed(byteArray:)`. No PTY (pseudo-terminal) is needed.
 
@@ -45,14 +45,14 @@ Templates and write-ups: tqbf/swiftui-app (SwiftPM plus `build.sh`, ad-hoc signi
 
 ## 2. SSH from the app
 
-Option (a) is to spawn `/usr/bin/ssh` with `Process`. It uses the user's `~/.ssh/config` (the `archz` alias, `ProxyJump`, `IdentityFile`, `UseKeychain`), `known_hosts` and ssh-agent exactly as the terminal does. On macOS, launchd sets `SSH_AUTH_SOCK` for GUI apps too **[unverified for launches from Finder]**.
+Option (a) is to spawn `/usr/bin/ssh` with `Process`. It uses the user's `~/.ssh/config` (the `arch` alias, `ProxyJump`, `IdentityFile`, `UseKeychain`), `known_hosts` and ssh-agent exactly as the terminal does. On macOS, launchd sets `SSH_AUTH_SOCK` for GUI apps too **[unverified for launches from Finder]**.
 
 Configure multiplexing in the command line or in `~/.ssh/config`:
 
 - `ControlMaster=auto`, `ControlPath=~/.ssh/cm-%C` (`%C` keeps the socket path under the 104-byte limit), `ControlPersist=10m`
 - `ServerAliveInterval=15`, `BatchMode=yes` (so a missing key fails instead of hanging on a password prompt), and `-T`
 
-With the master connection up, each extra command costs about one round trip (~140 ms) plus remote exec time, instead of a full TCP and key exchange handshake (roughly 3 to 4 round trips). Also run one long-lived `ssh -T archz 'herdr … --follow'` or `tail -F file.jsonl`, and read its stdout line by line with `FileHandle.bytes.lines`. Always call ssh by absolute path, because GUI apps don't inherit a shell `PATH`. A better long-term design is a small remote helper speaking newline-delimited JSON over a single ssh stdin/stdout pair: requests are pipelined, so latency stays at one round trip with no per-command process spawn on either end.
+With the master connection up, each extra command costs about one round trip (~140 ms) plus remote exec time, instead of a full TCP and key exchange handshake (roughly 3 to 4 round trips). Also run one long-lived `ssh -T arch 'herdr … --follow'` or `tail -F file.jsonl`, and read its stdout line by line with `FileHandle.bytes.lines`. Always call ssh by absolute path, because GUI apps don't inherit a shell `PATH`. A better long-term design is a small remote helper speaking newline-delimited JSON over a single ssh stdin/stdout pair: requests are pipelined, so latency stays at one round trip with no per-command process spawn on either end.
 
 Option (b) is a Swift SSH library. Citadel (MIT, v0.12.1, 2026-04-04) is built on apple/swift-nio-ssh (Apache-2.0, v0.15.0, 2026-07-28). It handles ed25519 keys, OpenSSH private-key parsing and jump hosts. It does not read `~/.ssh/config`, `known_hosts` or ssh-agent: the README shows only `hostKeyValidator: .acceptAnything()`. libssh2 wrappers such as Shout or NMSSH are old and also skip the config file **[maintenance status unverified]**. With either, you'd be reimplementing the user's SSH setup and host-key checking.
 
@@ -85,7 +85,7 @@ Recommendation: use a `List` of Textual `StructuredText` rows with cached parses
 - **Notifications.** `UNUserNotificationCenter.current()` asserts with "bundleProxyForCurrentProcess is nil" in an unbundled executable, including `swift run`. Inside the `.app` with a `CFBundleIdentifier` it works when ad-hoc signed, because the grant is keyed on the bundle id. Call `requestAuthorization` at first launch.
 - **Keychain.** Not needed: ssh reads the keys, and the agent or `UseKeychain` handles passphrases.
 - **Menu bar.** SwiftUI's `MenuBarExtra` with `.menuBarExtraStyle(.window)` (macOS 13 and later) can show agent status and a quick-prompt field next to the main `WindowGroup`. Add `LSUIElement` only for a menu-bar-only mode.
-- **Local Network privacy.** Since macOS 15, apps need permission to reach LAN addresses, and the prompt is attributed to the app that spawned ssh. It only applies if `archz` resolves to a LAN address, not a Tailscale or public one **[unverified for child processes]**.
+- **Local Network privacy.** Since macOS 15, apps need permission to reach LAN addresses, and the prompt is attributed to the app that spawned ssh. It only applies if `arch` resolves to a LAN address, not a Tailscale or public one **[unverified for child processes]**.
 - **Background activity.** Handle wake from sleep by restarting the streaming ssh when it exits (`terminationHandler`) with backoff. A ControlMaster socket survives sleep poorly **[unverified]**, so `ServerAliveInterval` plus reconnect logic matters more than persistence.
 
 ## Sources

@@ -20,7 +20,7 @@ Manual on the Mac: `scripts/check.sh`; `scripts/bundle.sh && open build/fabrikat
 
 CI-verifiable: the snapshot decodes leniently from `Tests/Fixtures/snapshot.synthetic.json` and from the captured `Tests/Fixtures/snapshot.json`, including unknown fields and statuses; the argument builder produces the exact ssh argument vectors and rejects invalid ids; the replay runner serves fixtures; the sidebar store orders workspaces, tabs and panes by `number`, collapses single-pane tabs, falls back through the labels, and keeps the last herd when a refresh fails; an event triggers one debounced refresh; `SendPolicy` refuses every workspace but `fabrikater-test` when `FABRIKATER_SEND_ALLOWLIST` is set.
 
-Manual on the Mac: `scripts/capture-fixtures.sh` (writes the scrubbed `Tests/Fixtures/snapshot.json`; review and commit it); the sidebar lists the same workspaces and panes as `ssh archz herdr api snapshot | jq '.result.snapshot.workspaces[].label'`; a pane's status dot changes within about 2 s when the agent in it starts or finishes work; `FABRIKATER_FIXTURES=Tests/Fixtures build/fabrikater.app/Contents/MacOS/fabrikater` (`open` does not pass the variable on) shows the fixture herd without touching the host.
+Manual on the Mac: `scripts/capture-fixtures.sh` (writes the scrubbed `Tests/Fixtures/snapshot.json`; review and commit it); the sidebar lists the same workspaces and panes as `ssh arch herdr api snapshot | jq '.result.snapshot.workspaces[].label'`; a pane's status dot changes within about 2 s when the agent in it starts or finishes work; `FABRIKATER_FIXTURES=Tests/Fixtures build/fabrikater.app/Contents/MacOS/fabrikater` (`open` does not pass the variable on) shows the fixture herd without touching the host.
 
 ## M2: Claude conversation, read-only
 
