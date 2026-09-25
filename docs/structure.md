@@ -15,7 +15,7 @@ One SwiftPM package. Each layer is its own target, so the compiler enforces the 
 | `PromptKit` | Linux, macOS | M5 (planned) | ANSI parsing, the screen grammars and the answer guard ([parsing.md](parsing.md) section 4). | Core |
 | `AppModel` | Linux, macOS | M1 (planned) | `@MainActor @Observable` stores: herd/sidebar, selection, drafts, connection state, and so on. Each store gets its services through protocols, injected by its initializer. | Core, and HerdrKit, TranscriptKit and PromptKit through their protocols |
 | `AppUI` | macOS | M0 | Thin SwiftUI views over `AppModel`, one folder per feature (`Sidebar/`, `Conversation/`, `Composer/`, …), plus `ViewState`. | AppModel (from M1) |
-| `fabrikater` | macOS | M0 | The executable: `FabrikaterApp` and the single composition root. It wires the real services, or the replay ones when launched with `FABRIKATER_FIXTURES=<dir>` (from M1). | everything |
+| `fabrikater` | macOS | M0 | The executable: `FabrikaterApp` and the single composition root. It wires the real services, or the replay ones when launched with `FABRIKATER_FIXTURES=<dir>` (from M1, in debug and release builds). The host alias comes from `FABRIKATER_HOST` (default `arch`) until the Settings scene exists. | everything |
 
 ```
 FabrikaterCore ◄── HostKit ◄── HerdrKit ◄──┐
@@ -52,6 +52,7 @@ Test fixtures live in `Tests/Fixtures/` and are shared by every test target. Loa
 
 - `*.synthetic.*` files are hand-written from the shapes documented in [architecture.md](architecture.md). They say what the docs claim, not what the host does.
 - Other files are captured from the host with `scripts/capture-fixtures.sh`, which runs on the Mac, uses read-only commands only, and scrubs paths, titles, labels and session ids (`scripts/scrub-snapshot.jq`). It refuses to write if the host's home, the host user or the local user survives the scrub. Add every new capture there, with its own scrub, rather than copying files by hand.
+- Scrubbed free text is an opaque placeholder. `terminal_title` and `terminal_title_stripped` are scrubbed independently (a pane's pair reads `Title 61` / `Title 25`), and labels become `Workspace N` / `Tab N`, so no spinner glyph, prefix or real label survives. Captures show shapes, ids, statuses and how records relate; test any logic that reads titles or labels (stripping, label fallback, `fabrikater-test` matching beyond the kept label) against a synthetic fixture.
 
 ## Recipes
 
