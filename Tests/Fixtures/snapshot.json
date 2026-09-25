@@ -20,7 +20,7 @@
           "state_change_seq": 35,
           "tab_id": "w3:t0",
           "terminal_id": "term_65c3b6136c2991",
-          "terminal_title": "Title 64",
+          "terminal_title": "Title 63",
           "terminal_title_stripped": "Title 26",
           "workspace_id": "w3"
         },
@@ -32,16 +32,16 @@
             "source": "herdr:claude",
             "value": "00000000-0000-4000-8000-000000000030"
           },
-          "agent_status": "done",
+          "agent_status": "working",
           "cwd": "/home/user/project-6",
           "focused": false,
           "foreground_cwd": "/home/user/project-6",
           "pane_id": "w3:p18",
           "revision": 4,
-          "state_change_seq": 267,
+          "state_change_seq": 274,
           "tab_id": "w3:t13",
           "terminal_id": "term_65c3e6aa26d8d2d",
-          "terminal_title": "Title 52",
+          "terminal_title": "Title 38",
           "terminal_title_stripped": "Title 13",
           "workspace_id": "w3"
         },
@@ -51,7 +51,7 @@
             "agent": "opencode",
             "kind": "id",
             "source": "herdr:opencode",
-            "value": "00000000-0000-4000-8000-000000000038"
+            "value": "ses_000000000038"
           },
           "agent_status": "idle",
           "cwd": "/home/user/project-5",
@@ -83,7 +83,7 @@
           "state_change_seq": 36,
           "tab_id": "w6:t4J",
           "terminal_id": "term_65c3b6136cf2c4",
-          "terminal_title": "Title 63",
+          "terminal_title": "Title 62",
           "terminal_title_stripped": "Title 25",
           "workspace_id": "w6"
         },
@@ -104,7 +104,7 @@
           "state_change_seq": 37,
           "tab_id": "w6:t4R",
           "terminal_id": "term_65c3b6136cf345",
-          "terminal_title": "Title 60",
+          "terminal_title": "Title 59",
           "terminal_title_stripped": "Title 22",
           "workspace_id": "w6"
         },
@@ -125,7 +125,7 @@
           "state_change_seq": 38,
           "tab_id": "w6:t4S",
           "terminal_id": "term_65c3b6136cf3a6",
-          "terminal_title": "Title 57",
+          "terminal_title": "Title 56",
           "terminal_title_stripped": "Title 18",
           "workspace_id": "w6"
         },
@@ -146,7 +146,7 @@
           "state_change_seq": 33,
           "tab_id": "w6:t4W",
           "terminal_id": "term_65c3b6136cf407",
-          "terminal_title": "Title 62",
+          "terminal_title": "Title 61",
           "terminal_title_stripped": "Title 24",
           "workspace_id": "w6"
         },
@@ -181,7 +181,7 @@
           },
           "agent_status": "working",
           "cwd": "/home/user/project-3",
-          "focused": false,
+          "focused": true,
           "foreground_cwd": "/home/user/project-3",
           "pane_id": "w6:p55",
           "revision": 2,
@@ -293,7 +293,7 @@
           "state_change_seq": 191,
           "tab_id": "w33:t2",
           "terminal_id": "term_65c40be83815130",
-          "terminal_title": "Title 53",
+          "terminal_title": "Title 52",
           "terminal_title_stripped": "Title 14",
           "workspace_id": "w33"
         },
@@ -347,16 +347,16 @@
             "source": "herdr:claude",
             "value": "00000000-0000-4000-8000-000000000032"
           },
-          "agent_status": "working",
+          "agent_status": "idle",
           "cwd": "/home/user/project-3",
-          "focused": true,
+          "focused": false,
           "foreground_cwd": "/home/user/project-3",
           "pane_id": "w2P:pC",
           "revision": 6,
-          "state_change_seq": 270,
+          "state_change_seq": 273,
           "tab_id": "w2P:tC",
           "terminal_id": "term_65c3c5bd9a2ee2b",
-          "terminal_title": "Title 38",
+          "terminal_title": "Title 64",
           "terminal_title_stripped": "Title 28",
           "workspace_id": "w2P"
         },
@@ -419,7 +419,7 @@
           "state_change_seq": 203,
           "tab_id": "w37:t1",
           "terminal_id": "term_65c3b6136d33113",
-          "terminal_title": "Title 59",
+          "terminal_title": "Title 58",
           "terminal_title_stripped": "Title 21",
           "workspace_id": "w37"
         },
@@ -566,7 +566,7 @@
           "state_change_seq": 249,
           "tab_id": "w3Q:t1",
           "terminal_id": "term_65c40d282853831",
-          "terminal_title": "Title 55",
+          "terminal_title": "Title 54",
           "terminal_title_stripped": "Title 16",
           "workspace_id": "w3Q"
         },
@@ -608,7 +608,7 @@
           "state_change_seq": 212,
           "tab_id": "w34:t9",
           "terminal_id": "term_65c3be6ffed3029",
-          "terminal_title": "Title 56",
+          "terminal_title": "Title 55",
           "terminal_title_stripped": "Title 17",
           "workspace_id": "w34"
         },
@@ -629,7 +629,7 @@
           "state_change_seq": 230,
           "tab_id": "w34:tB",
           "terminal_id": "term_65c416a14f52336",
-          "terminal_title": "Title 54",
+          "terminal_title": "Title 53",
           "terminal_title_stripped": "Title 15",
           "workspace_id": "w34"
         },
@@ -650,7 +650,7 @@
           "state_change_seq": 55,
           "tab_id": "w38:t1",
           "terminal_id": "term_65c3b6136d9c81c",
-          "terminal_title": "Title 58",
+          "terminal_title": "Title 57",
           "terminal_title_stripped": "Title 20",
           "workspace_id": "w38"
         },
@@ -692,7 +692,7 @@
           "state_change_seq": 117,
           "tab_id": "w3G:t3",
           "terminal_id": "term_65c3b6136d9e31e",
-          "terminal_title": "Title 61",
+          "terminal_title": "Title 60",
           "terminal_title_stripped": "Title 23",
           "workspace_id": "w3G"
         },
@@ -802,9 +802,9 @@
           "workspace_id": "w3N"
         }
       ],
-      "focused_pane_id": "w2P:pC",
-      "focused_tab_id": "w2P:tC",
-      "focused_workspace_id": "w2P",
+      "focused_pane_id": "w6:p55",
+      "focused_tab_id": "w6:t51",
+      "focused_workspace_id": "w6",
       "layouts": [
         {
           "area": {
@@ -1854,7 +1854,7 @@
           },
           "tab_id": "w3:t0",
           "terminal_id": "term_65c3b6136c2991",
-          "terminal_title": "Title 64",
+          "terminal_title": "Title 63",
           "terminal_title_stripped": "Title 26",
           "workspace_id": "w3"
         },
@@ -1866,7 +1866,7 @@
             "source": "herdr:claude",
             "value": "00000000-0000-4000-8000-000000000030"
           },
-          "agent_status": "done",
+          "agent_status": "working",
           "cwd": "/home/user/project-6",
           "focused": false,
           "foreground_cwd": "/home/user/project-6",
@@ -1879,7 +1879,7 @@
           },
           "tab_id": "w3:t13",
           "terminal_id": "term_65c3e6aa26d8d2d",
-          "terminal_title": "Title 52",
+          "terminal_title": "Title 38",
           "terminal_title_stripped": "Title 13",
           "workspace_id": "w3"
         },
@@ -1889,7 +1889,7 @@
             "agent": "opencode",
             "kind": "id",
             "source": "herdr:opencode",
-            "value": "00000000-0000-4000-8000-000000000038"
+            "value": "ses_000000000038"
           },
           "agent_status": "idle",
           "cwd": "/home/user/project-5",
@@ -1947,7 +1947,7 @@
           },
           "tab_id": "w6:t4J",
           "terminal_id": "term_65c3b6136cf2c4",
-          "terminal_title": "Title 63",
+          "terminal_title": "Title 62",
           "terminal_title_stripped": "Title 25",
           "workspace_id": "w6"
         },
@@ -1972,7 +1972,7 @@
           },
           "tab_id": "w6:t4R",
           "terminal_id": "term_65c3b6136cf345",
-          "terminal_title": "Title 60",
+          "terminal_title": "Title 59",
           "terminal_title_stripped": "Title 22",
           "workspace_id": "w6"
         },
@@ -1997,7 +1997,7 @@
           },
           "tab_id": "w6:t4S",
           "terminal_id": "term_65c3b6136cf3a6",
-          "terminal_title": "Title 57",
+          "terminal_title": "Title 56",
           "terminal_title_stripped": "Title 18",
           "workspace_id": "w6"
         },
@@ -2022,7 +2022,7 @@
           },
           "tab_id": "w6:t4W",
           "terminal_id": "term_65c3b6136cf407",
-          "terminal_title": "Title 62",
+          "terminal_title": "Title 61",
           "terminal_title_stripped": "Title 24",
           "workspace_id": "w6"
         },
@@ -2061,7 +2061,7 @@
           },
           "agent_status": "working",
           "cwd": "/home/user/project-3",
-          "focused": false,
+          "focused": true,
           "foreground_cwd": "/home/user/project-3",
           "pane_id": "w6:p55",
           "revision": 2,
@@ -2197,7 +2197,7 @@
           },
           "tab_id": "w33:t2",
           "terminal_id": "term_65c40be83815130",
-          "terminal_title": "Title 53",
+          "terminal_title": "Title 52",
           "terminal_title_stripped": "Title 14",
           "workspace_id": "w33"
         },
@@ -2259,9 +2259,9 @@
             "source": "herdr:claude",
             "value": "00000000-0000-4000-8000-000000000032"
           },
-          "agent_status": "working",
+          "agent_status": "idle",
           "cwd": "/home/user/project-3",
-          "focused": true,
+          "focused": false,
           "foreground_cwd": "/home/user/project-3",
           "pane_id": "w2P:pC",
           "revision": 6,
@@ -2272,7 +2272,7 @@
           },
           "tab_id": "w2P:tC",
           "terminal_id": "term_65c3c5bd9a2ee2b",
-          "terminal_title": "Title 38",
+          "terminal_title": "Title 64",
           "terminal_title_stripped": "Title 28",
           "workspace_id": "w2P"
         },
@@ -2347,7 +2347,7 @@
           },
           "tab_id": "w37:t1",
           "terminal_id": "term_65c3b6136d33113",
-          "terminal_title": "Title 59",
+          "terminal_title": "Title 58",
           "terminal_title_stripped": "Title 21",
           "workspace_id": "w37"
         },
@@ -2522,7 +2522,7 @@
           },
           "tab_id": "w3Q:t1",
           "terminal_id": "term_65c40d282853831",
-          "terminal_title": "Title 55",
+          "terminal_title": "Title 54",
           "terminal_title_stripped": "Title 16",
           "workspace_id": "w3Q"
         },
@@ -2590,7 +2590,7 @@
           },
           "tab_id": "w34:t9",
           "terminal_id": "term_65c3be6ffed3029",
-          "terminal_title": "Title 56",
+          "terminal_title": "Title 55",
           "terminal_title_stripped": "Title 17",
           "workspace_id": "w34"
         },
@@ -2615,7 +2615,7 @@
           },
           "tab_id": "w34:tB",
           "terminal_id": "term_65c416a14f52336",
-          "terminal_title": "Title 54",
+          "terminal_title": "Title 53",
           "terminal_title_stripped": "Title 15",
           "workspace_id": "w34"
         },
@@ -2640,7 +2640,7 @@
           },
           "tab_id": "w38:t1",
           "terminal_id": "term_65c3b6136d9c81c",
-          "terminal_title": "Title 58",
+          "terminal_title": "Title 57",
           "terminal_title_stripped": "Title 20",
           "workspace_id": "w38"
         },
@@ -2690,7 +2690,7 @@
           },
           "tab_id": "w3G:t3",
           "terminal_id": "term_65c3b6136d9e31e",
-          "terminal_title": "Title 61",
+          "terminal_title": "Title 60",
           "terminal_title_stripped": "Title 23",
           "workspace_id": "w3G"
         },
@@ -2850,7 +2850,7 @@
           "workspace_id": "w3"
         },
         {
-          "agent_status": "done",
+          "agent_status": "working",
           "focused": false,
           "label": "Tab 35",
           "number": 35,
@@ -2923,7 +2923,7 @@
         },
         {
           "agent_status": "working",
-          "focused": false,
+          "focused": true,
           "label": "Tab 161",
           "number": 161,
           "pane_count": 1,
@@ -2994,8 +2994,8 @@
           "workspace_id": "w2P"
         },
         {
-          "agent_status": "working",
-          "focused": true,
+          "agent_status": "idle",
+          "focused": false,
           "label": "Tab 12",
           "number": 12,
           "pane_count": 1,
@@ -3214,7 +3214,7 @@
       "workspaces": [
         {
           "active_tab_id": "w3:t13",
-          "agent_status": "done",
+          "agent_status": "working",
           "focused": false,
           "label": "Workspace 1",
           "number": 1,
@@ -3245,7 +3245,7 @@
         {
           "active_tab_id": "w6:t51",
           "agent_status": "working",
-          "focused": false,
+          "focused": true,
           "label": "Workspace 4",
           "number": 4,
           "pane_count": 8,
@@ -3274,8 +3274,8 @@
         },
         {
           "active_tab_id": "w2P:tC",
-          "agent_status": "working",
-          "focused": true,
+          "agent_status": "idle",
+          "focused": false,
           "label": "Workspace 7",
           "number": 7,
           "pane_count": 3,
