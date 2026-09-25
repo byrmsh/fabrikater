@@ -19,3 +19,12 @@ let package = Package(
     ],
     swiftLanguageModes: [.v6]
 )
+
+// SwiftUI and AppKit exist only on macOS; on Linux the package is the logic targets and their tests.
+#if os(macOS)
+    package.targets += [
+        .target(name: "AppUI", swiftSettings: swiftSettings),
+        .executableTarget(name: "fabrikater", dependencies: ["AppUI", "FabrikaterCore"], swiftSettings: swiftSettings),
+    ]
+    package.products += [.executable(name: "fabrikater", targets: ["fabrikater"])]
+#endif
