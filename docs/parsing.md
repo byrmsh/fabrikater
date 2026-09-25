@@ -14,7 +14,7 @@ Verified live on the host on 2026-09-24: herdr CLI 0.9.1 against a 0.9.0 server 
 
 ### 1.1 The session reference
 
-`herdr api snapshot` prints `{"id":…,"result":{"type":"session_snapshot","snapshot":{version,protocol,workspaces[],tabs[],panes[],agents[],layouts[],focused_*}}}`. Each `agents[]` entry is a pane record carrying `agent` (e.g. `"claude"`) and, when that harness's Herdr integration is installed, `agent_session: {source:"herdr:<agent>", agent:"<agent>", kind:"id"|"path", value}`. Live on this host: 41 Claude panes with `kind:"id"` UUIDs, one OpenCode pane with `kind:"id"` value `ses_…`.
+`herdr api snapshot` prints `{"id":…,"result":{"type":"session_snapshot","snapshot":{version,protocol,workspaces[],tabs[],panes[],agents[],layouts[],focused_*}}}`. Each `agents[]` entry is a pane record carrying `agent` (e.g. `"claude"`) and, when that harness's Herdr integration is installed, `agent_session: {source:"herdr:<agent>", agent:"<agent>", kind:"id"|"path", value}`. In the 2026-09-25 capture (`Tests/Fixtures/snapshot.json`): 35 Claude panes with `kind:"id"` UUIDs and one OpenCode pane with `kind:"id"` value `ses_…` (the scrub replaces session ids, see [structure.md](structure.md), "Fixtures").
 
 Two rules from Collie that the app must copy:
 

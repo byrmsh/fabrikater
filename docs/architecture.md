@@ -27,12 +27,15 @@ Quoting: arguments travel through the remote shell. Never interpolate user text 
 
 ### Control: snapshot
 
-`herdr api snapshot` (**verified**: works from a non-interactive SSH environment with `PATH=/usr/bin:/bin`, herdr is `/usr/bin/herdr`, answers in about 5 ms on the host, 66 KB for 41 agent panes) returns `{"id":…,"result":{"snapshot":{workspaces, tabs, panes, agents, …}}}`. Record shapes observed:
+`herdr api snapshot` (**verified**: works from a non-interactive SSH environment with `PATH=/usr/bin:/bin`, herdr is `/usr/bin/herdr`, answers in about 5 ms on the host, 66 KB for 41 panes) returns `{"id":"cli:api:snapshot","result":{"type":"session_snapshot","snapshot":{version:"0.9.1", protocol:22, focused_workspace_id, focused_tab_id, focused_pane_id, workspaces, tabs, panes, agents, layouts}}}`. Record shapes, **verified** against `Tests/Fixtures/snapshot.json` (captured 2026-09-25, herdr 0.9.1, 19 workspaces, 41 tabs, 41 panes, 36 agents):
 
-- workspace: `{workspace_id:"w3", label:"JM", number:1, active_tab_id, tab_count, pane_count, agent_status, focused}`
-- tab: `{tab_id:"w3:tJ", workspace_id, label, number, pane_count, agent_status, focused}`
-- pane: `{pane_id:"w3:pQ", tab_id, workspace_id, agent:"claude"|null, agent_status, cwd, foreground_cwd, revision, scroll:{viewport_rows, offset_from_bottom, max_offset_from_bottom}, terminal_title, terminal_title_stripped, focused, agent_session?}`
-- agent: `{pane_id, tab_id, workspace_id, agent, name, agent_status, agent_session:{agent, kind:"id", source:"herdr:claude", value:"<session id>"}, cwd, foreground_cwd, terminal_title_stripped, interactive_ready, revision, state_change_seq}`
+- workspace: `{workspace_id:"w3", label, number:1, active_tab_id:"w3:t13", tab_count, pane_count, agent_status, focused}`
+- tab: `{tab_id:"w3:t0", workspace_id, label, number, pane_count, agent_status, focused}`
+- pane: `{pane_id:"w3:p15", tab_id, workspace_id, terminal_id:"term_65c3b6136c2991", agent?:"claude", agent_session?, agent_status, cwd, foreground_cwd, revision, scroll:{viewport_rows, offset_from_bottom, max_offset_from_bottom}, terminal_title, terminal_title_stripped, focused}`. A pane with no recognised agent (a plain shell) has no `agent` or `agent_session` key at all, not `null`; all five shells in the capture had `agent_status` `unknown`.
+- agent: one per pane that has `agent`: `{pane_id, tab_id, workspace_id, terminal_id, agent, agent_session?:{agent, kind:"id", source:"herdr:claude", value:"<session id>"}, agent_status, cwd, foreground_cwd, revision, state_change_seq, terminal_title, terminal_title_stripped, focused}`. It is the pane record without `scroll`, plus `state_change_seq`. There is no `name` and no `interactive_ready`. `agent_session` is present when that agent's Herdr integration is installed (all 36 in the capture), so decode it as optional.
+- layout: one per tab: `{workspace_id, tab_id, area:{x, y, width, height}, focused_pane_id, panes:[{pane_id, focused, rect:{x, y, width, height}}], splits, zoomed}` (`splits` was empty in every captured tab). No planned feature uses layouts.
+
+`terminal_id` (`term_` plus hex) names the pane's terminal and is distinct from `pane_id`; nothing in fabrikater needs it yet. Ids are opaque strings (`w3`, `w2Z`, `wT`; tabs `w3:t0`; panes `w6:p4P`): compare them, validate pane ids with the regex above, and parse nothing else out of them.
 
 `agent_status` is one of `idle`, `working`, `blocked`, `done`, `unknown`. `idle` and `done` both mean ready for input; `done` means finished and not yet seen. `blocked` means Herdr recognised an approval or question dialog. `agent_session.value` is the key to the conversation: for Claude it is the session UUID and names `~/.claude/projects/<mangled cwd>/<uuid>.jsonl` (resolution rules in [parsing.md](parsing.md)). `terminal_title_stripped` is the best short label for a pane (Claude sets it to the conversation title).
 
