@@ -18,8 +18,8 @@ jobs:
     container: swift:6.4.0-noble
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/cache@v4
+      - uses: actions/checkout@v7
+      - uses: actions/cache@v6
         with:
           path: .build
           key: linux-spm-${{ hashFiles('Package.swift', 'Package.resolved') }}-${{ github.sha }}
