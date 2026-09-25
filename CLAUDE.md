@@ -29,7 +29,7 @@ Cloud sessions run on Linux with no macOS, no Xcode and no access to `arch`.
 
 This Mac has Apple's Command Line Tools, not Xcode. Everything builds with SwiftPM from the terminal.
 
-- `scripts/bundle.sh` builds release, assembles `build/fabrikater.app`, and ad-hoc signs it. `open build/fabrikater.app` runs it.
+- `scripts/bundle.sh` builds release, assembles `build/fabrikater.app`, and ad-hoc signs it. `open build/fabrikater.app` runs it. If the default build engine fails, it retries with the native one, except under CI (`CI` set), where it fails so a broken default engine shows.
 - `swift build` for a quick compile. If the default build engine fails with SDK or search-path errors, use `swift build --build-system native` (or `FABRIKATER_BUILD_SYSTEM=native scripts/check.sh`).
 - Tests use swift-testing (XCTest is not available without Xcode): run `scripts/check.sh`, which adds the flags the Command Line Tools need to find swift-testing (macos-tooling.md section 1; the flags are in the script). A bare `swift test` fails under the Command Line Tools.
 - Deployment target macOS 15. No App Sandbox.

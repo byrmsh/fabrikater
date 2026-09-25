@@ -18,6 +18,11 @@ if [ -n "${FABRIKATER_BUILD_SYSTEM:-}" ]; then
     build+=(--build-system "${FABRIKATER_BUILD_SYSTEM}")
 fi
 if ! "${build[@]}"; then
+    # CI must show a broken default engine, not hide it behind the fallback.
+    if [ -n "${CI:-}" ]; then
+        echo "bundle.sh: the build failed; CI does not fall back to --build-system native" >&2
+        exit 1
+    fi
     # docs/macos-tooling.md section 1: the swiftbuild engine has known failures under the Command Line Tools.
     echo "bundle.sh: the default build engine failed, retrying with --build-system native" >&2
     build=(swift build -c release --product fabrikater --build-system native)
