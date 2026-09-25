@@ -1,6 +1,6 @@
 # fabrikater
 
-A native macOS SwiftUI app that shows and drives coding agents running in Herdr on the Linux host `archz`, entirely over SSH. Read these before changing anything:
+A native macOS SwiftUI app that shows and drives coding agents running in Herdr on the Linux host `arch`, entirely over SSH. Read these before changing anything:
 
 - [docs/architecture.md](docs/architecture.md): where every piece of data comes from and the exact host commands.
 - [docs/design.md](docs/design.md): what the app looks like and how it behaves.
@@ -15,7 +15,7 @@ A native macOS SwiftUI app that shows and drives coding agents running in Herdr 
 
 ## Cloud session (Linux, CI, no host)
 
-Cloud sessions run on Linux with no macOS, no Xcode and no access to `archz`.
+Cloud sessions run on Linux with no macOS, no Xcode and no access to `arch`.
 
 - The SessionStart hook (`.claude/hooks/session-start.sh`) installs Swift 6.4 under `~/.cache/fabrikater` and puts it on `PATH`. If `swift` is missing, run the hook by hand: `CLAUDE_CODE_REMOTE=true CLAUDE_ENV_FILE=/dev/null .claude/hooks/session-start.sh`, then `export PATH="$HOME/.cache/fabrikater/swift-6.4.0/usr/bin:$PATH"`.
 - On Linux, `Package.swift` leaves out `AppUI` and the `fabrikater` executable. `scripts/check.sh` builds and tests every other target. Put all logic there, test it there, and keep views thin.
@@ -29,14 +29,14 @@ Cloud sessions run on Linux with no macOS, no Xcode and no access to `archz`.
 
 This Mac has Apple's Command Line Tools, not Xcode. Everything builds with SwiftPM from the terminal.
 
-- `scripts/bundle.sh` builds release, assembles `build/fabrikater.app`, and ad-hoc signs it. `open build/fabrikater.app` runs it.
+- `scripts/bundle.sh` builds release, assembles `build/fabrikater.app`, and ad-hoc signs it. `open build/fabrikater.app` runs it. If the default build engine fails, it retries with the native one, except under CI (`CI` set), where it fails so a broken default engine shows.
 - `swift build` for a quick compile. If the default build engine fails with SDK or search-path errors, use `swift build --build-system native` (or `FABRIKATER_BUILD_SYSTEM=native scripts/check.sh`).
 - Tests use swift-testing (XCTest is not available without Xcode): run `scripts/check.sh`, which adds the flags the Command Line Tools need to find swift-testing (macos-tooling.md section 1; the flags are in the script). A bare `swift test` fails under the Command Line Tools.
 - Deployment target macOS 15. No App Sandbox.
 
 ### The host
 
-`ssh archz` reaches the host non-interactively; the app uses the same alias. You may run read-only commands there freely to answer questions the docs do not: `herdr api snapshot`, `herdr pane read`, `herdr agent list`, `stat`, `tail`, `ls ~/.claude/projects`, and reading Collie's source at `~/Projects/Hobby/collie` (upstream `AltanS/collie`, pinned commit in parsing.md).
+`ssh arch` reaches the host non-interactively; the app uses the same alias. You may run read-only commands there freely to answer questions the docs do not: `herdr api snapshot`, `herdr pane read`, `herdr agent list`, `stat`, `tail`, `ls ~/.claude/projects`, and reading Collie's source at `~/Projects/Hobby/collie` (upstream `AltanS/collie`, pinned commit in parsing.md).
 
 The host runs the user's live work. Every Herdr pane except the scratch pane below belongs to it. Never send text or keys to, close, rename, move or start anything in those panes, and never run a mutating `herdr` command (`pane send-text`, `pane send-keys`, `agent prompt`, `agent send-keys`, `pane close`, `workspace create`, …) against them. Never run bare `herdr` (it attaches the TUI) or `herdr server stop`.
 
