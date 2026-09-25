@@ -78,4 +78,4 @@ Manual on the Mac: a Codex pane's conversation renders its user turns, assistant
 
 ## Later
 
-The Settings scene from design.md (host alias, notifications, Return-to-send, font sizes); creating and closing tabs and panes; starting agents; search across all conversations; a `MenuBarExtra` with the "Needs you" list; image attachments in the composer.
+Movable, dockable panels (IDE-style) on the layout model from `.claude/skills/macos-design`; the Settings scene from design.md (host alias, notifications, Return-to-send, font sizes); creating and closing tabs and panes; starting agents; search across all conversations; a `MenuBarExtra` with the "Needs you" list; image attachments in the composer.
