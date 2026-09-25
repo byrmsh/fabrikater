@@ -1,0 +1,3353 @@
+{
+  "id": "cli:api:snapshot",
+  "result": {
+    "snapshot": {
+      "agents": [
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000018"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-6",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-6",
+          "pane_id": "w3:p15",
+          "revision": 2,
+          "state_change_seq": 35,
+          "tab_id": "w3:t0",
+          "terminal_id": "term_65c3b6136c2991",
+          "terminal_title": "Title 61",
+          "terminal_title_stripped": "Title 25",
+          "workspace_id": "w3"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000029"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-6",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-6",
+          "pane_id": "w3:p18",
+          "revision": 4,
+          "state_change_seq": 198,
+          "tab_id": "w3:t13",
+          "terminal_id": "term_65c3e6aa26d8d2d",
+          "terminal_title": "Title 48",
+          "terminal_title_stripped": "Title 12",
+          "workspace_id": "w3"
+        },
+        {
+          "agent": "opencode",
+          "agent_session": {
+            "agent": "opencode",
+            "kind": "id",
+            "source": "herdr:opencode",
+            "value": "00000000-0000-4000-8000-000000000036"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-5",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-5",
+          "pane_id": "w2Z:p7",
+          "revision": 3,
+          "state_change_seq": 34,
+          "tab_id": "w2Z:t7",
+          "terminal_id": "term_65c3b6136c7112",
+          "terminal_title": "Title 26",
+          "terminal_title_stripped": "Title 26",
+          "workspace_id": "w2Z"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000023"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w6:p4P",
+          "revision": 2,
+          "state_change_seq": 36,
+          "tab_id": "w6:t4J",
+          "terminal_id": "term_65c3b6136cf2c4",
+          "terminal_title": "Title 60",
+          "terminal_title_stripped": "Title 24",
+          "workspace_id": "w6"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000026"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w6:p4W",
+          "revision": 2,
+          "state_change_seq": 37,
+          "tab_id": "w6:t4R",
+          "terminal_id": "term_65c3b6136cf345",
+          "terminal_title": "Title 57",
+          "terminal_title_stripped": "Title 21",
+          "workspace_id": "w6"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000016"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w6:p4X",
+          "revision": 2,
+          "state_change_seq": 38,
+          "tab_id": "w6:t4S",
+          "terminal_id": "term_65c3b6136cf3a6",
+          "terminal_title": "Title 53",
+          "terminal_title_stripped": "Title 17",
+          "workspace_id": "w6"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000024"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w6:p40",
+          "revision": 2,
+          "state_change_seq": 33,
+          "tab_id": "w6:t4W",
+          "terminal_id": "term_65c3b6136cf407",
+          "terminal_title": "Title 59",
+          "terminal_title_stripped": "Title 23",
+          "workspace_id": "w6"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000033"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w6:p51",
+          "revision": 2,
+          "state_change_seq": 40,
+          "tab_id": "w6:t4X",
+          "terminal_id": "term_65c3b6136cf448",
+          "terminal_title": "Title 47",
+          "terminal_title_stripped": "Title 11",
+          "workspace_id": "w6"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000035"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": true,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w6:p55",
+          "revision": 2,
+          "state_change_seq": 238,
+          "tab_id": "w6:t51",
+          "terminal_id": "term_65c3b6136cf4d9",
+          "terminal_title": "Title 54",
+          "terminal_title_stripped": "Title 18",
+          "workspace_id": "w6"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000014"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w6:p58",
+          "revision": 2,
+          "state_change_seq": 41,
+          "tab_id": "w6:t54",
+          "terminal_id": "term_65c3b6136cf57a",
+          "terminal_title": "Title 67",
+          "terminal_title_stripped": "Title 32",
+          "workspace_id": "w6"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000002"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w6:p59",
+          "revision": 2,
+          "state_change_seq": 42,
+          "tab_id": "w6:t55",
+          "terminal_id": "term_65c3b6136cf61b",
+          "terminal_title": "Title 46",
+          "terminal_title_stripped": "Title 10",
+          "workspace_id": "w6"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000004"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w3B:p1",
+          "revision": 2,
+          "state_change_seq": 43,
+          "tab_id": "w3B:t1",
+          "terminal_id": "term_65c3b6136d2c6d",
+          "terminal_title": "Title 42",
+          "terminal_title_stripped": "Title 6",
+          "workspace_id": "w3B"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000011"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w33:p1",
+          "revision": 2,
+          "state_change_seq": 44,
+          "tab_id": "w33:t1",
+          "terminal_id": "term_65c3b6136d2dee",
+          "terminal_title": "Title 41",
+          "terminal_title_stripped": "Title 5",
+          "workspace_id": "w33"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000003"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w33:p2",
+          "revision": 4,
+          "state_change_seq": 191,
+          "tab_id": "w33:t2",
+          "terminal_id": "term_65c40be83815130",
+          "terminal_title": "Title 49",
+          "terminal_title_stripped": "Title 13",
+          "workspace_id": "w33"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000015"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w2P:pA",
+          "revision": 2,
+          "state_change_seq": 45,
+          "tab_id": "w2P:tA",
+          "terminal_id": "term_65c3b6136d2f3f",
+          "terminal_title": "Title 37",
+          "terminal_title_stripped": "Title 1",
+          "workspace_id": "w2P"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000008"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w2P:pB",
+          "revision": 2,
+          "state_change_seq": 46,
+          "tab_id": "w2P:tB",
+          "terminal_id": "term_65c3b6136d2f810",
+          "terminal_title": "Title 68",
+          "terminal_title_stripped": "Title 33",
+          "workspace_id": "w2P"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000031"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w20:p5",
+          "revision": 2,
+          "state_change_seq": 48,
+          "tab_id": "w20:t5",
+          "terminal_id": "term_65c3b6136d31811",
+          "terminal_title": "Title 65",
+          "terminal_title_stripped": "Title 30",
+          "workspace_id": "w20"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000017"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w20:p7",
+          "revision": 2,
+          "state_change_seq": 228,
+          "tab_id": "w20:t7",
+          "terminal_id": "term_65c3b6136d31e12",
+          "terminal_title": "Title 66",
+          "terminal_title_stripped": "Title 31",
+          "workspace_id": "w20"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000028"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w37:p1",
+          "revision": 4,
+          "state_change_seq": 203,
+          "tab_id": "w37:t1",
+          "terminal_id": "term_65c3b6136d33113",
+          "terminal_title": "Title 56",
+          "terminal_title_stripped": "Title 20",
+          "workspace_id": "w37"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000034"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w39:p1",
+          "revision": 2,
+          "state_change_seq": 159,
+          "tab_id": "w39:t1",
+          "terminal_id": "term_65c3b6136d34e14",
+          "terminal_title": "Title 43",
+          "terminal_title_stripped": "Title 7",
+          "workspace_id": "w39"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000010"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w39:p2",
+          "revision": 2,
+          "state_change_seq": 51,
+          "tab_id": "w39:t2",
+          "terminal_id": "term_65c3b6136d35515",
+          "terminal_title": "Title 46",
+          "terminal_title_stripped": "Title 10",
+          "workspace_id": "w39"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000025"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w39:p3",
+          "revision": 2,
+          "state_change_seq": 104,
+          "tab_id": "w39:t3",
+          "terminal_id": "term_65c3b6136d35b16",
+          "terminal_title": "Title 63",
+          "terminal_title_stripped": "Title 28",
+          "workspace_id": "w39"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000006"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w3P:p1",
+          "revision": 4,
+          "state_change_seq": 210,
+          "tab_id": "w3P:t1",
+          "terminal_id": "term_65c4099a66e602f",
+          "terminal_title": "Title 45",
+          "terminal_title_stripped": "Title 9",
+          "workspace_id": "w3P"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000007"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w3P:p2",
+          "revision": 3,
+          "state_change_seq": 209,
+          "tab_id": "w3P:t2",
+          "terminal_id": "term_65c4158f3d97034",
+          "terminal_title": "Title 46",
+          "terminal_title_stripped": "Title 10",
+          "workspace_id": "w3P"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000013"
+          },
+          "agent_status": "done",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w3Q:p1",
+          "revision": 6,
+          "state_change_seq": 224,
+          "tab_id": "w3Q:t1",
+          "terminal_id": "term_65c40d282853831",
+          "terminal_title": "Title 51",
+          "terminal_title_stripped": "Title 15",
+          "workspace_id": "w3Q"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000005"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w34:p8",
+          "revision": 2,
+          "state_change_seq": 52,
+          "tab_id": "w34:t8",
+          "terminal_id": "term_65c3b6136d9af1b",
+          "terminal_title": "Title 44",
+          "terminal_title_stripped": "Title 8",
+          "workspace_id": "w34"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000009"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w34:p9",
+          "revision": 4,
+          "state_change_seq": 212,
+          "tab_id": "w34:t9",
+          "terminal_id": "term_65c3be6ffed3029",
+          "terminal_title": "Title 52",
+          "terminal_title_stripped": "Title 16",
+          "workspace_id": "w34"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000019"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w34:pB",
+          "revision": 4,
+          "state_change_seq": 230,
+          "tab_id": "w34:tB",
+          "terminal_id": "term_65c416a14f52336",
+          "terminal_title": "Title 50",
+          "terminal_title_stripped": "Title 14",
+          "workspace_id": "w34"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000020"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w38:p1",
+          "revision": 2,
+          "state_change_seq": 55,
+          "tab_id": "w38:t1",
+          "terminal_id": "term_65c3b6136d9c81c",
+          "terminal_title": "Title 55",
+          "terminal_title_stripped": "Title 19",
+          "workspace_id": "w38"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000022"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w3G:p1",
+          "revision": 2,
+          "state_change_seq": 56,
+          "tab_id": "w3G:t1",
+          "terminal_id": "term_65c3b6136d9df1d",
+          "terminal_title": "Title 64",
+          "terminal_title_stripped": "Title 29",
+          "workspace_id": "w3G"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000030"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w3G:p3",
+          "revision": 6,
+          "state_change_seq": 117,
+          "tab_id": "w3G:t3",
+          "terminal_id": "term_65c3b6136d9e31e",
+          "terminal_title": "Title 58",
+          "terminal_title_stripped": "Title 22",
+          "workspace_id": "w3G"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000001"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w3G:p4",
+          "revision": 2,
+          "state_change_seq": 58,
+          "tab_id": "w3G:t4",
+          "terminal_id": "term_65c3b6136d9e81f",
+          "terminal_title": "Title 62",
+          "terminal_title_stripped": "Title 27",
+          "workspace_id": "w3G"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000012"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-2",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-2",
+          "pane_id": "wE:pF",
+          "revision": 2,
+          "state_change_seq": 60,
+          "tab_id": "wE:tE",
+          "terminal_id": "term_65c3b6136dc6422",
+          "terminal_title": "Title 40",
+          "terminal_title_stripped": "Title 4",
+          "workspace_id": "wE"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000032"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-2",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-2",
+          "pane_id": "wE:p1F",
+          "revision": 2,
+          "state_change_seq": 62,
+          "tab_id": "wE:t1E",
+          "terminal_id": "term_65c3b6136dc7124",
+          "terminal_title": "Title 69",
+          "terminal_title_stripped": "Title 34",
+          "workspace_id": "wE"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000027"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-4",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-4",
+          "pane_id": "w3N:p1",
+          "revision": 2,
+          "state_change_seq": 63,
+          "tab_id": "w3N:t1",
+          "terminal_id": "term_65c3b6136ddf025",
+          "terminal_title": "Title 38",
+          "terminal_title_stripped": "Title 2",
+          "workspace_id": "w3N"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000021"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-4",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-4",
+          "pane_id": "w3N:p3",
+          "revision": 6,
+          "state_change_seq": 92,
+          "tab_id": "w3N:t3",
+          "terminal_id": "term_65c3b6136ddf926",
+          "terminal_title": "Title 39",
+          "terminal_title_stripped": "Title 3",
+          "workspace_id": "w3N"
+        }
+      ],
+      "focused_pane_id": "w6:p55",
+      "focused_tab_id": "w6:t51",
+      "focused_workspace_id": "w6",
+      "layouts": [
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "w3:p15",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "w3:p15",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "w3:t0",
+          "workspace_id": "w3",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "w3:p18",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "w3:p18",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "w3:t13",
+          "workspace_id": "w3",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "w2Z:p7",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "w2Z:p7",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "w2Z:t7",
+          "workspace_id": "w2Z",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "wT:p1",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "wT:p1",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "wT:t1",
+          "workspace_id": "wT",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "w6:p4P",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "w6:p4P",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "w6:t4J",
+          "workspace_id": "w6",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "w6:p4W",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "w6:p4W",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "w6:t4R",
+          "workspace_id": "w6",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "w6:p4X",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "w6:p4X",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "w6:t4S",
+          "workspace_id": "w6",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "w6:p40",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "w6:p40",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "w6:t4W",
+          "workspace_id": "w6",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "w6:p51",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "w6:p51",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "w6:t4X",
+          "workspace_id": "w6",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "w6:p55",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "w6:p55",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "w6:t51",
+          "workspace_id": "w6",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "w6:p58",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "w6:p58",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "w6:t54",
+          "workspace_id": "w6",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "w6:p59",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "w6:p59",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "w6:t55",
+          "workspace_id": "w6",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "w3B:p1",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "w3B:p1",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "w3B:t1",
+          "workspace_id": "w3B",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "w33:p1",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "w33:p1",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "w33:t1",
+          "workspace_id": "w33",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "w33:p2",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "w33:p2",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "w33:t2",
+          "workspace_id": "w33",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "w2P:pA",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "w2P:pA",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "w2P:tA",
+          "workspace_id": "w2P",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "w2P:pB",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "w2P:pB",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "w2P:tB",
+          "workspace_id": "w2P",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "w2P:pC",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "w2P:pC",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "w2P:tC",
+          "workspace_id": "w2P",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "w20:p5",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "w20:p5",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "w20:t5",
+          "workspace_id": "w20",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "w20:p7",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "w20:p7",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "w20:t7",
+          "workspace_id": "w20",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "w37:p1",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "w37:p1",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "w37:t1",
+          "workspace_id": "w37",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "w39:p1",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "w39:p1",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "w39:t1",
+          "workspace_id": "w39",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "w39:p2",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "w39:p2",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "w39:t2",
+          "workspace_id": "w39",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "w39:p3",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "w39:p3",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "w39:t3",
+          "workspace_id": "w39",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "w3P:p1",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "w3P:p1",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "w3P:t1",
+          "workspace_id": "w3P",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "w3P:p2",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "w3P:p2",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "w3P:t2",
+          "workspace_id": "w3P",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "w3Q:p1",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "w3Q:p1",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "w3Q:t1",
+          "workspace_id": "w3Q",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "w28:p1",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "w28:p1",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "w28:t1",
+          "workspace_id": "w28",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "w34:p8",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "w34:p8",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "w34:t8",
+          "workspace_id": "w34",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "w34:p9",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "w34:p9",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "w34:t9",
+          "workspace_id": "w34",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "w34:pB",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "w34:pB",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "w34:tB",
+          "workspace_id": "w34",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "w34:pC",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "w34:pC",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "w34:tC",
+          "workspace_id": "w34",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "w38:p1",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "w38:p1",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "w38:t1",
+          "workspace_id": "w38",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "w3G:p1",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "w3G:p1",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "w3G:t1",
+          "workspace_id": "w3G",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "w3G:p3",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "w3G:p3",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "w3G:t3",
+          "workspace_id": "w3G",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "w3G:p4",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "w3G:p4",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "w3G:t4",
+          "workspace_id": "w3G",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "wY:p1",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "wY:p1",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "wY:t1",
+          "workspace_id": "wY",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "wE:pF",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "wE:pF",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "wE:tE",
+          "workspace_id": "wE",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "wE:p1F",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "wE:p1F",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "wE:t1E",
+          "workspace_id": "wE",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "w3N:p1",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "w3N:p1",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "w3N:t1",
+          "workspace_id": "w3N",
+          "zoomed": false
+        },
+        {
+          "area": {
+            "height": 40,
+            "width": 120,
+            "x": 0,
+            "y": 0
+          },
+          "focused_pane_id": "w3N:p3",
+          "panes": [
+            {
+              "focused": true,
+              "pane_id": "w3N:p3",
+              "rect": {
+                "height": 40,
+                "width": 120,
+                "x": 0,
+                "y": 0
+              }
+            }
+          ],
+          "splits": [],
+          "tab_id": "w3N:t3",
+          "workspace_id": "w3N",
+          "zoomed": false
+        }
+      ],
+      "panes": [
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000018"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-6",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-6",
+          "pane_id": "w3:p15",
+          "revision": 2,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "w3:t0",
+          "terminal_id": "term_65c3b6136c2991",
+          "terminal_title": "Title 61",
+          "terminal_title_stripped": "Title 25",
+          "workspace_id": "w3"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000029"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-6",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-6",
+          "pane_id": "w3:p18",
+          "revision": 4,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "w3:t13",
+          "terminal_id": "term_65c3e6aa26d8d2d",
+          "terminal_title": "Title 48",
+          "terminal_title_stripped": "Title 12",
+          "workspace_id": "w3"
+        },
+        {
+          "agent": "opencode",
+          "agent_session": {
+            "agent": "opencode",
+            "kind": "id",
+            "source": "herdr:opencode",
+            "value": "00000000-0000-4000-8000-000000000036"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-5",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-5",
+          "pane_id": "w2Z:p7",
+          "revision": 3,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "w2Z:t7",
+          "terminal_id": "term_65c3b6136c7112",
+          "terminal_title": "Title 26",
+          "terminal_title_stripped": "Title 26",
+          "workspace_id": "w2Z"
+        },
+        {
+          "agent_status": "unknown",
+          "cwd": "/home/user/project-1",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-1",
+          "pane_id": "wT:p1",
+          "revision": 1,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "wT:t1",
+          "terminal_id": "term_65c3b6136cf083",
+          "terminal_title": "Title 35",
+          "terminal_title_stripped": "Title 35",
+          "workspace_id": "wT"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000023"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w6:p4P",
+          "revision": 2,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "w6:t4J",
+          "terminal_id": "term_65c3b6136cf2c4",
+          "terminal_title": "Title 60",
+          "terminal_title_stripped": "Title 24",
+          "workspace_id": "w6"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000026"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w6:p4W",
+          "revision": 2,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "w6:t4R",
+          "terminal_id": "term_65c3b6136cf345",
+          "terminal_title": "Title 57",
+          "terminal_title_stripped": "Title 21",
+          "workspace_id": "w6"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000016"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w6:p4X",
+          "revision": 2,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "w6:t4S",
+          "terminal_id": "term_65c3b6136cf3a6",
+          "terminal_title": "Title 53",
+          "terminal_title_stripped": "Title 17",
+          "workspace_id": "w6"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000024"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w6:p40",
+          "revision": 2,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "w6:t4W",
+          "terminal_id": "term_65c3b6136cf407",
+          "terminal_title": "Title 59",
+          "terminal_title_stripped": "Title 23",
+          "workspace_id": "w6"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000033"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w6:p51",
+          "revision": 2,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "w6:t4X",
+          "terminal_id": "term_65c3b6136cf448",
+          "terminal_title": "Title 47",
+          "terminal_title_stripped": "Title 11",
+          "workspace_id": "w6"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000035"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": true,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w6:p55",
+          "revision": 2,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "w6:t51",
+          "terminal_id": "term_65c3b6136cf4d9",
+          "terminal_title": "Title 54",
+          "terminal_title_stripped": "Title 18",
+          "workspace_id": "w6"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000014"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w6:p58",
+          "revision": 2,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "w6:t54",
+          "terminal_id": "term_65c3b6136cf57a",
+          "terminal_title": "Title 67",
+          "terminal_title_stripped": "Title 32",
+          "workspace_id": "w6"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000002"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w6:p59",
+          "revision": 2,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "w6:t55",
+          "terminal_id": "term_65c3b6136cf61b",
+          "terminal_title": "Title 46",
+          "terminal_title_stripped": "Title 10",
+          "workspace_id": "w6"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000004"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w3B:p1",
+          "revision": 2,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "w3B:t1",
+          "terminal_id": "term_65c3b6136d2c6d",
+          "terminal_title": "Title 42",
+          "terminal_title_stripped": "Title 6",
+          "workspace_id": "w3B"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000011"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w33:p1",
+          "revision": 2,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "w33:t1",
+          "terminal_id": "term_65c3b6136d2dee",
+          "terminal_title": "Title 41",
+          "terminal_title_stripped": "Title 5",
+          "workspace_id": "w33"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000003"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w33:p2",
+          "revision": 4,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "w33:t2",
+          "terminal_id": "term_65c40be83815130",
+          "terminal_title": "Title 49",
+          "terminal_title_stripped": "Title 13",
+          "workspace_id": "w33"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000015"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w2P:pA",
+          "revision": 2,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "w2P:tA",
+          "terminal_id": "term_65c3b6136d2f3f",
+          "terminal_title": "Title 37",
+          "terminal_title_stripped": "Title 1",
+          "workspace_id": "w2P"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000008"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w2P:pB",
+          "revision": 2,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "w2P:tB",
+          "terminal_id": "term_65c3b6136d2f810",
+          "terminal_title": "Title 68",
+          "terminal_title_stripped": "Title 33",
+          "workspace_id": "w2P"
+        },
+        {
+          "agent_status": "unknown",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w2P:pC",
+          "revision": 3,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "w2P:tC",
+          "terminal_id": "term_65c3c5bd9a2ee2b",
+          "terminal_title": "Title 36",
+          "terminal_title_stripped": "Title 36",
+          "workspace_id": "w2P"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000031"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w20:p5",
+          "revision": 2,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "w20:t5",
+          "terminal_id": "term_65c3b6136d31811",
+          "terminal_title": "Title 65",
+          "terminal_title_stripped": "Title 30",
+          "workspace_id": "w20"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000017"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w20:p7",
+          "revision": 2,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "w20:t7",
+          "terminal_id": "term_65c3b6136d31e12",
+          "terminal_title": "Title 66",
+          "terminal_title_stripped": "Title 31",
+          "workspace_id": "w20"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000028"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w37:p1",
+          "revision": 4,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "w37:t1",
+          "terminal_id": "term_65c3b6136d33113",
+          "terminal_title": "Title 56",
+          "terminal_title_stripped": "Title 20",
+          "workspace_id": "w37"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000034"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w39:p1",
+          "revision": 2,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "w39:t1",
+          "terminal_id": "term_65c3b6136d34e14",
+          "terminal_title": "Title 43",
+          "terminal_title_stripped": "Title 7",
+          "workspace_id": "w39"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000010"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w39:p2",
+          "revision": 2,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "w39:t2",
+          "terminal_id": "term_65c3b6136d35515",
+          "terminal_title": "Title 46",
+          "terminal_title_stripped": "Title 10",
+          "workspace_id": "w39"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000025"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w39:p3",
+          "revision": 2,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "w39:t3",
+          "terminal_id": "term_65c3b6136d35b16",
+          "terminal_title": "Title 63",
+          "terminal_title_stripped": "Title 28",
+          "workspace_id": "w39"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000006"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w3P:p1",
+          "revision": 4,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "w3P:t1",
+          "terminal_id": "term_65c4099a66e602f",
+          "terminal_title": "Title 45",
+          "terminal_title_stripped": "Title 9",
+          "workspace_id": "w3P"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000007"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w3P:p2",
+          "revision": 3,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "w3P:t2",
+          "terminal_id": "term_65c4158f3d97034",
+          "terminal_title": "Title 46",
+          "terminal_title_stripped": "Title 10",
+          "workspace_id": "w3P"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000013"
+          },
+          "agent_status": "done",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w3Q:p1",
+          "revision": 6,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "w3Q:t1",
+          "terminal_id": "term_65c40d282853831",
+          "terminal_title": "Title 51",
+          "terminal_title_stripped": "Title 15",
+          "workspace_id": "w3Q"
+        },
+        {
+          "agent_status": "unknown",
+          "cwd": "/home/user/project-1",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-1",
+          "pane_id": "w28:p1",
+          "revision": 1,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "w28:t1",
+          "terminal_id": "term_65c3b6136d98e1a",
+          "terminal_title": "Title 35",
+          "terminal_title_stripped": "Title 35",
+          "workspace_id": "w28"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000005"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w34:p8",
+          "revision": 2,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "w34:t8",
+          "terminal_id": "term_65c3b6136d9af1b",
+          "terminal_title": "Title 44",
+          "terminal_title_stripped": "Title 8",
+          "workspace_id": "w34"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000009"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w34:p9",
+          "revision": 4,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "w34:t9",
+          "terminal_id": "term_65c3be6ffed3029",
+          "terminal_title": "Title 52",
+          "terminal_title_stripped": "Title 16",
+          "workspace_id": "w34"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000019"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w34:pB",
+          "revision": 4,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "w34:tB",
+          "terminal_id": "term_65c416a14f52336",
+          "terminal_title": "Title 50",
+          "terminal_title_stripped": "Title 14",
+          "workspace_id": "w34"
+        },
+        {
+          "agent_status": "unknown",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w34:pC",
+          "revision": 3,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "w34:tC",
+          "terminal_id": "term_65c43ad37db0f38",
+          "terminal_title": "Title 36",
+          "terminal_title_stripped": "Title 36",
+          "workspace_id": "w34"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000020"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w38:p1",
+          "revision": 2,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "w38:t1",
+          "terminal_id": "term_65c3b6136d9c81c",
+          "terminal_title": "Title 55",
+          "terminal_title_stripped": "Title 19",
+          "workspace_id": "w38"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000022"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w3G:p1",
+          "revision": 2,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "w3G:t1",
+          "terminal_id": "term_65c3b6136d9df1d",
+          "terminal_title": "Title 64",
+          "terminal_title_stripped": "Title 29",
+          "workspace_id": "w3G"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000030"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w3G:p3",
+          "revision": 6,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "w3G:t3",
+          "terminal_id": "term_65c3b6136d9e31e",
+          "terminal_title": "Title 58",
+          "terminal_title_stripped": "Title 22",
+          "workspace_id": "w3G"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000001"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-3",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-3",
+          "pane_id": "w3G:p4",
+          "revision": 2,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "w3G:t4",
+          "terminal_id": "term_65c3b6136d9e81f",
+          "terminal_title": "Title 62",
+          "terminal_title_stripped": "Title 27",
+          "workspace_id": "w3G"
+        },
+        {
+          "agent_status": "unknown",
+          "cwd": "/home/user/project-1",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-1",
+          "pane_id": "wY:p1",
+          "revision": 1,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "wY:t1",
+          "terminal_id": "term_65c3b6136dc3f21",
+          "terminal_title": "Title 35",
+          "terminal_title_stripped": "Title 35",
+          "workspace_id": "wY"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000012"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-2",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-2",
+          "pane_id": "wE:pF",
+          "revision": 2,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "wE:tE",
+          "terminal_id": "term_65c3b6136dc6422",
+          "terminal_title": "Title 40",
+          "terminal_title_stripped": "Title 4",
+          "workspace_id": "wE"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000032"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-2",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-2",
+          "pane_id": "wE:p1F",
+          "revision": 2,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "wE:t1E",
+          "terminal_id": "term_65c3b6136dc7124",
+          "terminal_title": "Title 69",
+          "terminal_title_stripped": "Title 34",
+          "workspace_id": "wE"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000027"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-4",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-4",
+          "pane_id": "w3N:p1",
+          "revision": 2,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "w3N:t1",
+          "terminal_id": "term_65c3b6136ddf025",
+          "terminal_title": "Title 38",
+          "terminal_title_stripped": "Title 2",
+          "workspace_id": "w3N"
+        },
+        {
+          "agent": "claude",
+          "agent_session": {
+            "agent": "claude",
+            "kind": "id",
+            "source": "herdr:claude",
+            "value": "00000000-0000-4000-8000-000000000021"
+          },
+          "agent_status": "idle",
+          "cwd": "/home/user/project-4",
+          "focused": false,
+          "foreground_cwd": "/home/user/project-4",
+          "pane_id": "w3N:p3",
+          "revision": 6,
+          "scroll": {
+            "max_offset_from_bottom": 0,
+            "offset_from_bottom": 0,
+            "viewport_rows": 59
+          },
+          "tab_id": "w3N:t3",
+          "terminal_id": "term_65c3b6136ddf926",
+          "terminal_title": "Title 39",
+          "terminal_title_stripped": "Title 3",
+          "workspace_id": "w3N"
+        }
+      ],
+      "protocol": 22,
+      "tabs": [
+        {
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Tab 32",
+          "number": 32,
+          "pane_count": 1,
+          "tab_id": "w3:t0",
+          "workspace_id": "w3"
+        },
+        {
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Tab 35",
+          "number": 35,
+          "pane_count": 1,
+          "tab_id": "w3:t13",
+          "workspace_id": "w3"
+        },
+        {
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Tab 7",
+          "number": 7,
+          "pane_count": 1,
+          "tab_id": "w2Z:t7",
+          "workspace_id": "w2Z"
+        },
+        {
+          "agent_status": "unknown",
+          "focused": false,
+          "label": "Tab 1",
+          "number": 1,
+          "pane_count": 1,
+          "tab_id": "wT:t1",
+          "workspace_id": "wT"
+        },
+        {
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Tab 146",
+          "number": 146,
+          "pane_count": 1,
+          "tab_id": "w6:t4J",
+          "workspace_id": "w6"
+        },
+        {
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Tab 152",
+          "number": 152,
+          "pane_count": 1,
+          "tab_id": "w6:t4R",
+          "workspace_id": "w6"
+        },
+        {
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Tab 153",
+          "number": 153,
+          "pane_count": 1,
+          "tab_id": "w6:t4S",
+          "workspace_id": "w6"
+        },
+        {
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Tab 156",
+          "number": 156,
+          "pane_count": 1,
+          "tab_id": "w6:t4W",
+          "workspace_id": "w6"
+        },
+        {
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Tab 157",
+          "number": 157,
+          "pane_count": 1,
+          "tab_id": "w6:t4X",
+          "workspace_id": "w6"
+        },
+        {
+          "agent_status": "idle",
+          "focused": true,
+          "label": "Tab 161",
+          "number": 161,
+          "pane_count": 1,
+          "tab_id": "w6:t51",
+          "workspace_id": "w6"
+        },
+        {
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Tab 164",
+          "number": 164,
+          "pane_count": 1,
+          "tab_id": "w6:t54",
+          "workspace_id": "w6"
+        },
+        {
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Tab 165",
+          "number": 165,
+          "pane_count": 1,
+          "tab_id": "w6:t55",
+          "workspace_id": "w6"
+        },
+        {
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Tab 1",
+          "number": 1,
+          "pane_count": 1,
+          "tab_id": "w3B:t1",
+          "workspace_id": "w3B"
+        },
+        {
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Tab 1",
+          "number": 1,
+          "pane_count": 1,
+          "tab_id": "w33:t1",
+          "workspace_id": "w33"
+        },
+        {
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Tab 2",
+          "number": 2,
+          "pane_count": 1,
+          "tab_id": "w33:t2",
+          "workspace_id": "w33"
+        },
+        {
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Tab 10",
+          "number": 10,
+          "pane_count": 1,
+          "tab_id": "w2P:tA",
+          "workspace_id": "w2P"
+        },
+        {
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Tab 11",
+          "number": 11,
+          "pane_count": 1,
+          "tab_id": "w2P:tB",
+          "workspace_id": "w2P"
+        },
+        {
+          "agent_status": "unknown",
+          "focused": false,
+          "label": "Tab 12",
+          "number": 12,
+          "pane_count": 1,
+          "tab_id": "w2P:tC",
+          "workspace_id": "w2P"
+        },
+        {
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Tab 5",
+          "number": 5,
+          "pane_count": 1,
+          "tab_id": "w20:t5",
+          "workspace_id": "w20"
+        },
+        {
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Tab 7",
+          "number": 7,
+          "pane_count": 1,
+          "tab_id": "w20:t7",
+          "workspace_id": "w20"
+        },
+        {
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Tab 1",
+          "number": 1,
+          "pane_count": 1,
+          "tab_id": "w37:t1",
+          "workspace_id": "w37"
+        },
+        {
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Tab 1",
+          "number": 1,
+          "pane_count": 1,
+          "tab_id": "w39:t1",
+          "workspace_id": "w39"
+        },
+        {
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Tab 2",
+          "number": 2,
+          "pane_count": 1,
+          "tab_id": "w39:t2",
+          "workspace_id": "w39"
+        },
+        {
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Tab 3",
+          "number": 3,
+          "pane_count": 1,
+          "tab_id": "w39:t3",
+          "workspace_id": "w39"
+        },
+        {
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Tab 1",
+          "number": 1,
+          "pane_count": 1,
+          "tab_id": "w3P:t1",
+          "workspace_id": "w3P"
+        },
+        {
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Tab 2",
+          "number": 2,
+          "pane_count": 1,
+          "tab_id": "w3P:t2",
+          "workspace_id": "w3P"
+        },
+        {
+          "agent_status": "done",
+          "focused": false,
+          "label": "Tab 1",
+          "number": 1,
+          "pane_count": 1,
+          "tab_id": "w3Q:t1",
+          "workspace_id": "w3Q"
+        },
+        {
+          "agent_status": "unknown",
+          "focused": false,
+          "label": "Tab 1",
+          "number": 1,
+          "pane_count": 1,
+          "tab_id": "w28:t1",
+          "workspace_id": "w28"
+        },
+        {
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Tab 8",
+          "number": 8,
+          "pane_count": 1,
+          "tab_id": "w34:t8",
+          "workspace_id": "w34"
+        },
+        {
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Tab 9",
+          "number": 9,
+          "pane_count": 1,
+          "tab_id": "w34:t9",
+          "workspace_id": "w34"
+        },
+        {
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Tab 11",
+          "number": 11,
+          "pane_count": 1,
+          "tab_id": "w34:tB",
+          "workspace_id": "w34"
+        },
+        {
+          "agent_status": "unknown",
+          "focused": false,
+          "label": "Tab 12",
+          "number": 12,
+          "pane_count": 1,
+          "tab_id": "w34:tC",
+          "workspace_id": "w34"
+        },
+        {
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Tab 1",
+          "number": 1,
+          "pane_count": 1,
+          "tab_id": "w38:t1",
+          "workspace_id": "w38"
+        },
+        {
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Tab 1",
+          "number": 1,
+          "pane_count": 1,
+          "tab_id": "w3G:t1",
+          "workspace_id": "w3G"
+        },
+        {
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Tab 3",
+          "number": 3,
+          "pane_count": 1,
+          "tab_id": "w3G:t3",
+          "workspace_id": "w3G"
+        },
+        {
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Tab 4",
+          "number": 4,
+          "pane_count": 1,
+          "tab_id": "w3G:t4",
+          "workspace_id": "w3G"
+        },
+        {
+          "agent_status": "unknown",
+          "focused": false,
+          "label": "Tab 1",
+          "number": 1,
+          "pane_count": 1,
+          "tab_id": "wY:t1",
+          "workspace_id": "wY"
+        },
+        {
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Tab 14",
+          "number": 14,
+          "pane_count": 1,
+          "tab_id": "wE:tE",
+          "workspace_id": "wE"
+        },
+        {
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Tab 46",
+          "number": 46,
+          "pane_count": 1,
+          "tab_id": "wE:t1E",
+          "workspace_id": "wE"
+        },
+        {
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Tab 1",
+          "number": 1,
+          "pane_count": 1,
+          "tab_id": "w3N:t1",
+          "workspace_id": "w3N"
+        },
+        {
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Tab 3",
+          "number": 3,
+          "pane_count": 1,
+          "tab_id": "w3N:t3",
+          "workspace_id": "w3N"
+        }
+      ],
+      "version": "0.9.1",
+      "workspaces": [
+        {
+          "active_tab_id": "w3:t13",
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Workspace 1",
+          "number": 1,
+          "pane_count": 2,
+          "tab_count": 2,
+          "workspace_id": "w3"
+        },
+        {
+          "active_tab_id": "w2Z:t7",
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Workspace 2",
+          "number": 2,
+          "pane_count": 1,
+          "tab_count": 1,
+          "workspace_id": "w2Z"
+        },
+        {
+          "active_tab_id": "wT:t1",
+          "agent_status": "unknown",
+          "focused": false,
+          "label": "Workspace 3",
+          "number": 3,
+          "pane_count": 1,
+          "tab_count": 1,
+          "workspace_id": "wT"
+        },
+        {
+          "active_tab_id": "w6:t51",
+          "agent_status": "idle",
+          "focused": true,
+          "label": "Workspace 4",
+          "number": 4,
+          "pane_count": 8,
+          "tab_count": 8,
+          "workspace_id": "w6"
+        },
+        {
+          "active_tab_id": "w3B:t1",
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Workspace 5",
+          "number": 5,
+          "pane_count": 1,
+          "tab_count": 1,
+          "workspace_id": "w3B"
+        },
+        {
+          "active_tab_id": "w33:t2",
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Workspace 6",
+          "number": 6,
+          "pane_count": 2,
+          "tab_count": 2,
+          "workspace_id": "w33"
+        },
+        {
+          "active_tab_id": "w2P:tC",
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Workspace 7",
+          "number": 7,
+          "pane_count": 3,
+          "tab_count": 3,
+          "workspace_id": "w2P"
+        },
+        {
+          "active_tab_id": "w20:t7",
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Workspace 8",
+          "number": 8,
+          "pane_count": 2,
+          "tab_count": 2,
+          "workspace_id": "w20"
+        },
+        {
+          "active_tab_id": "w37:t1",
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Workspace 9",
+          "number": 9,
+          "pane_count": 1,
+          "tab_count": 1,
+          "workspace_id": "w37"
+        },
+        {
+          "active_tab_id": "w39:t1",
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Workspace 10",
+          "number": 10,
+          "pane_count": 3,
+          "tab_count": 3,
+          "workspace_id": "w39"
+        },
+        {
+          "active_tab_id": "w3P:t1",
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Workspace 11",
+          "number": 11,
+          "pane_count": 2,
+          "tab_count": 2,
+          "workspace_id": "w3P"
+        },
+        {
+          "active_tab_id": "w3Q:t1",
+          "agent_status": "done",
+          "focused": false,
+          "label": "Workspace 12",
+          "number": 12,
+          "pane_count": 1,
+          "tab_count": 1,
+          "workspace_id": "w3Q"
+        },
+        {
+          "active_tab_id": "w28:t1",
+          "agent_status": "unknown",
+          "focused": false,
+          "label": "Workspace 13",
+          "number": 13,
+          "pane_count": 1,
+          "tab_count": 1,
+          "workspace_id": "w28"
+        },
+        {
+          "active_tab_id": "w34:tC",
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Workspace 14",
+          "number": 14,
+          "pane_count": 4,
+          "tab_count": 4,
+          "workspace_id": "w34"
+        },
+        {
+          "active_tab_id": "w38:t1",
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Workspace 15",
+          "number": 15,
+          "pane_count": 1,
+          "tab_count": 1,
+          "workspace_id": "w38"
+        },
+        {
+          "active_tab_id": "w3G:t3",
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Workspace 16",
+          "number": 16,
+          "pane_count": 3,
+          "tab_count": 3,
+          "workspace_id": "w3G"
+        },
+        {
+          "active_tab_id": "wY:t1",
+          "agent_status": "unknown",
+          "focused": false,
+          "label": "Workspace 17",
+          "number": 17,
+          "pane_count": 1,
+          "tab_count": 1,
+          "workspace_id": "wY"
+        },
+        {
+          "active_tab_id": "wE:tE",
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Workspace 18",
+          "number": 18,
+          "pane_count": 2,
+          "tab_count": 2,
+          "workspace_id": "wE"
+        },
+        {
+          "active_tab_id": "w3N:t3",
+          "agent_status": "idle",
+          "focused": false,
+          "label": "Workspace 19",
+          "number": 19,
+          "pane_count": 2,
+          "tab_count": 2,
+          "workspace_id": "w3N"
+        }
+      ]
+    },
+    "type": "session_snapshot"
+  }
+}
