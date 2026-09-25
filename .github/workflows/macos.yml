@@ -45,8 +45,6 @@ jobs:
           echo "DEVELOPER_DIR=${DEVELOPER_DIR}"
           swift --version
           ls /Library/Developer/CommandLineTools/SDKs
-          ls "${DEVELOPER_DIR}/usr/lib/swift/host/plugins"
-          find /Library/Developer/CommandLineTools /Applications/Xcode.app/Contents/Developer -name '*TestingMacros*' -maxdepth 8 2>/dev/null || true
       - uses: actions/cache@v6
         with:
           path: .build
