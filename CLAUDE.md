@@ -25,6 +25,16 @@ Cloud sessions run on Linux with no macOS, no Xcode and no access to `arch`.
 - Anything that needs the host or the user's eyes goes on the PR's "manual on the Mac" checklist, with exact commands.
 - Collie's source is public: `git clone https://github.com/AltanS/collie` works read-only through the session proxy. Check out the commit pinned in parsing.md.
 
+## Milestone sessions
+
+Each milestone in [docs/milestones.md](docs/milestones.md) is one session and one PR. Build the first milestone that is not marked done.
+
+- Start from the latest `main`. Present a plan first (targets and files, tests, the milestone's open questions with a recommendation) and wait for approval.
+- Never push to `main`; the user merges. Work after a merge is a new PR from a fresh `main`.
+- The PR description covers what was built, CI results with links, the "manual on the Mac" checklist, any capture the user must run, open questions and pushback.
+- Drive both CI jobs green. Command Line Tools failures show up only in the macOS job, so push early when a change touches `Package.swift`, `AppUI`, the executable or `scripts/`. `Actions → macOS → Run workflow → toolchain: xcode` checks the Xcode path on demand.
+- In the same PR, mark the milestone done in milestones.md, resolve or carry forward its open questions, and fix any doc the work proved wrong.
+
 ## Local session on the Mac
 
 This Mac has Apple's Command Line Tools, not Xcode. Everything builds with SwiftPM from the terminal.

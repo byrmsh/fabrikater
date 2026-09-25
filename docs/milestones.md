@@ -8,7 +8,7 @@ Each check has two parts. **CI-verifiable** is what `scripts/check.sh` and the L
 
 A SwiftPM package with one executable target and a `scripts/bundle.sh` that builds (`swift build -c release`, falling back to `--build-system native` if the default engine fails), assembles `build/fabrikater.app` with an Info.plist (`CFBundleIdentifier` `sh.bayram.fabrikater`, `LSMinimumSystemVersion` 15.0), copies resource bundles, and ad-hoc signs it. The app opens a window titled fabrikater. Use `@ViewState` (a typealias for `SwiftUI.State`) instead of `@State`; see [macos-tooling.md](macos-tooling.md).
 
-Done in the foundation session, together with the `FabrikaterCore`, `AppUI` and `fabrikater` targets, `scripts/check.sh`, CI and the docs in [structure.md](structure.md) and [decisions/](decisions/).
+**Done** ([#1](https://github.com/byrmsh/fabrikater/pull/1), follow-ups in [#2](https://github.com/byrmsh/fabrikater/pull/2)) in the foundation session, together with the `FabrikaterCore`, `AppUI` and `fabrikater` targets, `scripts/check.sh`, CI and the docs in [structure.md](structure.md) and [decisions/](decisions/).
 
 CI-verifiable: `scripts/check.sh` passes on Linux and on macOS under the Command Line Tools; `scripts/bundle.sh` builds the app; `codesign -dv` reports `Signature=adhoc` and identifier `sh.bayram.fabrikater`; the app is still running 5 s after `open`.
 
