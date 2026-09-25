@@ -1,5 +1,7 @@
 # Third-party notices
 
+## Collie
+
 fabrikater ports parsing logic from Collie (https://github.com/AltanS/collie, commit b7ddc17a25af76e87cd9b437053bf51821371055). Collie is distributed under the following license.
 
 ```
@@ -25,3 +27,16 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
+
+## Agent skills in `.claude/skills`
+
+These agent skills are vendored for Claude Code sessions. They are not part of the app. Each directory keeps its upstream `LICENSE` file, and all four are MIT-licensed. The repository rules in CLAUDE.md take precedence over them.
+
+| Directory | Upstream | Commit | Copyright |
+|---|---|---|---|
+| `swiftui-pro` | https://github.com/twostraws/SwiftUI-Agent-Skill (`swiftui-pro/`) | be297ff80dddec529af1f9b1f1f114aab6c9d11c | Copyright (c) 2026 Paul Hudson |
+| `swiftui-expert-skill` | https://github.com/AvdLee/SwiftUI-Agent-Skill (`skills/swiftui-expert-skill/`) | b24e68a965dc4b5bd2cc41dc60c094a26a9379ce | Copyright (c) 2026 Antoine van der Lee |
+| `swift-concurrency-pro` | https://github.com/twostraws/Swift-Concurrency-Agent-Skill (`swift-concurrency-pro/`) | bee3f69ba17142da148d3c5406f148ed62592b69 | Copyright (c) 2026 Paul Hudson |
+| `swift-testing-pro` | https://github.com/twostraws/Swift-Testing-Agent-Skill (`swift-testing-pro/`) | 2d6bba14a3c8bf3694f218b92fffe617c41ae43e | Copyright (c) 2026 Paul Hudson |
+
+The concurrency and testing skills were found through the index at https://github.com/twostraws/swift-agent-skills. Only `SKILL.md`, `references/` and, for `swiftui-expert-skill`, `scripts/` were copied. Logos and agent manifests for other tools were left out.
