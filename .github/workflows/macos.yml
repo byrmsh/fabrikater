@@ -1,0 +1,73 @@
+name: macOS
+
+on:
+  pull_request:
+    paths: &app-paths
+      - "Sources/**"
+      - "Tests/**"
+      - "Package.swift"
+      - "Package.resolved"
+      - "Bundle/**"
+      - "scripts/**"
+      - ".swift-format"
+      - ".github/workflows/macos.yml"
+  push:
+    branches: [main]
+    paths: *app-paths
+  workflow_dispatch:
+    inputs:
+      toolchain:
+        description: "clt builds like the user's Mac (Command Line Tools only); xcode checks the Xcode path"
+        type: choice
+        options: [clt, xcode]
+        default: clt
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  app:
+    # Xcode 27 image (macOS 27, arm64); it also ships Command Line Tools 27.0, the user's toolchain.
+    runs-on: xcode-27
+    timeout-minutes: 20
+    env:
+      DEVELOPER_DIR: ${{ inputs.toolchain == 'xcode' && '/Applications/Xcode.app/Contents/Developer' || '/Library/Developer/CommandLineTools' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Toolchain
+        run: |
+          echo "DEVELOPER_DIR=${DEVELOPER_DIR}"
+          swift --version
+          ls /Library/Developer/CommandLineTools/SDKs
+      - uses: actions/cache@v4
+        with:
+          path: .build
+          key: macos-${{ inputs.toolchain || 'clt' }}-spm-${{ hashFiles('Package.swift', 'Package.resolved') }}-${{ github.sha }}
+          restore-keys: macos-${{ inputs.toolchain || 'clt' }}-spm-${{ hashFiles('Package.swift', 'Package.resolved') }}-
+      - run: scripts/check.sh
+      - run: scripts/bundle.sh
+      - name: Ad-hoc signature
+        run: |
+          codesign -dv build/fabrikater.app 2>&1 | tee codesign.txt
+          grep -q '^Signature=adhoc$' codesign.txt
+          grep -q '^Identifier=sh.bayram.fabrikater$' codesign.txt
+      - name: Launch
+        run: |
+          open build/fabrikater.app
+          sleep 5
+          pgrep -x fabrikater
+      - name: Screenshot
+        continue-on-error: true
+        run: screencapture -x fabrikater.png
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: screenshot
+          path: fabrikater.png
+          if-no-files-found: ignore
