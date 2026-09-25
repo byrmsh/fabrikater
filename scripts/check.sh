@@ -12,18 +12,19 @@ if [ -n "${FABRIKATER_BUILD_SYSTEM:-}" ]; then
     swift_flags+=(--build-system "${FABRIKATER_BUILD_SYSTEM}")
 fi
 
-test_flags=()
 if [ "$(uname -s)" = "Darwin" ]; then
     developer_dir="${DEVELOPER_DIR:-$(xcode-select -p)}"
     if [[ "${developer_dir}" == *CommandLineTools* ]]; then
-        # CLT ships swift-testing outside the default search paths (docs/macos-tooling.md section 1).
-        # Confirmed on the CI runner's CLT 27.0; confirm on the Mac with scripts/check.sh.
+        # The CLT ship swift-testing outside the paths SwiftPM searches (docs/macos-tooling.md section 1).
+        # Its macro plugin sits in host/plugins/testing, which swiftbuild does not load by itself; the framework
+        # and its interop library need rpaths at run time. Verified on CLT 27.0 in CI (docs/decisions/0003).
         frameworks="${developer_dir}/Library/Developer/Frameworks"
-        test_flags+=(-Xswiftc -F -Xswiftc "${frameworks}" -Xlinker -rpath -Xlinker "${frameworks}")
-        interop="${developer_dir}/Library/Developer/usr/lib"
-        if [ -d "${interop}" ]; then
-            test_flags+=(-Xlinker -rpath -Xlinker "${interop}")
-        fi
+        swift_flags+=(
+            -Xswiftc -plugin-path -Xswiftc "${developer_dir}/usr/lib/swift/host/plugins/testing"
+            -Xswiftc -F -Xswiftc "${frameworks}"
+            -Xlinker -rpath -Xlinker "${frameworks}"
+            -Xlinker -rpath -Xlinker "${developer_dir}/Library/Developer/usr/lib"
+        )
     fi
 fi
 
@@ -60,6 +61,6 @@ section "build"
 swift build --build-tests "${swift_flags[@]}"
 
 section "test"
-swift test --disable-xctest "${swift_flags[@]}" ${test_flags[@]+"${test_flags[@]}"}
+swift test --disable-xctest "${swift_flags[@]}"
 
 section "all checks passed"
