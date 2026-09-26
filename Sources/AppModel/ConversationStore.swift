@@ -4,6 +4,9 @@ import Observation
 import TranscriptKit
 
 /// The selected pane's conversation, read from its session log.
+///
+/// A pane seen recently shows its cached conversation at once and re-reads in the background. A pane seen for the
+/// first time reads a small window first, so something shows quickly, then the full window.
 @MainActor
 @Observable
 public final class ConversationStore {
@@ -16,6 +19,7 @@ public final class ConversationStore {
     private let transcripts: any TranscriptService
     private let log = Log(category: "AppModel")
     private var session: SessionID?
+    private var cache = TranscriptCache()
     @ObservationIgnored private(set) var loadTask: Task<Void, Never>?
 
     /// False when the pane has no conversation this version can read.
@@ -32,24 +36,41 @@ public final class ConversationStore {
         loadTask?.cancel()
         paneID = pane?.id
         self.session = session
-        transcript = Transcript()
+        let cached = session.flatMap { cache[$0] }
+        transcript = cached ?? Transcript()
         isLoading = false
         message = Self.unavailableReason(for: pane)
         if message == nil {
-            reload()
+            load(quickFirst: cached == nil)
         }
     }
 
     /// Re-reads the log, keeping the current transcript on screen until the new one arrives.
     func reload() {
+        load(quickFirst: false)
+    }
+
+    private func load(quickFirst: Bool) {
         guard let paneID, let session else { return }
         loadTask?.cancel()
         isLoading = true
         loadTask = Task {
             do {
-                let transcript = try await transcripts.claudeTranscript(session: session)
+                if quickFirst {
+                    let quick = try await transcripts.claudeTranscript(session: session, bytes: TranscriptWindow.quick)
+                    guard !Task.isCancelled, self.paneID == paneID else { return }
+                    transcript = quick
+                    message = nil
+                    if !quick.isClipped {
+                        cache.store(quick, for: session)
+                        isLoading = false
+                        return
+                    }
+                }
+                let transcript = try await transcripts.claudeTranscript(session: session, bytes: TranscriptWindow.full)
                 guard !Task.isCancelled, self.paneID == paneID else { return }
                 self.transcript = transcript
+                cache.store(transcript, for: session)
                 message = nil
                 log.debug("loaded \(transcript.entries.count) entries for \(paneID)")
             } catch {
