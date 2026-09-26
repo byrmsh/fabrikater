@@ -15,6 +15,7 @@
 | `send-guard` | with a permission prompt on the pane's screen (`screen-w1-p1.synthetic.txt`), Return sends nothing and the draft stays with the reason | `send-guard.png` |
 | `copy` | Copy Conversation as Markdown (⌘⇧C) puts the conversation on the pasteboard as markdown, saved as `copy.md` | `copy.png` |
 | `pinning` | Pin (⌘⇧P) on the selected pane adds a Pinned section above the workspaces, the pin survives a relaunch, and Unpin removes the section | `pinning.png`, `pinning-unpinned.png` |
+| `unread` | swapping in `snapshot-later.synthetic.json` (the refactor pane's turn ends) marks that unselected row Unread, the mark survives a relaunch, and selecting the pane clears it | `unread.png`, `unread-read.png` |
 | `vscode` | Open Folder in VS Code is disabled in the Pane menu until a pane with a known folder is selected (never chosen, so no VS Code starts) | `vscode.png` |
 | `offline` | with no snapshot fixture the sidebar says Offline and why, and does not claim a last known state | `offline.png` |
 
@@ -36,6 +37,8 @@ e2e_shot conversation               # build/e2e/conversation.png, just the windo
 Steps: `e2e_launch [fixture…|--none]` (pane notes start empty; `E2E_KEEP_NOTES=1 e2e_launch` relaunches with the previous launch's notes), `e2e_expect_text TEXT`, `e2e_expect_label TEXT` (an element VoiceOver reads as exactly TEXT, never a help tag), `e2e_expect_no_text TEXT` (checks once), `e2e_expect_gone TEXT` (waits for it to go), `e2e_key KEY [modifier…]` (a key, or text to type), `e2e_focus_field PLACEHOLDER`, `e2e_expect_menu_item MENU ITEM enabled|disabled`, `e2e_shot NAME`, `e2e_screen_text` (prints the text the checks search), `e2e_screen_dump` (every element with its role and text attributes), and `e2e_wait WHAT COMMAND…` for anything else. Add a step to `lib.sh` when two flows would repeat the same osascript.
 
 `e2e_expect_focus TEXT` waits for a focused field holding TEXT, as before typing into a field that just opened.
+
+`e2e_swap_fixture FROM TO` replaces a running app's fixture, as if the host changed; the app reads it at its next 20 s poll, so the check after it takes a longer `E2E_TIMEOUT`.
 
 - Drive the app the way a person does: menu shortcuts from `Keymap`, typed text. No test-only switches in app code; if a flow cannot reach a state, add fixtures instead.
 - Assert on text a person reads, as accessibility exposes it: `e2e_screen_dump` shows what that is. Plain `Text` is an AXStaticText with the text as AXValue.
