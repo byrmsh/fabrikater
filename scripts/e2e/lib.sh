@@ -15,15 +15,15 @@ e2e_fixture_dir=""
 # e2e_launch [fixture...]: starts the app replaying only the named files from Tests/Fixtures, and waits for its window.
 # The default is the synthetic herd and conversation. With no files at all (`e2e_launch --none`) every read fails.
 e2e_launch() {
-    local files=("$@")
-    if [ "${#files[@]}" -eq 0 ]; then
-        files=(snapshot.synthetic.json events.synthetic.jsonl claude.synthetic.jsonl)
-    elif [ "${files[0]}" = "--none" ]; then
-        files=()
+    if [ "$#" -eq 0 ]; then
+        set -- snapshot.synthetic.json events.synthetic.jsonl claude.synthetic.jsonl
+    elif [ "$1" = "--none" ]; then
+        shift
     fi
     e2e_fixture_dir="$(mktemp -d)"
     local file
-    for file in "${files[@]}"; do
+    # A loop over "$@" rather than an array: macOS's bash 3.2 treats an empty array as unset under `set -u`.
+    for file in "$@"; do
         cp "${E2E_FIXTURES}/${file}" "${e2e_fixture_dir}/"
     done
     # `open` does not pass the environment on, so run the bundled binary directly.
@@ -34,10 +34,12 @@ e2e_launch() {
     sleep 1
 }
 
-# e2e_finish FLOW STATUS: scripts/e2e.sh calls it when a flow ends. A failed flow leaves FLOW-failure.png behind.
+# e2e_finish FLOW STATUS: scripts/e2e.sh calls it when a flow ends. A failed flow leaves FLOW-failure.png and
+# FLOW-failure.txt (the window's text, as the checks see it) behind.
 e2e_finish() {
     if [ "$2" -ne 0 ] && [ -n "${e2e_pid}" ]; then
         e2e_shot "$1-failure" || true
+        e2e_screen_text >"${E2E_OUT}/$1-failure.txt" || true
     fi
     e2e_quit
 }
@@ -137,22 +139,25 @@ _e2e_has_window() {
         -gt 0 ] 2>/dev/null
 }
 
-# Walks the window's accessibility tree once in JavaScript for Automation and looks for TEXT in any element's
-# name, value or description.
-_e2e_has_text() {
-    osascript -l JavaScript - "${E2E_PROCESS}" "$1" >/dev/null 2>&1 <<'JXA'
-function run(argv) {
-    const text = argv[1];
-    const window = Application("System Events").processes.byName(argv[0]).windows[0];
-    for (const element of window.entireContents()) {
-        for (const read of [e => e.name(), e => e.value(), e => e.description()]) {
-            try {
-                const found = read(element);
-                if (typeof found === "string" && found.includes(text)) return "found";
-            } catch (e) {}
-        }
-    }
-    throw new Error("not found");
+# e2e_screen_text: prints every name, value and description in the main window's accessibility tree, one per line.
+e2e_screen_text() {
+    osascript 2>>"${E2E_OUT}/${E2E_FLOW:-app}.osascript.log" <<APPLESCRIPT
+set found to {}
+tell application "System Events" to tell window 1 of process "${E2E_PROCESS}"
+    repeat with uiItem in (entire contents as list)
+        repeat with axName in {"AXTitle", "AXValue", "AXDescription"}
+            try
+                set text_ to value of attribute (contents of axName) of uiItem
+                if text_ is not missing value and text_ is not "" then set end of found to (text_ as text)
+            end try
+        end repeat
+    end repeat
+end tell
+set AppleScript's text item delimiters to linefeed
+return found as text
+APPLESCRIPT
 }
-JXA
+
+_e2e_has_text() {
+    e2e_screen_text | grep -qF -- "$1"
 }
