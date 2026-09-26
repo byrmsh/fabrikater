@@ -1,4 +1,5 @@
 import AppModel
+import FabrikaterCore
 import SwiftUI
 
 /// The selected pane: its header, then its conversation.

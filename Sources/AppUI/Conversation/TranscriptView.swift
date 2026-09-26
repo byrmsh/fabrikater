@@ -1,5 +1,6 @@
 import AppModel
 import SwiftUI
+import TranscriptKit
 
 /// The pane's conversation, oldest at the top, scrolled to the latest message.
 struct TranscriptView: View {
