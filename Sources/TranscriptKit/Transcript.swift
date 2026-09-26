@@ -4,10 +4,13 @@ public struct Transcript: Equatable, Sendable {
     public var entries: [TranscriptEntry]
     /// True when the log is longer than what was read, so older history exists.
     public var isClipped: Bool
+    /// The agent's current plan (`Transcript+Todos.swift`); empty when the session has none.
+    public var todos: [Todo]
 
-    public init(entries: [TranscriptEntry] = [], isClipped: Bool = false) {
+    public init(entries: [TranscriptEntry] = [], isClipped: Bool = false, todos: [Todo] = []) {
         self.entries = entries
         self.isClipped = isClipped
+        self.todos = todos
     }
 }
 

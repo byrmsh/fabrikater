@@ -9,6 +9,10 @@ struct DetailView: View {
     var body: some View {
         if let header = store.header {
             VStack(spacing: 0) {
+                if !store.conversation.transcript.todos.isEmpty {
+                    TodoPlanView(todos: store.conversation.transcript.todos)
+                    Divider()
+                }
                 TranscriptView(conversation: store.conversation, perform: store.perform)
                 Divider()
                 ComposerView(store: store)
