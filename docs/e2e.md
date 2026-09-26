@@ -9,6 +9,8 @@
 | `sidebar` | the synthetic herd's panes are listed with their statuses, the footer says Connected, nothing is selected | `sidebar.png` |
 | `conversation` | Next Pane (⌘↓) selects the first Claude pane and its conversation renders from `claude.synthetic.jsonl` | `conversation.png` |
 | `room` | the toolbar says "Claude, Working" for the selected pane, ⌃⌘S hides the sidebar, ⌘+ twice enlarges the conversation's text, and ⌘0 plus ⌃⌘S bring both back | `room.png` (sidebar hidden, text two steps bigger) |
+| `switcher` | ⌘K lists every pane with its location, Esc closes it, typing `codex` narrows it to the Codex pane and Return opens that pane | `switcher.png`, `switcher-search.png`, `switcher-chosen.png` |
+| `rename` | Rename… (⌘⇧R) on the selected pane, typed name and Return: the row shows the name instead of Herdr's label | `rename-editing.png`, `rename.png` |
 | `offline` | with no snapshot fixture the sidebar says it is offline | `offline.png` |
 
 A failed step stops its flow and fails the job after the other flows ran. It leaves in `build/e2e/`: `<flow>-failure.png`, `<flow>-failure.txt` (every element in the window with its role and text attributes; the text checks search AXTitle, AXValue, AXDescription and AXHelp), `<flow>.log` (the app's output) and `<flow>.osascript.log`. When a text check fails, read the `.txt` first.
@@ -26,7 +28,7 @@ e2e_expect_text "Rename the helper"
 e2e_shot conversation               # build/e2e/conversation.png, just the window
 ```
 
-Steps: `e2e_launch [fixture…|--none]`, `e2e_expect_text TEXT`, `e2e_expect_no_text TEXT`, `e2e_expect_text_gone TEXT` (waits for it to leave), `e2e_key KEY [modifier…]`, `e2e_shot NAME`, `e2e_screen_text` (prints the text the checks search), `e2e_screen_dump` (every element with its role and text attributes), and `e2e_wait WHAT COMMAND…` for anything else. Add a step to `lib.sh` when two flows would repeat the same osascript.
+Steps: `e2e_launch [fixture…|--none]`, `e2e_expect_text TEXT`, `e2e_expect_no_text TEXT` (checks once), `e2e_expect_gone TEXT` (waits for it to go), `e2e_key KEY [modifier…]`, `e2e_shot NAME`, `e2e_screen_text` (prints the text the checks search), `e2e_screen_dump` (every element with its role and text attributes), and `e2e_wait WHAT COMMAND…` for anything else. Add a step to `lib.sh` when two flows would repeat the same osascript.
 
 - Drive the app the way a person does: menu shortcuts from `Keymap`, typed text. No test-only switches in app code; if a flow cannot reach a state, add fixtures instead.
 - Assert on text a person reads, as accessibility exposes it: `e2e_screen_dump` shows what that is. Plain `Text` is an AXStaticText with the text as AXValue.

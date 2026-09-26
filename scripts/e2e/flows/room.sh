@@ -5,7 +5,7 @@ e2e_key down command
 e2e_expect_text "I'll look at the helper first."
 e2e_expect_text "Claude, Working"
 e2e_key s command control
-e2e_expect_text_gone "Connected"
+e2e_expect_gone "Connected"
 e2e_key "+" command
 e2e_key "+" command
 e2e_shot room
