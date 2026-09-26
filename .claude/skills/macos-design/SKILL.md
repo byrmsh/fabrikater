@@ -78,4 +78,5 @@ For every UI change, in the PR:
 - [ ] Right-click menu, hover state and help tag on new rows and controls.
 - [ ] Keyboard: reachable without the mouse, focus order sensible, Esc cancels.
 - [ ] Accessibility labels on icon-only controls and status dots (the status as words).
+- [ ] An e2e flow in `scripts/e2e/flows/` covers the change, and its CI screenshot was looked at (docs/e2e.md).
 - [ ] Reviewed against `swiftui-pro`; repo rules above respected.
