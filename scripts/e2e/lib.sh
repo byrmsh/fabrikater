@@ -62,6 +62,12 @@ e2e_expect_text() {
     e2e_wait "\"$1\" on screen" _e2e_has_text "$1"
 }
 
+# e2e_expect_label TEXT: waits until VoiceOver reads some element as exactly TEXT: its title, value or description, never
+# its help tag.
+e2e_expect_label() {
+    e2e_wait "an element labelled \"$1\"" _e2e_has_label "$1"
+}
+
 # e2e_expect_no_text TEXT: fails if TEXT is on screen now.
 e2e_expect_no_text() {
     if _e2e_has_text "$1"; then
@@ -139,14 +145,20 @@ _e2e_has_window() {
         -gt 0 ] 2>/dev/null
 }
 
-# e2e_screen_text: prints every title, value, description and help tag in the main window's accessibility tree, one per line.
+# e2e_screen_text [ATTRIBUTE...]: prints every title, value, description and help tag in the main window's accessibility
+# tree, one per line; or only the named attributes, such as AXTitle AXValue.
 e2e_screen_text() {
+    local attributes='"AXTitle", "AXValue", "AXDescription", "AXHelp"'
+    if [ "$#" -gt 0 ]; then
+        attributes="$(printf '"%s", ' "$@")"
+        attributes="${attributes%, }"
+    fi
     osascript 2>>"${E2E_OUT}/${E2E_FLOW:-app}.osascript.log" <<APPLESCRIPT
 set found to {}
 tell application "System Events"
     tell window 1 of process "${E2E_PROCESS}"
         repeat with uiItem in (entire contents as list)
-            repeat with axName in {"AXTitle", "AXValue", "AXDescription", "AXHelp"}
+            repeat with axName in {${attributes}}
                 try
                     set text_ to value of attribute (contents of axName) of uiItem
                     if text_ is not missing value and text_ is not "" then set end of found to (text_ as text)
@@ -193,4 +205,8 @@ APPLESCRIPT
 
 _e2e_has_text() {
     e2e_screen_text | grep -qF -- "$1"
+}
+
+_e2e_has_label() {
+    e2e_screen_text AXTitle AXValue AXDescription | grep -qxF -- "$1"
 }
