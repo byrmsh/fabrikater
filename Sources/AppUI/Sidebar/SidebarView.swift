@@ -10,7 +10,7 @@ struct SidebarView: View {
     var body: some View {
         List(selection: selection) {
             ForEach(store.sections) { section in
-                Section(section.title) {
+                Section {
                     ForEach(section.rows) { row in
                         switch row {
                         case .pane(let pane):
@@ -23,6 +23,10 @@ struct SidebarView: View {
                             }
                         }
                     }
+                } header: {
+                    Text(section.title)
+                        .accessibilityLabel(section.title)
+                        .accessibilityAddTraits(.isHeader)
                 }
             }
         }
