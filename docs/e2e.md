@@ -21,7 +21,7 @@ A flow is one file, `scripts/e2e/flows/<name>.sh`, sourced with `set -euo pipefa
 ```bash
 # What the flow proves, in one line.
 e2e_launch                          # the synthetic fixtures; or name files from Tests/Fixtures; --none for none
-e2e_expect_text "Synthetic refactor" # waits up to E2E_TIMEOUT (20 s) for text in the window
+e2e_expect_label "Synthetic refactor, Claude, Working" # waits up to E2E_TIMEOUT (20 s) for what VoiceOver reads
 e2e_key down command                # a key with modifiers, through System Events
 e2e_expect_text "Rename the helper"
 e2e_shot conversation               # build/e2e/conversation.png, just the window
@@ -31,7 +31,7 @@ Steps: `e2e_launch [fixture…|--none]`, `e2e_expect_text TEXT`, `e2e_expect_lab
 
 - Drive the app the way a person does: menu shortcuts from `Keymap`, typed text. No test-only switches in app code; if a flow cannot reach a state, add fixtures instead.
 - Assert on text a person reads, as accessibility exposes it: `e2e_screen_dump` shows what that is. Plain `Text` is an AXStaticText with the text as AXValue.
-- Find a sidebar row or heading by the name VoiceOver reads (`e2e_expect_label "Synthetic refactor"`), not by its help tag: a row's label (the rename when set) is its own text element, with the status dot and agent symbol labelled beside it.
+- Find a sidebar row or heading by what VoiceOver reads (`e2e_expect_label "Synthetic refactor, Claude, Working"`, `e2e_expect_label "Synthetic A"`), not by its help tag. A pane row reads its label (the rename when set), agent and status (`PaneRow.spokenLabel`); a tab row its label and status. SwiftUI's sidebar headings expose no text to the Accessibility API at all, so workspace and tab labels drop the heading trait and read as plain text.
 - Fixtures come only from `Tests/Fixtures`. A flow needing a new shape gets a new `*.synthetic.*` file there; `e2e_launch` copies just the named files so the replay runner cannot pick up another one.
 
 ## Looking at the screenshots
