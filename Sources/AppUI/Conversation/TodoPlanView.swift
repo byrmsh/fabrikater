@@ -29,7 +29,6 @@ struct TodoPlanView: View {
                     .scaledFont(.callout)
                     .foregroundStyle(.secondary)
             }
-            .accessibilityElement(children: .combine)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
@@ -54,6 +53,7 @@ private struct TodoRow: View {
         HStack(alignment: .firstTextBaseline, spacing: 6) {
             Image(systemName: symbol)
                 .foregroundStyle(todo.status == .inProgress ? AnyShapeStyle(.tint) : AnyShapeStyle(.secondary))
+                .accessibilityLabel(todo.status.title)
             Text(todo.title)
                 .scaledFont(.callout)
                 .fontWeight(todo.status == .inProgress ? .medium : .regular)
@@ -63,8 +63,6 @@ private struct TodoRow: View {
                 .truncationMode(.tail)
         }
         .help(todo.title)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(todo.spokenLabel)
     }
 
     private var symbol: String {

@@ -51,7 +51,6 @@ struct TranscriptTodosTests {
         #expect(Todo(content: "Run tests", activeForm: "Running tests", status: .inProgress).title == "Running tests")
         #expect(Todo(content: "Run tests", activeForm: "Running tests", status: .pending).title == "Run tests")
         #expect(Todo(content: "Run tests", status: .inProgress).title == "Run tests")
-        #expect(Todo(content: "Run tests", status: .completed).spokenLabel == "Run tests, Done")
     }
 
     @Test func progressCountsCompletedItems() throws {

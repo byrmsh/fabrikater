@@ -33,11 +33,6 @@ public struct Todo: Equatable, Sendable {
         status == .inProgress && !activeForm.isEmpty ? activeForm : content
     }
 
-    /// What VoiceOver reads for the item: its title, then its status.
-    public var spokenLabel: String {
-        "\(title), \(status.title)"
-    }
-
     /// "2 of 5 done".
     public static func progress(of todos: [Todo]) -> String {
         "\(todos.count { $0.status == .completed }) of \(todos.count) done"
