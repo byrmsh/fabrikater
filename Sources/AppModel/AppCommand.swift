@@ -11,6 +11,14 @@ public enum AppCommand: Hashable, Sendable {
     /// Sets the name typed into the field; blank text clears it.
     case commitRename(PaneID, String)
     case cancelRename
+    case openQuickSwitcher
+    case closeQuickSwitcher
+    /// The text typed into the switcher's search field.
+    case searchQuickSwitcher(String)
+    /// Moves the switcher's highlight by this many results.
+    case moveQuickSwitcherHighlight(Int)
+    /// Selects a result and closes the switcher; nil means the highlighted result.
+    case chooseQuickSwitcherResult(PaneID?)
 
     /// The menu title.
     public var title: String {
@@ -22,6 +30,11 @@ public enum AppCommand: Hashable, Sendable {
         case .renamePane: "Rename…"
         case .commitRename: "Rename"
         case .cancelRename: "Cancel Rename"
+        case .openQuickSwitcher: "Open Quickly…"
+        case .closeQuickSwitcher: "Close Switcher"
+        case .searchQuickSwitcher: "Search Panes"
+        case .moveQuickSwitcherHighlight: "Move Highlight"
+        case .chooseQuickSwitcherResult: "Open Pane"
         }
     }
 }
