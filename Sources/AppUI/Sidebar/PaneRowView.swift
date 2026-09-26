@@ -2,8 +2,9 @@ import AppModel
 import FabrikaterCore
 import SwiftUI
 
-/// A pane's status dot, then its agent symbol and title. The dot sits outside the `Label` so the symbol keeps the
-/// sidebar's icon slot to itself. The title is the label, or the name field while renaming.
+/// A pane's status dot, agent symbol and title. The title is the label, or the name field while renaming; a plain
+/// stack rather than a `Label`, whose title slot does not take keyboard focus for the field. The symbol gets a fixed
+/// width so titles line up and a wide symbol never runs into its title.
 struct PaneRowView<Title: View>: View {
     let pane: PaneRow
     @ViewBuilder let title: Title
@@ -11,14 +12,12 @@ struct PaneRowView<Title: View>: View {
     var body: some View {
         HStack(spacing: 4) {
             StatusDot(status: pane.status)
-            Label {
-                title
-                    .lineLimit(1)
-                    .truncationMode(.tail)
-            } icon: {
-                Image(systemName: pane.agent.symbolName)
-                    .foregroundStyle(.secondary)
-            }
+            Image(systemName: pane.agent.symbolName)
+                .foregroundStyle(.secondary)
+                .frame(width: 20)
+            title
+                .lineLimit(1)
+                .truncationMode(.tail)
         }
         .foregroundStyle(pane.isDimmed ? .secondary : .primary)
         .help("\(pane.label) (\(pane.id.rawValue)), \(pane.status.title)")
