@@ -9,7 +9,7 @@ The repository is private, so macOS runner minutes cost ten times Linux minutes.
 ## Decision
 
 - `linux.yml`: every PR and every push to `main`, in the `swift:6.4.0-noble` container, runs `scripts/check.sh`. It has no path filter because it is cheap.
-- `macos.yml`: on `xcode-27`, with `DEVELOPER_DIR=/Library/Developer/CommandLineTools`, so CI builds exactly like the user's Mac. It runs `scripts/check.sh` and `scripts/bundle.sh`, checks that `codesign -dv` reports `Signature=adhoc` with identifier `sh.bayram.fabrikater`, launches the app and checks that it is still running 5 s later, and uploads a screenshot. It runs only when app-relevant paths change (sources, tests, manifest, bundle template, scripts, its own workflow), so docs-only and skills-only pushes skip it.
+- `macos.yml`: on `xcode-27`, with `DEVELOPER_DIR=/Library/Developer/CommandLineTools`, so CI builds exactly like the user's Mac. It runs `scripts/check.sh` and `scripts/bundle.sh`, checks that `codesign -dv` reports `Signature=adhoc` with identifier `sh.bayram.fabrikater`, launches the app and checks that it is still running 5 s later, and uploads a screenshot (replaced by the end-to-end flows in [0008](0008-e2e-screenshot-flows.md)). It runs only when app-relevant paths change (sources, tests, manifest, bundle template, scripts, its own workflow), so docs-only and skills-only pushes skip it.
 - `workflow_dispatch` with `toolchain: xcode` runs the same job under Xcode 27 on demand, to check that `scripts/check.sh` still works there without paying for it on every push.
 - Both workflows cancel a stale run when a new push arrives and cache `.build`.
 
