@@ -57,17 +57,12 @@ jobs:
           codesign -dv build/fabrikater.app 2>&1 | tee codesign.txt
           grep -q '^Signature=adhoc$' codesign.txt
           grep -q '^Identifier=sh.bayram.fabrikater$' codesign.txt
-      - name: Launch
-        run: |
-          open build/fabrikater.app
-          sleep 5
-          pgrep -x fabrikater
-      - name: Screenshot
-        continue-on-error: true
-        run: screencapture -x fabrikater.png
+      - name: End-to-end flows
+        # Launches the app over fixtures, drives the flows in scripts/e2e/flows and screenshots each (docs/e2e.md).
+        run: scripts/e2e.sh
       - uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: screenshot
-          path: fabrikater.png
+          name: e2e-screenshots
+          path: build/e2e
           if-no-files-found: ignore
