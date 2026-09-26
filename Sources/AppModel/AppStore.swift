@@ -37,14 +37,19 @@ public final class AppStore {
     public private(set) var selection: PaneID?
     public private(set) var header: PaneHeader?
     public let conversation: ConversationStore
+    public let composer: ComposerStore
 
     private var herd = Herd()
+    private let focus: FocusSync
     @ObservationIgnored private var herdUpdates: AsyncStream<HerdUpdate>?
     private let log = Log(category: "AppModel")
 
-    public init(herdUpdates: AsyncStream<HerdUpdate>, transcripts: any TranscriptService) {
+    /// - Parameter control: changes Herdr on the user's behalf: focus follows the selection, and the composer sends.
+    public init(herdUpdates: AsyncStream<HerdUpdate>, transcripts: any TranscriptService, control: any HerdrControl) {
         self.herdUpdates = herdUpdates
         conversation = ConversationStore(transcripts: transcripts)
+        composer = ComposerStore(control: control)
+        focus = FocusSync(control: control)
     }
 
     /// Applies herd updates until the stream ends. Call once, for the lifetime of the window.
@@ -56,6 +61,8 @@ public final class AppStore {
         }
     }
 
+    var focusTask: Task<Void, Never>? { focus.task }
+
     public func perform(_ command: AppCommand) {
         switch command {
         case .selectPane(let id):
@@ -66,6 +73,8 @@ public final class AppStore {
             select(neighbour(offset: -1))
         case .reloadConversation:
             conversation.reload()
+        case .send:
+            composer.send()
         }
     }
 
@@ -73,6 +82,7 @@ public final class AppStore {
         switch command {
         case .selectPane, .selectNextPane, .selectPreviousPane: !sections.isEmpty
         case .reloadConversation: conversation.canReload
+        case .send: composer.canSend
         }
     }
 
@@ -95,6 +105,7 @@ public final class AppStore {
             }
         case .failed(let reason):
             connection = .stale(reason)
+            refreshComposer()
         }
     }
 
@@ -102,12 +113,18 @@ public final class AppStore {
         guard id != selection else { return }
         selection = id
         refreshSelection()
+        focus.follow(id)
     }
 
     private func refreshSelection() {
         let pane = selection.flatMap { herd.pane($0) }
         header = pane.map(header(for:))
         conversation.show(pane)
+        refreshComposer()
+    }
+
+    private func refreshComposer() {
+        composer.show(selection.flatMap { herd.pane($0) }, isOnline: connection == .connected)
     }
 
     private func header(for pane: Herd.Pane) -> PaneHeader {
