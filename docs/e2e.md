@@ -6,13 +6,14 @@
 
 | Flow | Checks | Screenshot |
 |---|---|---|
-| `sidebar` | the synthetic herd's panes are listed with their statuses, the footer says Connected, nothing is selected | `sidebar.png` |
+| `sidebar` | the synthetic herd's workspaces and panes carry accessible names, the footer says Connected, nothing is selected | `sidebar.png` |
 | `conversation` | Next Pane (⌘↓) selects the first Claude pane and its conversation renders from `claude.synthetic.jsonl` | `conversation.png` |
 | `switcher` | ⌘K lists every pane with its location, Esc closes it, typing `codex` narrows it to the Codex pane and Return opens that pane | `switcher.png`, `switcher-search.png`, `switcher-chosen.png` |
 | `rename` | Rename… (⌘⇧R) on the selected pane, typed name and Return: the row shows the name instead of Herdr's label | `rename-editing.png`, `rename.png` |
 | `composer` | typing a prompt and pressing Return sends it to the selected pane and clears the draft | `composer-draft.png`, `composer-sent.png` |
 | `send-guard` | with a permission prompt on the pane's screen (`screen-w1-p1.synthetic.txt`), Return sends nothing and the draft stays with the reason | `send-guard.png` |
-| `offline` | with no snapshot fixture the sidebar says it is offline | `offline.png` |
+| `copy` | Copy Conversation as Markdown (⌘⇧C) puts the conversation on the pasteboard as markdown, saved as `copy.md` | `copy.png` |
+| `offline` | with no snapshot fixture the sidebar says Offline and why, and does not claim a last known state | `offline.png` |
 
 A failed step stops its flow and fails the job after the other flows ran. It leaves in `build/e2e/`: `<flow>-failure.png`, `<flow>-failure.txt` (every element in the window with its role and text attributes; the text checks search AXTitle, AXValue, AXDescription and AXHelp), `<flow>.log` (the app's output) and `<flow>.osascript.log`. When a text check fails, read the `.txt` first.
 
@@ -23,17 +24,17 @@ A flow is one file, `scripts/e2e/flows/<name>.sh`, sourced with `set -euo pipefa
 ```bash
 # What the flow proves, in one line.
 e2e_launch                          # the synthetic fixtures; or name files from Tests/Fixtures; --none for none
-e2e_expect_text "Synthetic refactor" # waits up to E2E_TIMEOUT (20 s) for text in the window
+e2e_expect_label "Synthetic refactor, Claude, Working" # waits up to E2E_TIMEOUT (20 s) for what VoiceOver reads
 e2e_key down command                # a key with modifiers, through System Events
 e2e_expect_text "Rename the helper"
 e2e_shot conversation               # build/e2e/conversation.png, just the window
 ```
 
-Steps: `e2e_launch [fixture…|--none]`, `e2e_expect_text TEXT`, `e2e_expect_no_text TEXT` (checks once), `e2e_expect_gone TEXT` (waits for it to go), `e2e_key KEY [modifier…]` (a key, or text to type), `e2e_focus_field PLACEHOLDER`, `e2e_expect_focus TEXT` (waits for a focused field holding it, as before typing into a field that just opened), `e2e_shot NAME`, `e2e_screen_text` (prints the text the checks search), `e2e_screen_dump` (every element with its role and text attributes), and `e2e_wait WHAT COMMAND…` for anything else. Add a step to `lib.sh` when two flows would repeat the same osascript.
+Steps: `e2e_launch [fixture…|--none]`, `e2e_expect_text TEXT`, `e2e_expect_label TEXT` (an element VoiceOver reads as exactly TEXT, never a help tag), `e2e_expect_no_text TEXT` (checks once), `e2e_expect_gone TEXT` (waits for it to go), `e2e_key KEY [modifier…]` (a key, or text to type), `e2e_focus_field PLACEHOLDER`, `e2e_expect_focus TEXT` (waits for a focused field holding it, as before typing into a field that just opened), `e2e_shot NAME`, `e2e_screen_text` (prints the text the checks search), `e2e_screen_dump` (every element with its role and text attributes), and `e2e_wait WHAT COMMAND…` for anything else. Add a step to `lib.sh` when two flows would repeat the same osascript.
 
 - Drive the app the way a person does: menu shortcuts from `Keymap`, typed text. No test-only switches in app code; if a flow cannot reach a state, add fixtures instead.
 - Assert on text a person reads, as accessibility exposes it: `e2e_screen_dump` shows what that is. Plain `Text` is an AXStaticText with the text as AXValue.
-- Known gap, found by this harness: sidebar rows combine their children, so a row exposes only its status as AXValue and its label only through the help tag (`Synthetic refactor (w1:p1), Working`); section headings (workspace labels) expose no text at all. VoiceOver reads the same, so the fix belongs in `AppUI` (an `accessibilityLabel` on the rows and headings); until then flows match rows by their help tag.
+- Find a sidebar row or heading by what VoiceOver reads (`e2e_expect_label "Synthetic refactor, Claude, Working"`, `e2e_expect_label "Synthetic A"`), not by its help tag. A pane row reads its label (the rename when set), agent and status (`PaneRow.spokenLabel`); a tab row its label and status. SwiftUI's sidebar headings (workspace sections and tab disclosure rows) drop their accessibility label and keep only the value, so those carry their text as the value.
 - Every launch starts clean: it ignores saved window state (`-ApplePersistenceIgnoreState YES`) and clears the fixture defaults domain `sh.bayram.fabrikater.fixtures`, where `FABRIKATER_FIXTURES` runs keep pane names, so a flow that renames a pane, hides the sidebar or changes the text size cannot leak it into the next, and never touches the real pane names.
 - Fixtures come only from `Tests/Fixtures`. A flow needing a new shape gets a new `*.synthetic.*` file there; `e2e_launch` copies just the named files so the replay runner cannot pick up another one.
 

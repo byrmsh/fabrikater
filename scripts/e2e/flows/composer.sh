@@ -1,7 +1,7 @@
 # Typing a prompt and pressing Return sends it to the selected pane; the draft clears once Herdr took it.
 e2e_launch snapshot.synthetic.json events.synthetic.jsonl claude.synthetic.jsonl requests.synthetic.jsonl \
     screen.synthetic.txt
-e2e_expect_text "Synthetic refactor"
+e2e_expect_label "Synthetic refactor, Claude, Working"
 e2e_key down command
 e2e_expect_text "Rename the helper and run the tests"
 e2e_focus_field "Message the agent"

@@ -122,7 +122,7 @@ Every PR runs `scripts/check.sh`, drives the Linux and macOS jobs green, and lis
 
 **B8. Collapse long rows.** Compaction summaries and user prompts longer than about 12 lines render collapsed to 4 lines with Show all / Show less; the choice is per entry and not persisted. Logic: `Transcript+Collapsing.swift` in `AppModel` deciding `isCollapsible` from line count. Tests: the threshold, a summary always collapsed by default, short entries untouched.
 
-**B9. Copy.** Copy Message in each entry's context menu and Copy Conversation as Markdown in the Pane menu (⌘⇧C). Logic: `Transcript+Markdown.swift` in `TranscriptKit`, a pure `markdown(of:)` rendering user turns, assistant text, tool rows as fenced input and summaries as quotes. Tests: against `claude.synthetic.jsonl`.
+**B9. Copy.** **Done** ([#14](https://github.com/byrmsh/fabrikater/pull/14)). Copy Message in each entry's context menu and Copy Conversation as Markdown in the Pane menu (⌘⇧C). Logic: `Transcript+Markdown.swift` in `TranscriptKit`, a pure `markdown(of:)` rendering user turns, assistant text, tool rows as fenced input and summaries as quotes. Tests: against `claude.synthetic.jsonl`.
 
 **B10. Current plan.** The latest `TodoWrite` call's items shown as a compact checklist above the transcript (pending, in progress, completed), hidden when the session has none. Logic: `Transcript+Todos.swift` in `TranscriptKit`, parsing the tool input into `[Todo]`. Tests: add `TodoWrite` rows to the synthetic fixture; the latest call wins, malformed input yields no list.
 
