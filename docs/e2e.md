@@ -33,7 +33,7 @@ Steps: `e2e_launch [fixture…|--none]`, `e2e_expect_text TEXT`, `e2e_expect_no_
 - Drive the app the way a person does: menu shortcuts from `Keymap`, typed text. No test-only switches in app code; if a flow cannot reach a state, add fixtures instead.
 - Assert on text a person reads, as accessibility exposes it: `e2e_screen_dump` shows what that is. Plain `Text` is an AXStaticText with the text as AXValue.
 - Known gap, found by this harness: sidebar rows combine their children, so a row exposes only its status as AXValue and its label only through the help tag (`Synthetic refactor (w1:p1), Working`); section headings (workspace labels) expose no text at all. VoiceOver reads the same, so the fix belongs in `AppUI` (an `accessibilityLabel` on the rows and headings); until then flows match rows by their help tag.
-- Every launch ignores saved window state (`-ApplePersistenceIgnoreState YES`), so a flow that hides the sidebar or changes the text size cannot leak it into the next.
+- Every launch starts clean: it ignores saved window state (`-ApplePersistenceIgnoreState YES`) and clears the fixture defaults domain `sh.bayram.fabrikater.fixtures`, where `FABRIKATER_FIXTURES` runs keep pane names, so a flow that renames a pane, hides the sidebar or changes the text size cannot leak it into the next, and never touches the real pane names.
 - Fixtures come only from `Tests/Fixtures`. A flow needing a new shape gets a new `*.synthetic.*` file there; `e2e_launch` copies just the named files so the replay runner cannot pick up another one.
 
 ## Looking at the screenshots
