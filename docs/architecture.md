@@ -43,6 +43,16 @@ Local pane notes (display names from B1, and later pins and hidden panes) are ke
 
 Decode the snapshot leniently: unknown fields are ignored, missing optional fields are nil. Herdr adds fields between releases.
 
+### Control: requests
+
+Changes go through Herdr's API socket rather than the CLI (`HostCommand.herdrRequests`): the app writes one JSON request per line on the ssh command's stdin, and the remote script sends each line on its own connection, `printf '%s\n' "$l" | socat -t 5 - UNIX-CONNECT:"$HOME/.config/herdr/herdr.sock"`, with a 0.3 s settle between requests, printing one reply line each. A reply with an `error` object is a refusal (`{"error":{"code":"pane_not_found","message":…}}`). The methods the app uses, from Collie's live probes (`HERDR_API.md`, `bridge/mux/herdr/client.ts` at the pinned commit), not yet re-verified on this host:
+
+- `pane.focus {pane_id}`: brings the pane to the front of Herdr's screen; its tab and workspace follow.
+- `pane.send_text {pane_id, text}`: types raw bytes, unsubmitted, with no bracketed paste, so a `\n` is an Enter keypress.
+- `pane.send_keys {pane_id, keys}`: key names such as `Enter`, `Escape`, `ctrl+c` (Collie's key grammar; `PageUp`, `Home`, `End` and `Delete` are refused).
+
+`HerdrRequest` builds these lines with `JSONSerialization`, so user text is escaped JSON on stdin and never reaches a command line.
+
 ### Events
 
 Herdr's API is newline-delimited JSON over a Unix socket at `~/.config/herdr/herdr.sock` (**verified**). Each connection carries exactly one request and one reply, then the server closes it (**verified**: a second request on the same connection gets a connection reset), except `events.subscribe`, which acknowledges and then streams events on the same connection for as long as it stays open (**verified**).
@@ -78,13 +88,15 @@ User text reaches an agent as keystrokes into its pane. The primitives are `herd
 
 Pass the text on stdin, never on the command line: `ssh arch 'herdr pane send-text w3:pQ "$(cat)"' <<< "$text"` (note `$(cat)` drops trailing newlines, which is the desired behaviour for a prompt).
 
+What the app does since [decisions/0008](decisions/0008-app-drives-live-panes.md): the composer sends `pane.send_text` with the trimmed text, then `pane.send_keys ["Enter"]`, through "Control: requests" above. Multi-line text is wrapped in bracketed-paste markers (`ESC[200~` … `ESC[201~`) so its newlines do not submit early; whether Claude Code then submits it on Enter is on the M3 manual check. Collie's draft verification and race guard are not ported yet (M3).
+
 ## Safety
 
-The app types into live agents that can run commands with the user's full privileges. Two rules follow. The app sends only in response to an explicit user action (Send, a key button, a prompt-card choice), never automatically. During development and testing, send only into a scratch pane created for the purpose (see [../CLAUDE.md](../CLAUDE.md)); every other pane belongs to the user's running work.
+The app types into live agents that can run commands with the user's full privileges. Two rules follow. The app sends only in response to an explicit user action (Send, a key button, a prompt-card choice), never automatically. It also moves Herdr's focus to the pane the user selects in the app, which types nothing and so needs no allowlist ([decisions/0008](decisions/0008-app-drives-live-panes.md)). During development and testing, send only into a scratch pane created for the purpose (see [../CLAUDE.md](../CLAUDE.md)); every other pane belongs to the user's running work.
 
 ### Send allowlist
 
-Every mutating command (send text, send keys, prompt) goes through `SendPolicy` in `HerdrKit`. It reads `FABRIKATER_SEND_ALLOWLIST`, a comma-separated list of workspace labels (`FABRIKATER_SEND_ALLOWLIST=fabrikater-test`):
+Every request that types into a pane (send text, send keys, prompt) goes through `SendPolicy` in `HerdrKit`, by way of `PolicedControl`. It reads `FABRIKATER_SEND_ALLOWLIST`, a comma-separated list of workspace labels (`FABRIKATER_SEND_ALLOWLIST=fabrikater-test`):
 
 - Set and non-empty: a send is allowed only into a pane whose workspace label is on the list. Entries are trimmed of surrounding whitespace, and empty entries are ignored.
 - Set but empty (`FABRIKATER_SEND_ALLOWLIST=`): every send is refused.

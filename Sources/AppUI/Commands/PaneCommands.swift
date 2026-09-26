@@ -18,6 +18,8 @@ public struct PaneCommands: Commands {
             button(.renamePane(nil))
             Divider()
             button(.reloadConversation)
+            Divider()
+            button(.send)
         }
     }
 
@@ -35,6 +37,7 @@ extension KeyChord {
             case .character(let character): KeyEquivalent(character)
             case .upArrow: .upArrow
             case .downArrow: .downArrow
+            case .return: .return
             }
         var eventModifiers: EventModifiers = []
         if modifiers.contains(.command) { eventModifiers.insert(.command) }

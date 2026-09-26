@@ -9,7 +9,7 @@ import TranscriptKit
 @MainActor
 struct NamingTests {
     private struct NoTranscripts: TranscriptService {
-        func claudeTranscript(session: SessionID) async throws -> Transcript { Transcript() }
+        func claudeTranscript(session: SessionID, bytes: Int) async throws -> Transcript { Transcript() }
     }
 
     private let scratch = PaneID("w2:p1")!
@@ -17,7 +17,9 @@ struct NamingTests {
 
     private func makeStore(_ notes: any PaneNotesStore = InMemoryPaneNotesStore()) throws -> AppStore {
         let herd = try Herd(snapshotReply: Fixture.data(named: "snapshot.synthetic.json"))
-        let store = AppStore(herdUpdates: AsyncStream { $0.finish() }, transcripts: NoTranscripts(), notes: notes)
+        let store = AppStore(
+            herdUpdates: AsyncStream { $0.finish() }, transcripts: NoTranscripts(), control: FakeControl(), notes: notes
+        )
         store.apply(.herd(herd))
         return store
     }
