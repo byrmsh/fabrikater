@@ -54,7 +54,8 @@ struct HerdrRequestTests {
     }
 
     @Test func theClientSendsTheRequestsOnStdinInOneCommand() async throws {
-        let runner = RecordingRunner(output: #"{"id":"fabrikater1","result":{"type":"ok"}}"# + "\n")
+        let reply = #"{"id":"fabrikater1","result":{"type":"ok"}}"# + "\n"
+        let runner = RecordingRunner(output: reply + reply)
         try await HerdrClient(runner: runner).perform(HerdrRequest.prompt("hello", to: pane))
         #expect(runner.commands == [.herdrRequests])
         let lines = runner.input.split(separator: "\n")
@@ -68,6 +69,15 @@ struct HerdrRequestTests {
             output: #"{"id":"fabrikater1","error":{"code":"pane_not_found","message":"no such pane"}}"# + "\n")
         await #expect(throws: HerdrError("no such pane")) {
             try await HerdrClient(runner: runner).perform([.focus(pane)])
+        }
+    }
+
+    @Test func missingOrUnreadableRepliesAreFailures() async {
+        for output in ["", #"{"id":"fabrikater1","result":{"type":"ok"}}"#, "socat: connection refused"] {
+            await #expect(throws: HerdrError.self) {
+                try await HerdrClient(runner: RecordingRunner(output: output)).perform(
+                    HerdrRequest.prompt("hi", to: pane))
+            }
         }
     }
 

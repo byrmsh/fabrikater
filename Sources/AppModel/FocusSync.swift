@@ -23,8 +23,9 @@ final class FocusSync {
             do {
                 try await Task.sleep(for: settle)
                 try await control.perform([.focus(pane)])
-            } catch is CancellationError {
             } catch {
+                // A newer selection cancelled this one, possibly mid-command.
+                guard !Task.isCancelled else { return }
                 log.error("focusing \(pane) in Herdr failed: \(error)")
             }
         }
