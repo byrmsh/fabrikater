@@ -70,6 +70,11 @@ e2e_expect_no_text() {
     fi
 }
 
+# e2e_expect_gone TEXT: waits until no element in the main window shows TEXT, as after closing a sheet.
+e2e_expect_gone() {
+    e2e_wait "\"$1\" to leave the screen" _e2e_lacks_text "$1"
+}
+
 # e2e_key KEY [modifier...]: presses a key in the app. KEY is a character or down, up, left, right, return, escape;
 # modifiers are command, shift, option, control. Example: e2e_key down command
 e2e_key() {
@@ -97,6 +102,30 @@ e2e_key() {
         ${press}${using}
     end tell" >/dev/null
     sleep 0.5
+}
+
+# e2e_focus_field PLACEHOLDER: clicks into the text field whose placeholder contains PLACEHOLDER.
+e2e_focus_field() {
+    e2e_wait "a field with placeholder \"$1\"" _e2e_focus_field "$1"
+}
+
+_e2e_focus_field() {
+    [ "$(osascript 2>>"${E2E_OUT}/${E2E_FLOW:-app}.osascript.log" <<APPLESCRIPT
+tell application "System Events"
+    tell window 1 of process "${E2E_PROCESS}"
+        repeat with uiItem in (entire contents as list)
+            try
+                if (value of attribute "AXPlaceholderValue" of uiItem) contains "$1" then
+                    set value of attribute "AXFocused" of uiItem to true
+                    return "focused"
+                end if
+            end try
+        end repeat
+    end tell
+end tell
+return "missing"
+APPLESCRIPT
+)" = "focused" ]
 }
 
 # e2e_shot NAME: saves the main window as build/e2e/NAME.png (the whole screen if the window cannot be found).
@@ -193,4 +222,8 @@ APPLESCRIPT
 
 _e2e_has_text() {
     e2e_screen_text | grep -qF -- "$1"
+}
+
+_e2e_lacks_text() {
+    ! _e2e_has_text "$1"
 }

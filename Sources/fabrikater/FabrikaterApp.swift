@@ -37,7 +37,7 @@ struct FabrikaterApp: App {
         store = AppStore(
             herdUpdates: HerdFeed(service: client).updates(),
             transcripts: HostTranscriptService(runner: runner),
-            control: PolicedControl(client, policy: policy) { try await client.snapshot() },
+            control: PolicedControl(SendGuard(client, reader: client), policy: policy) { try await client.snapshot() },
             notes: UserDefaultsPaneNotesStore(defaults: .standard)
         )
         log.info("launched")

@@ -40,6 +40,12 @@ public final class ComposerStore {
     /// Why the selected pane's last send failed; its draft is kept.
     public var error: String? { paneID.flatMap { errors[$0] } }
 
+    /// Set while Herdr reports the selected pane `blocked`: the agent shows a dialog, which typed text would answer.
+    public private(set) var waitingNotice: String?
+
+    /// The line above the field: the last send's error, else what the agent is waiting for.
+    public var notice: String? { error ?? waitingNotice }
+
     public var placeholder: String {
         "Message the agent. Return sends, Option-Return adds a line."
     }
@@ -52,8 +58,11 @@ public final class ComposerStore {
     func show(_ pane: Herd.Pane?, isOnline: Bool) {
         paneID = pane?.id
         sendTitle = pane?.agentStatus == .working ? "Queue" : "Send"
-        disabledReason = Self.disabledReason(hasPane: pane != nil, isOnline: isOnline)
+        waitingNotice = pane?.agentStatus == .blocked ? Self.blockedNotice : nil
+        disabledReason = Self.disabledReason(hasPane: pane != nil, isOnline: isOnline) ?? waitingNotice
     }
+
+    static let blockedNotice = "The agent is waiting for an answer in Herdr. Answer it there before sending."
 
     private static func disabledReason(hasPane: Bool, isOnline: Bool) -> String? {
         guard hasPane else { return "No pane is selected." }
