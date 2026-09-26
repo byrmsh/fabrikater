@@ -14,6 +14,7 @@ e2e_fixture_dir=""
 
 # e2e_launch [fixture...]: starts the app replaying only the named files from Tests/Fixtures, and waits for its window.
 # The default is the synthetic herd and conversation. With no files at all (`e2e_launch --none`) every read fails.
+# SOURCE=NAME replays a fixture under another name, such as claude-long.synthetic.jsonl=claude.synthetic.jsonl.
 e2e_launch() {
     if [ "$#" -eq 0 ]; then
         set -- snapshot.synthetic.json events.synthetic.jsonl claude.synthetic.jsonl
@@ -24,7 +25,7 @@ e2e_launch() {
     local file
     # A loop over "$@" rather than an array: macOS's bash 3.2 treats an empty array as unset under `set -u`.
     for file in "$@"; do
-        cp "${E2E_FIXTURES}/${file}" "${e2e_fixture_dir}/"
+        cp "${E2E_FIXTURES}/${file%%=*}" "${e2e_fixture_dir}/${file#*=}"
     done
     # Fixture runs keep pane names in their own defaults domain; clearing it keeps one flow's renames out of the next.
     defaults delete sh.bayram.fabrikater.fixtures >/dev/null 2>&1 || true
@@ -135,6 +136,31 @@ end tell
 return "missing"
 APPLESCRIPT
 )" = "focused" ]
+}
+
+# e2e_click TITLE: presses the first element titled or described as TITLE in the main window.
+e2e_click() {
+    e2e_wait "a button titled \"$1\"" _e2e_click "$1"
+    sleep 0.5
+}
+
+_e2e_click() {
+    [ "$(osascript 2>>"${E2E_OUT}/${E2E_FLOW:-app}.osascript.log" <<APPLESCRIPT
+tell application "System Events"
+    tell window 1 of process "${E2E_PROCESS}"
+        repeat with uiItem in (entire contents as list)
+            try
+                if title of uiItem is "$1" or description of uiItem is "$1" then
+                    perform action "AXPress" of uiItem
+                    return "pressed"
+                end if
+            end try
+        end repeat
+    end tell
+end tell
+return "missing"
+APPLESCRIPT
+)" = "pressed" ]
 }
 
 # e2e_shot NAME: saves the main window as build/e2e/NAME.png (the whole screen if the window cannot be found).

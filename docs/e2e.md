@@ -12,6 +12,7 @@
 | `composer` | typing a prompt and pressing Return sends it to the selected pane and clears the draft | `composer-draft.png`, `composer-sent.png` |
 | `send-guard` | with a permission prompt on the pane's screen (`screen-w1-p1.synthetic.txt`), Return sends nothing and the draft stays with the reason | `send-guard.png` |
 | `copy` | Copy Conversation as Markdown (⌘⇧C) puts the conversation on the pasteboard as markdown, saved as `copy.md` | `copy.png` |
+| `collapse` | a long prompt and a compaction summary (`claude-long.synthetic.jsonl`) start collapsed with Show All, and Show All expands one and offers Show Less | `collapse.png`, `collapse-expanded.png` |
 | `offline` | with no snapshot fixture the sidebar says Offline and why, and does not claim a last known state | `offline.png` |
 
 A failed step stops its flow and fails the job after the other flows ran. It leaves in `build/e2e/`: `<flow>-failure.png`, `<flow>-failure.txt` (every element in the window with its role and text attributes; the text checks search AXTitle, AXValue, AXDescription and AXHelp), `<flow>.log` (the app's output) and `<flow>.osascript.log`. When a text check fails, read the `.txt` first.
@@ -29,7 +30,7 @@ e2e_expect_text "Rename the helper"
 e2e_shot conversation               # build/e2e/conversation.png, just the window
 ```
 
-Steps: `e2e_launch [fixture…|--none]`, `e2e_expect_text TEXT`, `e2e_expect_label TEXT` (an element VoiceOver reads as exactly TEXT, never a help tag), `e2e_expect_no_text TEXT` (checks once), `e2e_expect_gone TEXT` (waits for it to go), `e2e_key KEY [modifier…]` (a key, or text to type), `e2e_focus_field PLACEHOLDER`, `e2e_shot NAME`, `e2e_screen_text` (prints the text the checks search), `e2e_screen_dump` (every element with its role and text attributes), and `e2e_wait WHAT COMMAND…` for anything else. Add a step to `lib.sh` when two flows would repeat the same osascript.
+Steps: `e2e_launch [fixture…|--none]` (`SOURCE=NAME` replays a fixture under another name, as the `collapse` flow does to show `claude-long.synthetic.jsonl` as the conversation), `e2e_expect_text TEXT`, `e2e_expect_label TEXT` (an element VoiceOver reads as exactly TEXT, never a help tag), `e2e_expect_no_text TEXT` (checks once), `e2e_expect_gone TEXT` (waits for it to go), `e2e_key KEY [modifier…]` (a key, or text to type), `e2e_focus_field PLACEHOLDER`, `e2e_click TITLE` (presses a button), `e2e_shot NAME`, `e2e_screen_text` (prints the text the checks search), `e2e_screen_dump` (every element with its role and text attributes), and `e2e_wait WHAT COMMAND…` for anything else. Add a step to `lib.sh` when two flows would repeat the same osascript.
 
 - Drive the app the way a person does: menu shortcuts from `Keymap`, typed text. No test-only switches in app code; if a flow cannot reach a state, add fixtures instead.
 - Assert on text a person reads, as accessibility exposes it: `e2e_screen_dump` shows what that is. Plain `Text` is an AXStaticText with the text as AXValue.
