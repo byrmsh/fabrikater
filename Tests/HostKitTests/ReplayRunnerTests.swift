@@ -18,6 +18,13 @@ struct ReplayRunnerTests {
         #expect(data == (try Fixture.data(named: "claude.synthetic.jsonl")).suffix(100))
     }
 
+    @Test func servesAPaneScreenByPaneThenTheSyntheticOne() async throws {
+        let first = try await runner.run(.herdrPaneScreen(try #require(PaneID("w1:p1"))))
+        #expect(first == (try Fixture.data(named: "screen-w1-p1.synthetic.txt")))
+        let other = try await runner.run(.herdrPaneScreen(try #require(PaneID("w2:p1"))))
+        #expect(other == (try Fixture.data(named: "screen.synthetic.txt")))
+    }
+
     @Test func streamsTheEventFixtureLineByLine() async throws {
         var lines: [String] = []
         for try await line in runner.lines(.herdrEvents, input: nil) {

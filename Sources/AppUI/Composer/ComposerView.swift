@@ -8,8 +8,8 @@ struct ComposerView: View {
     var body: some View {
         @Bindable var composer = store.composer
         VStack(alignment: .leading, spacing: 6) {
-            if let error = composer.error {
-                Label(error, systemImage: "exclamationmark.triangle.fill")
+            if let notice = composer.notice {
+                Label(notice, systemImage: "exclamationmark.triangle.fill")
                     .font(.callout)
                     .foregroundStyle(.red)
                     .lineLimit(2)
