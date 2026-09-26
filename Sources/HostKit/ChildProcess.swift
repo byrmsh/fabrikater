@@ -3,8 +3,8 @@ import Synchronization
 
 /// One run of an executable through `Process`, with its output collected or streamed without blocking a thread.
 ///
-/// Completion follows the exit status, not end-of-file on every pipe: ssh's backgrounded ControlMaster can keep
-/// stderr open for as long as it persists, so waiting for that EOF would hang.
+/// Completion follows the exit status plus the end of both pipes, but waits at most `drainGrace` for the pipes after
+/// the exit: ssh's backgrounded ControlMaster can keep stderr open for as long as it persists.
 final class ChildProcess: Sendable {
     struct Output: Sendable {
         var status: Int32
@@ -16,6 +16,7 @@ final class ChildProcess: Sendable {
         var stdout = Data()
         var stderr = Data()
         var stdoutClosed = false
+        var stderrClosed = false
         var status: Int32?
         var timedOut = false
         var continuation: CheckedContinuation<Result<Output, HostError>, Never>?
@@ -59,7 +60,10 @@ final class ChildProcess: Sendable {
                         self?.update { $0.status = status }
                         Task { [weak self] in
                             try? await Task.sleep(for: Self.drainGrace)
-                            self?.update { $0.stdoutClosed = true }
+                            self?.update {
+                                $0.stdoutClosed = true
+                                $0.stderrClosed = true
+                            }
                         }
                     }
                 } catch {
@@ -154,6 +158,7 @@ final class ChildProcess: Sendable {
             let chunk = handle.availableData
             if chunk.isEmpty {
                 handle.readabilityHandler = nil
+                self?.update { $0.stderrClosed = true }
             } else {
                 self?.state.withLock { $0.stderr.append(chunk) }
             }
@@ -176,7 +181,9 @@ final class ChildProcess: Sendable {
     private func update(_ change: @Sendable (inout State) -> Void) {
         let ready: (CheckedContinuation<Result<Output, HostError>, Never>, Output)? = state.withLock { state in
             change(&state)
-            guard let status = state.status, state.stdoutClosed, let continuation = state.continuation else {
+            guard let status = state.status, state.stdoutClosed, state.stderrClosed,
+                let continuation = state.continuation
+            else {
                 return nil
             }
             state.continuation = nil
