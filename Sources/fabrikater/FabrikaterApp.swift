@@ -15,16 +15,16 @@ struct FabrikaterApp: App {
     init() {
         let log = Log(category: "App")
         let environment = ProcessInfo.processInfo.environment
+        let alias = environment["FABRIKATER_HOST"] ?? "arch"
+        let host = HostAlias(alias) ?? HostAlias("arch")!
+        if host.rawValue != alias {
+            log.error("FABRIKATER_HOST is not a valid ssh alias; using arch")
+        }
         let runner: any HostCommandRunner
         if let fixtures = environment["FABRIKATER_FIXTURES"] {
             log.info("replaying fixtures")
             runner = ReplayRunner(directory: URL(filePath: fixtures))
         } else {
-            let alias = environment["FABRIKATER_HOST"] ?? "arch"
-            let host = HostAlias(alias) ?? HostAlias("arch")!
-            if host.rawValue != alias {
-                log.error("FABRIKATER_HOST is not a valid ssh alias; using arch")
-            }
             runner = SSHRunner(host: host)
         }
         let client = HerdrClient(runner: runner)
@@ -39,7 +39,9 @@ struct FabrikaterApp: App {
             transcripts: HostTranscriptService(runner: runner),
             control: PolicedControl(SendGuard(client, reader: client), policy: policy) { try await client.snapshot() },
             notes: UserDefaultsPaneNotesStore(defaults: .standard),
-            clipboard: PasteboardClipboard()
+            clipboard: PasteboardClipboard(),
+            opener: WorkspaceURLOpener(),
+            host: host.rawValue
         )
         log.info("launched")
     }

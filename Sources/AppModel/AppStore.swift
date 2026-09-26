@@ -1,4 +1,5 @@
 import FabrikaterCore
+import Foundation
 import HerdrKit
 import Observation
 import TranscriptKit
@@ -32,20 +33,28 @@ public final class AppStore {
     private var notes: PaneNotes
     private let notesStore: any PaneNotesStore
     private let clipboard: any Clipboard
+    private let opener: any URLOpener
+    private let host: String
     @ObservationIgnored private var herdUpdates: AsyncStream<HerdUpdate>?
     private let log = Log(category: "AppModel")
 
-    /// - Parameter control: changes Herdr on the user's behalf: focus follows the selection, and the composer sends.
+    /// - Parameters:
+    ///   - control: changes Herdr on the user's behalf: focus follows the selection, and the composer sends.
+    ///   - host: the ssh alias the panes run on, for links that reach them from this Mac.
     public init(
         herdUpdates: AsyncStream<HerdUpdate>,
         transcripts: any TranscriptService,
         control: any HerdrControl,
         notes: any PaneNotesStore = InMemoryPaneNotesStore(),
-        clipboard: any Clipboard = InMemoryClipboard()
+        clipboard: any Clipboard = InMemoryClipboard(),
+        opener: any URLOpener = RecordingURLOpener(),
+        host: String = "arch"
     ) {
         self.herdUpdates = herdUpdates
         notesStore = notes
         self.clipboard = clipboard
+        self.opener = opener
+        self.host = host
         self.notes = notes.load()
         conversation = ConversationStore(transcripts: transcripts)
         composer = ComposerStore(control: control)
@@ -102,6 +111,9 @@ public final class AppStore {
         case .copyConversation:
             guard !conversation.transcript.entries.isEmpty else { return }
             clipboard.copy(Transcript.markdown(of: conversation.transcript.entries))
+        case .openInVSCode(let id):
+            guard let url = vscodeLink(id) else { return }
+            opener.open(url)
         }
     }
 
@@ -117,7 +129,12 @@ public final class AppStore {
         case .chooseQuickSwitcherResult(let id): (id ?? switcher?.highlighted) != nil
         case .copyMessage(let id): conversation.transcript.entries.contains { $0.id == id }
         case .copyConversation: !conversation.transcript.entries.isEmpty
+        case .openInVSCode(let id): vscodeLink(id) != nil
         }
+    }
+
+    private func vscodeLink(_ id: PaneID?) -> URL? {
+        (id ?? selection).flatMap { herd.pane($0) }.flatMap { VSCodeLink.url(host: host, pane: $0) }
     }
 
     func apply(_ update: HerdUpdate) {
