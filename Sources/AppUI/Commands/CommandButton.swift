@@ -7,7 +7,7 @@ struct CommandButton: View {
     let command: AppCommand
 
     var body: some View {
-        Button(command.title) { store.perform(command) }
+        Button(store.title(of: command)) { store.perform(command) }
             .keyboardShortcut(Keymap.chord(for: command)?.shortcut)
             .disabled(!store.isEnabled(command))
     }

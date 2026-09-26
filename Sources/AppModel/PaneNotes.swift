@@ -7,15 +7,19 @@ import Foundation
 public struct PaneNotes: Equatable, Sendable {
     /// Display names that replace Herdr's label (B1). Kept for panes that are gone, in case they come back.
     public var names: [PaneID: String] = [:]
+    /// Pinned panes in the order they were pinned (B4). Kept for panes that are gone, in case they come back.
+    public var pins: [PaneID] = []
 
-    public init(names: [PaneID: String] = [:]) {
+    public init(names: [PaneID: String] = [:], pins: [PaneID] = []) {
         self.names = names
+        self.pins = pins
     }
 }
 
 extension PaneNotes: Codable {
     private enum CodingKeys: String, CodingKey {
         case names
+        case pins
     }
 
     public init(from decoder: any Decoder) throws {
@@ -23,12 +27,14 @@ extension PaneNotes: Codable {
         let names = try container.decodeIfPresent([String: String].self, forKey: .names) ?? [:]
         self.names = Dictionary(
             names.compactMap { key, value in PaneID(key).map { ($0, value) } }, uniquingKeysWith: { $1 })
+        pins = try container.decodeIfPresent([String].self, forKey: .pins)?.compactMap { PaneID($0) } ?? []
     }
 
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(
             Dictionary(names.map { ($0.key.rawValue, $0.value) }, uniquingKeysWith: { $1 }), forKey: .names)
+        try container.encode(pins.map(\.rawValue), forKey: .pins)
     }
 }
 

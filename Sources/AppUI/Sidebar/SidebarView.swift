@@ -82,10 +82,17 @@ struct SidebarView: View {
             Button(AppCommand.renamePane(pane.id).title) {
                 store.perform(.renamePane(pane.id))
             }
+            Button(store.title(of: .togglePin(pane.id))) {
+                store.perform(.togglePin(pane.id))
+            }
             Button(AppCommand.reloadConversation.title) {
                 store.perform(.selectPane(pane.id))
                 store.perform(.reloadConversation)
             }
+            Button(AppCommand.openInVSCode(pane.id).title) {
+                store.perform(.openInVSCode(pane.id))
+            }
+            .disabled(!store.isEnabled(.openInVSCode(pane.id)))
         }
     }
 }

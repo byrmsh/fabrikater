@@ -15,6 +15,11 @@ struct FabrikaterApp: App {
     init() {
         let log = Log(category: "App")
         let environment = ProcessInfo.processInfo.environment
+        let alias = environment["FABRIKATER_HOST"] ?? "arch"
+        let host = HostAlias(alias) ?? HostAlias("arch")!
+        if host.rawValue != alias {
+            log.error("FABRIKATER_HOST is not a valid ssh alias; using arch")
+        }
         let runner: any HostCommandRunner
         // Fixture runs keep their notes apart, so a demo or an e2e flow never touches the real pane names.
         var defaults = UserDefaults.standard
@@ -23,11 +28,6 @@ struct FabrikaterApp: App {
             runner = ReplayRunner(directory: URL(filePath: fixtures))
             defaults = UserDefaults(suiteName: "sh.bayram.fabrikater.fixtures") ?? .standard
         } else {
-            let alias = environment["FABRIKATER_HOST"] ?? "arch"
-            let host = HostAlias(alias) ?? HostAlias("arch")!
-            if host.rawValue != alias {
-                log.error("FABRIKATER_HOST is not a valid ssh alias; using arch")
-            }
             runner = SSHRunner(host: host)
         }
         let client = HerdrClient(runner: runner)
@@ -42,7 +42,9 @@ struct FabrikaterApp: App {
             transcripts: HostTranscriptService(runner: runner),
             control: PolicedControl(SendGuard(client, reader: client), policy: policy) { try await client.snapshot() },
             notes: UserDefaultsPaneNotesStore(defaults: defaults),
-            clipboard: PasteboardClipboard()
+            clipboard: PasteboardClipboard(),
+            opener: WorkspaceURLOpener(),
+            host: host.rawValue
         )
         log.info("launched")
     }
