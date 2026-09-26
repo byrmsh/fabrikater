@@ -5,6 +5,7 @@ import TranscriptKit
 /// The pane's conversation, oldest at the top, scrolled to the latest message.
 struct TranscriptView: View {
     let conversation: ConversationStore
+    let perform: @MainActor (AppCommand) -> Void
 
     var body: some View {
         if conversation.transcript.entries.isEmpty {
@@ -29,6 +30,9 @@ struct TranscriptView: View {
                     }
                     ForEach(conversation.transcript.entries) { entry in
                         EntryView(entry: entry)
+                            .contextMenu {
+                                Button(AppCommand.copyMessage(entry.id).title) { perform(.copyMessage(entry.id)) }
+                            }
                     }
                 }
                 .padding(16)
