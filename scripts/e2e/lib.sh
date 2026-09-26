@@ -50,6 +50,13 @@ e2e_finish() {
     e2e_quit
 }
 
+# e2e_swap_fixture FROM TO: replaces the running app's fixture TO with Tests/Fixtures/FROM, as if the host changed. The
+# app reads it at its next snapshot poll (every 20 s), so wait with a longer E2E_TIMEOUT.
+e2e_swap_fixture() {
+    cp "${E2E_FIXTURES}/$1" "${e2e_fixture_dir}/.swap"
+    mv "${e2e_fixture_dir}/.swap" "${e2e_fixture_dir}/$2"
+}
+
 # e2e_quit: stops the app and removes its fixture copy.
 e2e_quit() {
     if [ -n "${e2e_pid}" ]; then
