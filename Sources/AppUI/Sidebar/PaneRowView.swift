@@ -19,7 +19,8 @@ struct PaneRowView: View {
         }
         .foregroundStyle(pane.isDimmed ? .secondary : .primary)
         .help("\(pane.label) (\(pane.id.rawValue)), \(pane.status.title)")
-        .accessibilityElement(children: .combine)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(pane.label)
         .accessibilityValue(pane.status.title)
     }
 }
@@ -35,7 +36,8 @@ struct TabRowView: View {
             StatusDot(status: tab.status)
         }
         .help("\(tab.label), \(tab.status.title)")
-        .accessibilityElement(children: .combine)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(tab.label)
         .accessibilityValue(tab.status.title)
     }
 }
