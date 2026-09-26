@@ -112,7 +112,7 @@ public struct QuickSwitcher: Equatable, Sendable {
 extension [SidebarSection] {
     /// Every pane in sidebar order, with its location and agent from the herd.
     func switcherItems(in herd: Herd) -> [SwitcherItem] {
-        flatMap { $0.rows.flatMap(\.panes) }.map { row in
+        panes.map { row in
             let pane = herd.pane(row.id)
             return SwitcherItem(
                 row: row, location: pane.map(herd.location(of:)) ?? "", agent: row.agent?.title ?? "Shell")

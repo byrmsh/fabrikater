@@ -37,6 +37,7 @@ public enum Keymap {
         .reloadConversation: KeyChord(.character("r")),
         .send: KeyChord(.return),
         .renamePane(nil): KeyChord(.character("r"), [.command, .shift]),
+        .togglePin(nil): KeyChord(.character("p"), [.command, .shift]),
         .openQuickSwitcher: KeyChord(.character("k")),
     ]
 
