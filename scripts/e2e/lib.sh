@@ -143,15 +143,17 @@ _e2e_has_window() {
 e2e_screen_text() {
     osascript 2>>"${E2E_OUT}/${E2E_FLOW:-app}.osascript.log" <<APPLESCRIPT
 set found to {}
-tell application "System Events" to tell window 1 of process "${E2E_PROCESS}"
-    repeat with uiItem in (entire contents as list)
-        repeat with axName in {"AXTitle", "AXValue", "AXDescription"}
-            try
-                set text_ to value of attribute (contents of axName) of uiItem
-                if text_ is not missing value and text_ is not "" then set end of found to (text_ as text)
-            end try
+tell application "System Events"
+    tell window 1 of process "${E2E_PROCESS}"
+        repeat with uiItem in (entire contents as list)
+            repeat with axName in {"AXTitle", "AXValue", "AXDescription"}
+                try
+                    set text_ to value of attribute (contents of axName) of uiItem
+                    if text_ is not missing value and text_ is not "" then set end of found to (text_ as text)
+                end try
+            end repeat
         end repeat
-    end repeat
+    end tell
 end tell
 set AppleScript's text item delimiters to linefeed
 return found as text
