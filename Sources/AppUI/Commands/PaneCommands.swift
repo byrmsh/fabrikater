@@ -18,6 +18,7 @@ public struct PaneCommands: Commands {
             button(.selectNextPane)
             Divider()
             button(.renamePane(nil))
+            button(.togglePin(nil))
             Divider()
             button(.reloadConversation)
             Divider()
@@ -26,7 +27,7 @@ public struct PaneCommands: Commands {
     }
 
     private func button(_ command: AppCommand) -> some View {
-        Button(command.title) { store.perform(command) }
+        Button(store.title(of: command)) { store.perform(command) }
             .keyboardShortcut(Keymap.chord(for: command)?.shortcut)
             .disabled(!store.isEnabled(command))
     }

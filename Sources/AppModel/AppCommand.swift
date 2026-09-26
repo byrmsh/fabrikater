@@ -13,6 +13,8 @@ public enum AppCommand: Hashable, Sendable {
     /// Sets the name typed into the field; blank text clears it.
     case commitRename(PaneID, String)
     case cancelRename
+    /// Pins a pane to the top of the sidebar, or unpins it; nil means the selected pane.
+    case togglePin(PaneID?)
     case openQuickSwitcher
     case closeQuickSwitcher
     /// The text typed into the switcher's search field.
@@ -33,6 +35,7 @@ public enum AppCommand: Hashable, Sendable {
         case .renamePane: "Rename…"
         case .commitRename: "Rename"
         case .cancelRename: "Cancel Rename"
+        case .togglePin: "Pin"
         case .openQuickSwitcher: "Open Quickly…"
         case .closeQuickSwitcher: "Close Switcher"
         case .searchQuickSwitcher: "Search Panes"
