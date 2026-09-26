@@ -7,10 +7,14 @@ struct PaneRowView: View {
 
     var body: some View {
         Label {
-            Text(pane.label)
-                .lineLimit(1)
-                .truncationMode(.tail)
-                .accessibilityLabel(pane.spokenLabel)
+            HStack {
+                Text(pane.label)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                    .accessibilityLabel(pane.spokenLabel)
+                Spacer(minLength: 4)
+                ActivityTime(activity: pane.activity(now:))
+            }
         } icon: {
             HStack(spacing: 4) {
                 StatusDot(status: pane.status)
@@ -28,8 +32,12 @@ struct TabRowView: View {
 
     var body: some View {
         Label {
-            Text(tab.label)
-                .lineLimit(1)
+            HStack {
+                Text(tab.label)
+                    .lineLimit(1)
+                Spacer(minLength: 4)
+                ActivityTime(activity: tab.activity(now:))
+            }
         } icon: {
             StatusDot(status: tab.status)
         }
