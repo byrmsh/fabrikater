@@ -9,17 +9,19 @@ struct EntryView: View {
         switch entry.role {
         case .user:
             parts
+                .scaledFont(.body)
                 .padding(10)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(.quaternary, in: .rect(cornerRadius: 8))
         case .assistant:
             parts
+                .scaledFont(.body)
         case .summary, .note:
             HStack(alignment: .firstTextBaseline, spacing: 6) {
                 Image(systemName: entry.role == .summary ? "text.append" : "info.circle")
                 parts
             }
-            .font(.callout)
+            .scaledFont(.callout)
             .foregroundStyle(.secondary)
             .frame(maxWidth: .infinity, alignment: .leading)
         }

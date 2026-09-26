@@ -17,6 +17,7 @@ struct ComposerView: View {
             HStack(alignment: .bottom, spacing: 8) {
                 TextField(composer.placeholder, text: $composer.draft, axis: .vertical)
                     .textFieldStyle(.plain)
+                    .scaledFont(.body)
                     .lineLimit(1...8)
                     .padding(8)
                     .background(.quinary, in: .rect(cornerRadius: 8))
