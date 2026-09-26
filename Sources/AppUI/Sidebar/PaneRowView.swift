@@ -2,24 +2,28 @@ import AppModel
 import FabrikaterCore
 import SwiftUI
 
+/// A pane's status dot, agent symbol and label, or the name field in place of the label while renaming. A plain stack
+/// rather than a `Label`, whose title slot does not take keyboard focus for the field. The symbol gets a fixed width so
+/// labels line up and a wide symbol never runs into its label.
 struct PaneRowView: View {
     let pane: PaneRow
+    var renameField: RenameField?
 
     var body: some View {
-        Label {
-            HStack {
+        HStack(spacing: 4) {
+            StatusDot(status: pane.status)
+            Image(systemName: pane.agent.symbolName)
+                .foregroundStyle(.secondary)
+                .frame(width: 20)
+            if let renameField {
+                renameField
+            } else {
                 Text(pane.label)
                     .lineLimit(1)
                     .truncationMode(.tail)
                     .accessibilityLabel(pane.spokenLabel)
                 Spacer(minLength: 4)
                 ActivityTime(activity: pane.activity(now:))
-            }
-        } icon: {
-            HStack(spacing: 4) {
-                StatusDot(status: pane.status)
-                Image(systemName: pane.agent.symbolName)
-                    .foregroundStyle(.secondary)
             }
         }
         .foregroundStyle(pane.isDimmed ? .secondary : .primary)
