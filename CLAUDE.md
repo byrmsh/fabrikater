@@ -50,6 +50,8 @@ This Mac has Apple's Command Line Tools, not Xcode. Everything builds with Swift
 
 The host runs the user's live work. Every Herdr pane except the scratch pane below belongs to it. Never send text or keys to, close, rename, move or start anything in those panes, and never run a mutating `herdr` command (`pane send-text`, `pane send-keys`, `agent prompt`, `agent send-keys`, `pane close`, `workspace create`, …) against them. Never run bare `herdr` (it attaches the TUI) or `herdr server stop`.
 
+The app itself moves Herdr's focus to the pane selected in it and sends prompts from its composer ([docs/decisions/0008](docs/decisions/0008-app-drives-live-panes.md)); that is the user's own action. When you run the app on the Mac, select only the scratch pane, or run with `FABRIKATER_FIXTURES`.
+
 For testing sends, prompts and the terminal view, use a scratch workspace labelled `fabrikater-test`. If it does not exist, ask the user to create it (they will run `herdr workspace create --label fabrikater-test --no-focus` on the host); do not create it yourself. Anything is allowed inside that workspace, including starting `claude` in its pane.
 
 ## Swift rules

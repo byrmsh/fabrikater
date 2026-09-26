@@ -26,7 +26,11 @@ Manual on the Mac (after `scripts/bundle.sh`): the sidebar lists the same worksp
 
 Resolved for M1: the events channel uses one fixed subscription (`HerdrClient.subscriptions`: workspace, tab and pane topology plus `pane.updated` and `pane.agent_detected`) with a 20 s safety poll, as the user chose. Which of these events fire on a status change is still unverified, so the 2 s check above stays on the manual list; if the dot only changes with the poll, add per-pane `pane.agent_status_changed` subscriptions behind the same `HerdrService.events()`.
 
-Open, needs the user's approval: moving Herdr's focus to the pane selected in the app (the user's idea). It is a mutating `herdr` command on live panes, which the safety rules in [../CLAUDE.md](../CLAUDE.md) forbid today, so it waits for an explicit decision and would go through `SendPolicy`-style gating.
+Resolved after M1: the user approved moving Herdr's focus to the pane selected in the app, and sending prompts from it ([decisions/0008](decisions/0008-app-drives-live-panes.md)). Focus follows the settled selection and needs no allowlist; typing goes through `SendPolicy`.
+
+Also after M1: conversations load faster. A pane seen before shows its cached conversation at once (the last 16 sessions) and re-reads behind it; a new one reads the last 64 KB first, then the full 512 KB.
+
+Manual on the Mac for these (after `scripts/bundle.sh`): selecting a pane in the app switches Herdr's screen to it within about half a second, and ⌘↓ held down focuses only the pane it stops on; going back to a pane shows its conversation without the loading spinner.
 
 ## M2: Claude conversation, read-only
 
@@ -40,11 +44,13 @@ Manual on the Mac: open a Claude pane that is `working`; new assistant messages 
 
 The composer with per-pane drafts, Return to send, the key bar, and the send sequence and race guard from [parsing.md](parsing.md).
 
+Landed early ([decisions/0008](decisions/0008-app-drives-live-panes.md)): the composer with per-pane drafts in memory, Return (and ⌘Return from the Pane menu) sends, Option-Return inserts a newline, "Queue" while the agent works, and the draft kept with an inline error on failure; a prompt is `pane.send_text` then `Enter`, with multi-line text as a bracketed paste. Still to do: drafts on disk, the key bar, and the draft verification and race guard.
+
 CI-verifiable: drafts are kept per pane and survive a relaunch; Return sends and Shift-Return inserts a newline; the composer clears only after a successful send and keeps the text with an error on failure; user text travels only on stdin (the argument vector never contains it); the send sequence and its race guard follow parsing.md 4.4 against screen fixtures; `SendPolicy` blocks sends outside `fabrikater-test`.
 
 Manual on the Mac: in the scratch pane (see [../CLAUDE.md](../CLAUDE.md)), start `claude` and send a one-line and a multi-line prompt from the app; both are submitted (the pane goes `working`) and appear in the conversation view. Esc and Ctrl-C from the key bar reach the pane. Record which of `pane send-text` and `agent prompt` submits multi-line text correctly in architecture.md.
 
-Open for M3, put to the user in the plan: [design.md](design.md) says Return sends. The app types into live agents, so a stray Return is costly; the alternative is ⌘Return to send by default, with Return-to-send as an opt-in. The user has not decided.
+Open for M3: [design.md](design.md) says Return sends, and the early composer does that, with Option-Return for a newline (what a multi-line SwiftUI text field on macOS does natively); Shift-Return and making it configurable wait for the Settings scene. The app types into live agents, so a stray Return is costly; ⌘Return-only stays the alternative if that bites.
 
 ## M4: Terminal view
 

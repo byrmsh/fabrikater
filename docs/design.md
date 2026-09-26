@@ -42,7 +42,7 @@ A read-only rendering of the pane's recent screen text with ANSI colours, in a t
 
 ## Composer
 
-A multi-line text field at the bottom of the detail area, always local. Return sends, Shift-Return inserts a newline (configurable). A key bar above it sends single keys to the pane: Esc, Ctrl-C, Tab, Shift-Tab, ↑, ↓, Enter. While the agent is `working`, sending is still allowed (Claude queues typed input), and the Send button says "Queue". After sending, the text is cleared only once the send command succeeded; on failure it stays with an inline error.
+A multi-line text field at the bottom of the detail area, always local. Return sends, Option-Return inserts a newline (Shift-Return and making it configurable wait for the Settings scene). ⌘Return sends from anywhere in the window. A key bar above it sends single keys to the pane: Esc, Ctrl-C, Tab, Shift-Tab, ↑, ↓, Enter. While the agent is `working`, sending is still allowed (Claude queues typed input), and the Send button says "Queue". After sending, the text is cleared only once the send command succeeded; on failure it stays with an inline error.
 
 Drafts are kept per pane, in memory and on disk, so switching panes never loses text.
 

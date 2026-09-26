@@ -10,10 +10,10 @@ One SwiftPM package. Each layer is its own target, so the compiler enforces the 
 |---|---|---|---|---|
 | `FabrikaterCore` | Linux, macOS | M0 | Plain value types shared by every layer (`PaneID`, `AgentKind`, `AgentStatus`) and the `Log` wrapper. Foundation only. | nothing |
 | `HostKit` | Linux, macOS | M1 | `HostCommand` (every remote script, its timeout and replay fixture), `SSHArguments`, the `HostCommandRunner` protocol with `SSHRunner` (`/usr/bin/ssh` through `Process`) and `ReplayRunner` (fixture files), `LineBuffer`, and `HostError`. | Core |
-| `HerdrKit` | Linux, macOS | M1 | `Herd` (the snapshot, decoded leniently), `HerdrClient` (snapshot and events channel), `HerdFeed` (coalesced refresh plus safety poll), and `SendPolicy`. Pane reads and sends come in M3 and M4. | Core, HostKit |
+| `HerdrKit` | Linux, macOS | M1 | `Herd` (the snapshot, decoded leniently), `HerdrClient` (snapshot and events channel), `HerdFeed` (coalesced refresh plus safety poll), `HerdrRequest` and `HerdrControl` (focus and sends over the API socket), and `SendPolicy` with `PolicedControl`. Pane reads come in M4. | Core, HostKit |
 | `TranscriptKit` | Linux, macOS | M1 (minimal) | The transcript model, the Claude parser and `HostTranscriptService` (one read of the log's last 512 KB). Hand-over resolution, backfill and the byte-offset tailer come in M2 ([parsing.md](parsing.md) sections 1 to 3). | Core, HostKit |
 | `PromptKit` | Linux, macOS | M5 (planned) | ANSI parsing, the screen grammars and the answer guard ([parsing.md](parsing.md) section 4). | Core |
-| `AppModel` | Linux, macOS | M1 | `@MainActor @Observable` stores (`AppStore`: sidebar, selection, connection state; `ConversationStore`: the selected pane's transcript; later drafts and so on), plus the platform-neutral UI values from `.claude/skills/macos-design`: `AppCommand`, `Keymap` and (from M4) `WorkspaceLayout`. Each store gets its services through protocols or streams, injected by its initializer. | Core, and HerdrKit, TranscriptKit and PromptKit through their protocols |
+| `AppModel` | Linux, macOS | M1 | `@MainActor @Observable` stores (`AppStore`: sidebar, selection, connection state; `ConversationStore`: the selected pane's transcript, with `TranscriptCache`; `ComposerStore`: per-pane drafts and sending; `FocusSync`: Herdr's focus following the selection), plus the platform-neutral UI values from `.claude/skills/macos-design`: `AppCommand`, `Keymap` and (from M4) `WorkspaceLayout`. Each store gets its services through protocols or streams, injected by its initializer. | Core, and HerdrKit, TranscriptKit and PromptKit through their protocols |
 | `AppUI` | macOS | M0 | Thin SwiftUI views over `AppModel`, one folder per feature (`Sidebar/`, `Conversation/`, `Commands/`, `Composer/`, …), plus `ViewState`. | AppModel, and TranscriptKit for the transcript value types it renders |
 | `fabrikater` | macOS | M0 | The executable: `FabrikaterApp` and the single composition root. It wires the real services, or the replay ones when launched with `FABRIKATER_FIXTURES=<dir>` (from M1, in debug and release builds). The host alias comes from `FABRIKATER_HOST` (default `arch`) until the Settings scene exists. | everything |
 
@@ -65,7 +65,7 @@ M1 settled the host, Herdr and store recipes below; the parser recipe is still a
 2. Give it a `timeout` (or mark it `isStreaming`). Runners map every failure onto `HostError`; a script can signal "not found" with `HostCommand.notFoundStatus`.
 3. Give it `fixtureNames` and add the fixture to `Tests/Fixtures/` (extend `scripts/capture-fixtures.sh` if it reads the host), so `ReplayRunner`, tests and `FABRIKATER_FIXTURES` mode can run it.
 4. Test on Linux the exact argument vector the builder produces, including a rejected identifier.
-5. If the command mutates the host (a send, a key), it goes through `SendPolicy` in `HerdrKit`, never around it.
+5. If the command changes Herdr, it is not a new `HostCommand`: add a `HerdrRequest` case instead, which travels on the existing `herdrRequests` command. Mark whether it `typesIntoPane`, so `PolicedControl` asks `SendPolicy` first.
 
 ### Add a Herdr event
 
