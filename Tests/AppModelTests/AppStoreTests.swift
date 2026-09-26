@@ -48,6 +48,14 @@ struct AppStoreTests {
         #expect(store.sections.count == 2)
     }
 
+    @Test func aFailedReadWithNothingLoadedSaysOfflineWithoutClaimingAKnownState() {
+        let store = AppStore(herdUpdates: AsyncStream { $0.finish() }, transcripts: transcripts, control: control)
+        store.apply(.failed("ssh failed: no route to host"))
+        #expect(store.connection == .offline("ssh failed: no route to host"))
+        #expect(store.connection.title == "Offline")
+        #expect(store.connection.emptySidebar == EmptySidebar(title: "Offline", detail: "ssh failed: no route to host"))
+    }
+
     @Test func selectingAClaudePaneLoadsItsConversation() async throws {
         let (store, _) = try makeStore()
         store.perform(.selectPane(scratch))
@@ -189,6 +197,16 @@ struct AppStoreTests {
         #expect(store.composer.error == nil)
         store.perform(.selectPane(scratch))
         #expect(store.composer.error == SendPolicy.Refusal.paneMissing.description)
+    }
+
+    @Test func aBlockedPaneSaysItIsWaitingAndTakesNoPrompt() throws {
+        let (store, _) = try makeStore()
+        store.perform(.selectPane(codex))
+        store.composer.draft = "1"
+        #expect(store.composer.notice == ComposerStore.blockedNotice)
+        #expect(!store.isEnabled(.send))
+        store.perform(.selectPane(scratch))
+        #expect(store.composer.notice == nil)
     }
 
     @Test func draftsArePerPaneAndSendingStopsWhileOffline() throws {

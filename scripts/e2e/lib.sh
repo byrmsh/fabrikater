@@ -65,6 +65,12 @@ e2e_expect_text() {
     e2e_wait "\"$1\" on screen" _e2e_has_text "$1"
 }
 
+# e2e_expect_label TEXT: waits until VoiceOver reads some element as exactly TEXT: its title, value or description, never
+# its help tag.
+e2e_expect_label() {
+    e2e_wait "an element labelled \"$1\"" _e2e_has_label "$1"
+}
+
 # e2e_expect_no_text TEXT: fails if TEXT is on screen now.
 e2e_expect_no_text() {
     if _e2e_has_text "$1"; then
@@ -107,6 +113,30 @@ e2e_key() {
     sleep 0.5
 }
 
+# e2e_focus_field PLACEHOLDER: clicks into the text field whose placeholder contains PLACEHOLDER.
+e2e_focus_field() {
+    e2e_wait "a field with placeholder \"$1\"" _e2e_focus_field "$1"
+}
+
+_e2e_focus_field() {
+    [ "$(osascript 2>>"${E2E_OUT}/${E2E_FLOW:-app}.osascript.log" <<APPLESCRIPT
+tell application "System Events"
+    tell window 1 of process "${E2E_PROCESS}"
+        repeat with uiItem in (entire contents as list)
+            try
+                if (value of attribute "AXPlaceholderValue" of uiItem) contains "$1" then
+                    set value of attribute "AXFocused" of uiItem to true
+                    return "focused"
+                end if
+            end try
+        end repeat
+    end tell
+end tell
+return "missing"
+APPLESCRIPT
+)" = "focused" ]
+}
+
 # e2e_shot NAME: saves the main window as build/e2e/NAME.png (the whole screen if the window cannot be found).
 e2e_shot() {
     local path="${E2E_OUT}/$1.png"
@@ -147,14 +177,20 @@ _e2e_has_window() {
         -gt 0 ] 2>/dev/null
 }
 
-# e2e_screen_text: prints every title, value, description and help tag in the main window's accessibility tree, one per line.
+# e2e_screen_text [ATTRIBUTE...]: prints every title, value, description and help tag in the main window's accessibility
+# tree, one per line; or only the named attributes, such as AXTitle AXValue.
 e2e_screen_text() {
+    local attributes='"AXTitle", "AXValue", "AXDescription", "AXHelp"'
+    if [ "$#" -gt 0 ]; then
+        attributes="$(printf '"%s", ' "$@")"
+        attributes="${attributes%, }"
+    fi
     osascript 2>>"${E2E_OUT}/${E2E_FLOW:-app}.osascript.log" <<APPLESCRIPT
 set found to {}
 tell application "System Events"
     tell window 1 of process "${E2E_PROCESS}"
         repeat with uiItem in (entire contents as list)
-            repeat with axName in {"AXTitle", "AXValue", "AXDescription", "AXHelp"}
+            repeat with axName in {${attributes}}
                 try
                     set text_ to value of attribute (contents of axName) of uiItem
                     if text_ is not missing value and text_ is not "" then set end of found to (text_ as text)
@@ -181,11 +217,17 @@ tell application "System Events"
                 set line_ to (role of uiItem) as text
             end try
             try
+                set kids_ to count of (UI elements of uiItem)
+                if kids_ > 0 then set line_ to line_ & " children=" & kids_
+            end try
+            try
                 repeat with anAttribute in (attributes of uiItem)
                     try
                         set value_ to value of anAttribute
-                        if class of value_ is text and value_ is not "" then
-                            set line_ to line_ & " " & (name of anAttribute) & "=" & value_
+                        if class of value_ is text then
+                            if value_ is not "" then set line_ to line_ & " " & (name of anAttribute) & "=" & value_
+                        else if value_ is not missing value then
+                            set line_ to line_ & " " & (name of anAttribute) & "(" & ((class of value_) as text) & ")"
                         end if
                     end try
                 end repeat
@@ -205,4 +247,8 @@ _e2e_has_text() {
 
 _e2e_lacks_text() {
     ! _e2e_has_text "$1"
+}
+
+_e2e_has_label() {
+    e2e_screen_text AXTitle AXValue AXDescription | grep -qxF -- "$1"
 }
