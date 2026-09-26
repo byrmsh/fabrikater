@@ -35,6 +35,7 @@ public enum Keymap {
         .selectPreviousPane: KeyChord(.upArrow),
         .reloadConversation: KeyChord(.character("r")),
         .renamePane(nil): KeyChord(.character("r"), [.command, .shift]),
+        .openQuickSwitcher: KeyChord(.character("k")),
     ]
 
     public static func chord(for command: AppCommand) -> KeyChord? {
