@@ -56,7 +56,7 @@ A macOS notification fires when a pane becomes `blocked`, or goes from `working`
 
 ## Connection state
 
-A small indicator in the sidebar footer: connected, reconnecting (with the last error), or offline. When offline, everything already loaded stays readable, and sending is disabled with the reason shown.
+A small indicator in the sidebar footer: connected, reconnecting (with the last error), or offline. When offline, everything already loaded stays readable, and sending is disabled with the reason shown. When nothing has loaded yet, the sidebar says Offline with the reason and does not claim a last known state.
 
 ## Settings
 

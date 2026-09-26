@@ -10,6 +10,7 @@ struct PaneRowView: View {
             Text(pane.label)
                 .lineLimit(1)
                 .truncationMode(.tail)
+                .accessibilityLabel(pane.spokenLabel)
         } icon: {
             HStack(spacing: 4) {
                 StatusDot(status: pane.status)
@@ -19,8 +20,6 @@ struct PaneRowView: View {
         }
         .foregroundStyle(pane.isDimmed ? .secondary : .primary)
         .help("\(pane.label) (\(pane.id.rawValue)), \(pane.status.title)")
-        .accessibilityElement(children: .combine)
-        .accessibilityValue(pane.status.title)
     }
 }
 
@@ -34,9 +33,9 @@ struct TabRowView: View {
         } icon: {
             StatusDot(status: tab.status)
         }
-        .help("\(tab.label), \(tab.status.title)")
-        .accessibilityElement(children: .combine)
-        .accessibilityValue(tab.status.title)
+        .help(tab.spokenLabel)
+        // The sidebar turns a disclosure label into a heading, which drops its accessibility label but keeps its value.
+        .accessibilityValue(tab.spokenLabel)
     }
 }
 
