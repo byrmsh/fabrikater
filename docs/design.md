@@ -42,7 +42,7 @@ A read-only rendering of the pane's recent screen text with ANSI colours, in a t
 
 ## Composer
 
-A multi-line text field at the bottom of the detail area, always local. Return sends, Option-Return inserts a newline (Shift-Return and making it configurable wait for the Settings scene). ⌘Return sends from anywhere in the window. A key bar above it sends single keys to the pane: Esc, Ctrl-C, Tab, Shift-Tab, ↑, ↓, Enter. While the agent is `working`, sending is still allowed (Claude queues typed input), and the Send button says "Queue". After sending, the text is cleared only once the send command succeeded; on failure it stays with an inline error.
+A multi-line text field at the bottom of the detail area, always local. Return sends, Option-Return inserts a newline (Shift-Return and making it configurable wait for the Settings scene). ⌘Return sends from anywhere in the window. A key bar above it sends single keys to the pane: Esc, Ctrl-C, Tab, Shift-Tab, ↑, ↓, Enter. While the agent is `working`, sending is still allowed (Claude queues typed input), and the Send button says "Queue". After sending, the text is cleared only once the send command succeeded; on failure it stays with an inline error. Sending is refused while the agent shows a dialog, since typed text would answer it: a `blocked` pane disables sending with a notice, and every send re-reads the screen first ([decisions/0009](decisions/0009-send-guard.md)).
 
 Drafts are kept per pane, in memory and on disk, so switching panes never loses text.
 
@@ -56,7 +56,7 @@ A macOS notification fires when a pane becomes `blocked`, or goes from `working`
 
 ## Connection state
 
-A small indicator in the sidebar footer: connected, reconnecting (with the last error), or offline. When offline, everything already loaded stays readable, and sending is disabled with the reason shown.
+A small indicator in the sidebar footer: connected, reconnecting (with the last error), or offline. When offline, everything already loaded stays readable, and sending is disabled with the reason shown. When nothing has loaded yet, the sidebar says Offline with the reason and does not claim a last known state.
 
 ## Settings
 
