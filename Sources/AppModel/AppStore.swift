@@ -36,17 +36,28 @@ public final class AppStore {
     public private(set) var connection = ConnectionState.connecting
     public private(set) var selection: PaneID?
     public private(set) var header: PaneHeader?
+    /// The pane whose row shows the inline name field.
+    public private(set) var renaming: PaneID?
     public let conversation: ConversationStore
     public let composer: ComposerStore
 
     private var herd = Herd()
     private let focus: FocusSync
+    private var notes: PaneNotes
+    private let notesStore: any PaneNotesStore
     @ObservationIgnored private var herdUpdates: AsyncStream<HerdUpdate>?
     private let log = Log(category: "AppModel")
 
     /// - Parameter control: changes Herdr on the user's behalf: focus follows the selection, and the composer sends.
-    public init(herdUpdates: AsyncStream<HerdUpdate>, transcripts: any TranscriptService, control: any HerdrControl) {
+    public init(
+        herdUpdates: AsyncStream<HerdUpdate>,
+        transcripts: any TranscriptService,
+        control: any HerdrControl,
+        notes: any PaneNotesStore = InMemoryPaneNotesStore()
+    ) {
         self.herdUpdates = herdUpdates
+        notesStore = notes
+        self.notes = notes.load()
         conversation = ConversationStore(transcripts: transcripts)
         composer = ComposerStore(control: control)
         focus = FocusSync(control: control)
@@ -75,6 +86,15 @@ public final class AppStore {
             conversation.reload()
         case .send:
             composer.send()
+        case .renamePane(let id):
+            renaming = id ?? selection
+        case .commitRename(let id, let text):
+            guard renaming == id else { return }
+            renaming = nil
+            let label = sections.flatMap { $0.rows.flatMap(\.panes) }.first { $0.id == id }?.label ?? ""
+            updateNotes(notes.renaming(id, to: text, over: label))
+        case .cancelRename:
+            renaming = nil
         }
     }
 
@@ -83,6 +103,8 @@ public final class AppStore {
         case .selectPane, .selectNextPane, .selectPreviousPane: !sections.isEmpty
         case .reloadConversation: conversation.canReload
         case .send: composer.canSend
+        case .renamePane(let id): (id ?? selection) != nil
+        case .commitRename, .cancelRename: renaming != nil
         }
     }
 
@@ -91,10 +113,13 @@ public final class AppStore {
         case .herd(let herd):
             let previous = selection.flatMap { self.herd.pane($0) }
             self.herd = herd
-            sections = SidebarSection.sections(for: herd)
+            refreshSections()
             connection = .connected
             if let selection, herd.pane(selection) == nil {
                 log.info("selected pane \(selection) is gone")
+            }
+            if let renaming, herd.pane(renaming) == nil {
+                self.renaming = nil
             }
             refreshSelection()
             // A turn starting or ending changes the log; re-read it so the conversation keeps up.
@@ -107,6 +132,20 @@ public final class AppStore {
             connection = .stale(reason)
             refreshComposer()
         }
+    }
+
+    /// The sidebar pipeline: Herdr's structure, then each local feature in turn.
+    private func refreshSections() {
+        sections = SidebarSection.sections(for: herd)
+            .named(notes.names)
+    }
+
+    private func updateNotes(_ notes: PaneNotes) {
+        guard notes != self.notes else { return }
+        self.notes = notes
+        notesStore.save(notes)
+        refreshSections()
+        header = selection.flatMap { herd.pane($0) }.map(header(for:))
     }
 
     private func select(_ id: PaneID?) {
@@ -138,6 +177,7 @@ public final class AppStore {
             agent: pane.agent?.title ?? "Shell",
             status: pane.agentStatus
         )
+        .named(notes.names, id: pane.id)
     }
 
     /// The pane `offset` rows away from the selection in sidebar order, wrapping; the first pane when none is selected.

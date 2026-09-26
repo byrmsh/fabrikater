@@ -55,13 +55,26 @@ struct SidebarView: View {
     }
 
     private func paneRow(_ pane: PaneRow) -> some View {
-        PaneRowView(pane: pane)
-            .tag(pane.id)
-            .contextMenu {
-                Button(AppCommand.reloadConversation.title) {
-                    store.perform(.selectPane(pane.id))
-                    store.perform(.reloadConversation)
+        Group {
+            if store.renaming == pane.id {
+                RenameField(label: pane.label) {
+                    store.perform(.commitRename(pane.id, $0))
+                } cancel: {
+                    store.perform(.cancelRename)
                 }
+            } else {
+                PaneRowView(pane: pane)
             }
+        }
+        .tag(pane.id)
+        .contextMenu {
+            Button(AppCommand.renamePane(pane.id).title) {
+                store.perform(.renamePane(pane.id))
+            }
+            Button(AppCommand.reloadConversation.title) {
+                store.perform(.selectPane(pane.id))
+                store.perform(.reloadConversation)
+            }
+        }
     }
 }
