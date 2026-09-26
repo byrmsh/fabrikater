@@ -34,6 +34,8 @@ A vertically scrolling transcript of the pane's session log, oldest at the top, 
 
 Older history loads when the user scrolls near the top. Search (⌘F) matches across loaded messages and offers to load everything for a full search.
 
+The first version reads the conversation from the session log only. A later version merges the live Herdr screen into this same view for the newest, still-streaming part, rather than adding a separate view for it (the Terminal view below stays for what the log cannot show).
+
 ## Terminal view
 
 A read-only rendering of the pane's recent screen text with ANSI colours, in a terminal view sized to the pane's columns. It exists for what the conversation cannot show: spinners, TUI menus, errors printed outside the log, and agents without a parser. It scrolls locally. Clicking it does not send keystrokes; the key bar in the composer does.

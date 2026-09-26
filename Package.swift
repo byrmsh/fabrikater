@@ -6,27 +6,41 @@ let swiftSettings: [SwiftSetting] = [
     .enableUpcomingFeature("MemberImportVisibility"),
 ]
 
+/// A library target with its `CLAUDE.md` and a `<name>Tests` test target over the same dependencies.
+func library(_ name: String, dependencies: [Target.Dependency] = []) -> [Target] {
+    [
+        .target(name: name, dependencies: dependencies, exclude: ["CLAUDE.md"], swiftSettings: swiftSettings),
+        .testTarget(
+            name: "\(name)Tests",
+            dependencies: [.target(name: name)] + dependencies,
+            swiftSettings: swiftSettings
+        ),
+    ]
+}
+
 let package = Package(
     name: "fabrikater",
     platforms: [.macOS(.v15)],
-    targets: [
-        .target(name: "FabrikaterCore", exclude: ["CLAUDE.md"], swiftSettings: swiftSettings),
-        .testTarget(
-            name: "FabrikaterCoreTests",
-            dependencies: ["FabrikaterCore"],
-            swiftSettings: swiftSettings
-        ),
-    ],
+    targets: library("FabrikaterCore")
+        + library("HostKit", dependencies: ["FabrikaterCore"])
+        + library("HerdrKit", dependencies: ["FabrikaterCore", "HostKit"])
+        + library("TranscriptKit", dependencies: ["FabrikaterCore", "HostKit"])
+        + library("AppModel", dependencies: ["FabrikaterCore", "HerdrKit", "TranscriptKit"]),
     swiftLanguageModes: [.v6]
 )
 
 // SwiftUI and AppKit exist only on macOS; on Linux the package is the logic targets and their tests.
 #if os(macOS)
     package.targets += [
-        .target(name: "AppUI", exclude: ["CLAUDE.md"], swiftSettings: swiftSettings),
+        .target(
+            name: "AppUI",
+            dependencies: ["AppModel", "FabrikaterCore", "TranscriptKit"],
+            exclude: ["CLAUDE.md"],
+            swiftSettings: swiftSettings
+        ),
         .executableTarget(
             name: "fabrikater",
-            dependencies: ["AppUI", "FabrikaterCore"],
+            dependencies: ["AppUI", "AppModel", "FabrikaterCore", "HostKit", "HerdrKit", "TranscriptKit"],
             exclude: ["CLAUDE.md"],
             swiftSettings: swiftSettings
         ),
