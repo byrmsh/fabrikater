@@ -9,6 +9,8 @@
 | `sidebar` | the synthetic herd's workspaces and panes carry accessible names, the footer says Connected, nothing is selected | `sidebar.png` |
 | `conversation` | Next Pane (⌘↓) selects the first Claude pane and its conversation renders from `claude.synthetic.jsonl` | `conversation.png` |
 | `room` | the toolbar says "Claude, Working" for the selected pane, ⌃⌘S hides the sidebar, ⌘+ twice enlarges the conversation's text, and ⌘0 plus ⌃⌘S bring both back | `room.png` (sidebar hidden, text two steps bigger) |
+| `switcher` | ⌘K lists every pane with its location, Esc closes it, typing `codex` narrows it to the Codex pane and Return opens that pane | `switcher.png`, `switcher-search.png`, `switcher-chosen.png` |
+| `rename` | Rename… (⌘⇧R) on the selected pane, typed name and Return: the row shows the name instead of Herdr's label | `rename-editing.png`, `rename.png` |
 | `composer` | typing a prompt and pressing Return sends it to the selected pane and clears the draft | `composer-draft.png`, `composer-sent.png` |
 | `send-guard` | with a permission prompt on the pane's screen (`screen-w1-p1.synthetic.txt`), Return sends nothing and the draft stays with the reason | `send-guard.png` |
 | `copy` | Copy Conversation as Markdown (⌘⇧C) puts the conversation on the pasteboard as markdown, saved as `copy.md` | `copy.png` |
@@ -33,6 +35,8 @@ e2e_shot conversation               # build/e2e/conversation.png, just the windo
 ```
 
 Steps: `e2e_launch [fixture…|--none]` (pane notes start empty; `E2E_KEEP_NOTES=1 e2e_launch` relaunches with the previous launch's notes), `e2e_expect_text TEXT`, `e2e_expect_label TEXT` (an element VoiceOver reads as exactly TEXT, never a help tag), `e2e_expect_no_text TEXT` (checks once), `e2e_expect_gone TEXT` (waits for it to go), `e2e_key KEY [modifier…]` (a key, or text to type), `e2e_menu MENU ITEM` (clicks a menu bar item, for commands without a shortcut), `e2e_focus_field PLACEHOLDER`, `e2e_expect_menu_item MENU ITEM enabled|disabled`, `e2e_shot NAME`, `e2e_screen_text` (prints the text the checks search), `e2e_screen_dump` (every element with its role and text attributes), and `e2e_wait WHAT COMMAND…` for anything else. Add a step to `lib.sh` when two flows would repeat the same osascript.
+
+`e2e_expect_focus TEXT` waits for a focused field holding TEXT, as before typing into a field that just opened.
 
 - Drive the app the way a person does: menu shortcuts from `Keymap`, typed text. No test-only switches in app code; if a flow cannot reach a state, add fixtures instead.
 - Assert on text a person reads, as accessibility exposes it: `e2e_screen_dump` shows what that is. Plain `Text` is an AXStaticText with the text as AXValue.

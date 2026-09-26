@@ -18,8 +18,11 @@ struct RenameField: View {
             .onChange(of: isFocused) { _, focused in
                 if !focused { commit(text) }
             }
-            .onAppear {
-                text = label
+            .onAppear { text = label }
+            // Focusing in onAppear races the list re-rendering the row and leaves the field unfocused; focus it once
+            // the row has settled.
+            .task {
+                try? await Task.sleep(for: .milliseconds(100))
                 isFocused = true
             }
     }
