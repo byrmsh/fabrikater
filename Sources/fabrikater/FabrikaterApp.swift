@@ -16,9 +16,12 @@ struct FabrikaterApp: App {
         let log = Log(category: "App")
         let environment = ProcessInfo.processInfo.environment
         let runner: any HostCommandRunner
+        let notesDefaults: UserDefaults
         if let fixtures = environment["FABRIKATER_FIXTURES"] {
             log.info("replaying fixtures")
             runner = ReplayRunner(directory: URL(filePath: fixtures))
+            // Kept apart, so renaming or pinning a fixture pane never touches the real notes.
+            notesDefaults = UserDefaults(suiteName: "fabrikater.fixtures") ?? .standard
         } else {
             let alias = environment["FABRIKATER_HOST"] ?? "arch"
             let host = HostAlias(alias) ?? HostAlias("arch")!
@@ -26,6 +29,7 @@ struct FabrikaterApp: App {
                 log.error("FABRIKATER_HOST is not a valid ssh alias; using arch")
             }
             runner = SSHRunner(host: host)
+            notesDefaults = .standard
         }
         let client = HerdrClient(runner: runner)
         #if DEBUG
@@ -38,7 +42,7 @@ struct FabrikaterApp: App {
             herdUpdates: HerdFeed(service: client).updates(),
             transcripts: HostTranscriptService(runner: runner),
             control: PolicedControl(SendGuard(client, reader: client), policy: policy) { try await client.snapshot() },
-            notes: UserDefaultsPaneNotesStore(defaults: .standard)
+            notes: UserDefaultsPaneNotesStore(defaults: notesDefaults)
         )
         log.info("launched")
     }
