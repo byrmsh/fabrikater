@@ -1,0 +1,42 @@
+/// A key plus modifiers, independent of any UI toolkit. `AppUI` turns it into a SwiftUI shortcut.
+public struct KeyChord: Hashable, Sendable {
+    public enum Key: Hashable, Sendable {
+        case character(Character)
+        case upArrow
+        case downArrow
+    }
+
+    public struct Modifiers: OptionSet, Hashable, Sendable {
+        public let rawValue: Int
+
+        public init(rawValue: Int) {
+            self.rawValue = rawValue
+        }
+
+        public static let command = Modifiers(rawValue: 1 << 0)
+        public static let shift = Modifiers(rawValue: 1 << 1)
+        public static let option = Modifiers(rawValue: 1 << 2)
+        public static let control = Modifiers(rawValue: 1 << 3)
+    }
+
+    public var key: Key
+    public var modifiers: Modifiers
+
+    public init(_ key: Key, _ modifiers: Modifiers = .command) {
+        self.key = key
+        self.modifiers = modifiers
+    }
+}
+
+/// The keyboard shortcut of each command that has one (docs/design.md, "Window").
+public enum Keymap {
+    public static let bindings: [AppCommand: KeyChord] = [
+        .selectNextPane: KeyChord(.downArrow),
+        .selectPreviousPane: KeyChord(.upArrow),
+        .reloadConversation: KeyChord(.character("r")),
+    ]
+
+    public static func chord(for command: AppCommand) -> KeyChord? {
+        bindings[command]
+    }
+}
