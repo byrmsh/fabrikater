@@ -16,9 +16,12 @@ struct FabrikaterApp: App {
         let log = Log(category: "App")
         let environment = ProcessInfo.processInfo.environment
         let runner: any HostCommandRunner
+        // Fixture runs keep their notes apart, so a demo or an e2e flow never touches the real pane names.
+        var defaults = UserDefaults.standard
         if let fixtures = environment["FABRIKATER_FIXTURES"] {
             log.info("replaying fixtures")
             runner = ReplayRunner(directory: URL(filePath: fixtures))
+            defaults = UserDefaults(suiteName: "sh.bayram.fabrikater.fixtures") ?? .standard
         } else {
             let alias = environment["FABRIKATER_HOST"] ?? "arch"
             let host = HostAlias(alias) ?? HostAlias("arch")!
@@ -38,7 +41,7 @@ struct FabrikaterApp: App {
             herdUpdates: HerdFeed(service: client).updates(),
             transcripts: HostTranscriptService(runner: runner),
             control: PolicedControl(client, policy: policy) { try await client.snapshot() },
-            notes: UserDefaultsPaneNotesStore(defaults: .standard)
+            notes: UserDefaultsPaneNotesStore(defaults: defaults)
         )
         log.info("launched")
     }
