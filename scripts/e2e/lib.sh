@@ -63,21 +63,17 @@ e2e_expect_text() {
     e2e_wait "\"$1\" on screen" _e2e_has_text "$1"
 }
 
-# e2e_expect_text_gone TEXT: waits until no element in the main window shows TEXT.
-e2e_expect_text_gone() {
-    e2e_wait "\"$1\" gone" _e2e_lacks_text "$1"
-}
-
-_e2e_lacks_text() {
-    ! _e2e_has_text "$1"
-}
-
 # e2e_expect_no_text TEXT: fails if TEXT is on screen now.
 e2e_expect_no_text() {
     if _e2e_has_text "$1"; then
         echo "e2e: \"$1\" is on screen but should not be" >&2
         return 1
     fi
+}
+
+# e2e_expect_gone TEXT: waits until no element in the main window shows TEXT, as after closing a sheet.
+e2e_expect_gone() {
+    e2e_wait "\"$1\" to leave the screen" _e2e_lacks_text "$1"
 }
 
 # e2e_key KEY [modifier...]: presses a key in the app. KEY is a character or down, up, left, right, return, escape;
@@ -203,4 +199,8 @@ APPLESCRIPT
 
 _e2e_has_text() {
     e2e_screen_text | grep -qF -- "$1"
+}
+
+_e2e_lacks_text() {
+    ! _e2e_has_text "$1"
 }
