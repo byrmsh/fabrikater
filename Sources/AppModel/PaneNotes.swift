@@ -11,11 +11,16 @@ public struct PaneNotes: Equatable, Sendable {
     public var pins: [PaneID] = []
     /// Hidden panes and workspaces, and the View menu's toggles for them (B5).
     public var hiding = Hiding()
+    /// Panes whose agent finished a turn since they were last selected (B7).
+    public var unread: Set<PaneID> = []
 
-    public init(names: [PaneID: String] = [:], pins: [PaneID] = [], hiding: Hiding = Hiding()) {
+    public init(
+        names: [PaneID: String] = [:], pins: [PaneID] = [], hiding: Hiding = Hiding(), unread: Set<PaneID> = []
+    ) {
         self.names = names
         self.pins = pins
         self.hiding = hiding
+        self.unread = unread
     }
 }
 
@@ -24,6 +29,7 @@ extension PaneNotes: Codable {
         case names
         case pins
         case hiding
+        case unread
     }
 
     public init(from decoder: any Decoder) throws {
@@ -33,6 +39,7 @@ extension PaneNotes: Codable {
             names.compactMap { key, value in PaneID(key).map { ($0, value) } }, uniquingKeysWith: { $1 })
         pins = try container.decodeIfPresent([String].self, forKey: .pins)?.compactMap { PaneID($0) } ?? []
         hiding = try container.decodeIfPresent(Hiding.self, forKey: .hiding) ?? Hiding()
+        unread = Set(try container.decodeIfPresent([String].self, forKey: .unread)?.compactMap { PaneID($0) } ?? [])
     }
 
     public func encode(to encoder: any Encoder) throws {
@@ -41,6 +48,7 @@ extension PaneNotes: Codable {
             Dictionary(names.map { ($0.key.rawValue, $0.value) }, uniquingKeysWith: { $1 }), forKey: .names)
         try container.encode(pins.map(\.rawValue), forKey: .pins)
         try container.encode(hiding, forKey: .hiding)
+        try container.encode(unread.map(\.rawValue).sorted(), forKey: .unread)
     }
 }
 
