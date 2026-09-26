@@ -15,6 +15,7 @@ e2e_fixture_dir=""
 # e2e_launch [fixture...]: starts the app replaying only the named files from Tests/Fixtures, and waits for its window.
 # The default is the synthetic herd and conversation. With no files at all (`e2e_launch --none`) every read fails.
 # SOURCE=NAME replays a fixture under another name, such as claude-long.synthetic.jsonl=claude.synthetic.jsonl.
+# Pane notes (names, pins) start empty unless E2E_KEEP_NOTES=1, which relaunches with the last run's notes.
 e2e_launch() {
     if [ "$#" -eq 0 ]; then
         set -- snapshot.synthetic.json events.synthetic.jsonl claude.synthetic.jsonl
@@ -27,8 +28,10 @@ e2e_launch() {
     for file in "$@"; do
         cp "${E2E_FIXTURES}/${file%%=*}" "${e2e_fixture_dir}/${file#*=}"
     done
-    # Fixture runs keep pane names in their own defaults domain; clearing it keeps one flow's renames out of the next.
-    defaults delete sh.bayram.fabrikater.fixtures >/dev/null 2>&1 || true
+    # Fixture runs keep pane notes in their own defaults domain; clearing it keeps one flow's renames out of the next.
+    if [ -z "${E2E_KEEP_NOTES:-}" ]; then
+        defaults delete sh.bayram.fabrikater.fixtures >/dev/null 2>&1 || true
+    fi
     # `open` does not pass the environment on, so run the bundled binary directly. Ignoring saved window state keeps
     # one flow's hidden sidebar or text size out of the next.
     FABRIKATER_FIXTURES="${e2e_fixture_dir}" "${E2E_BINARY}" -ApplePersistenceIgnoreState YES >"${E2E_OUT}/${E2E_FLOW:-app}.log" 2>&1 &
@@ -112,6 +115,19 @@ e2e_key() {
         ${press}${using}
     end tell" >/dev/null
     sleep 0.5
+}
+
+# e2e_expect_menu_item MENU ITEM enabled|disabled: waits until the menu bar's MENU holds ITEM in that state.
+e2e_expect_menu_item() {
+    e2e_wait "\"$2\" $3 in the $1 menu" _e2e_menu_item_is "$@"
+}
+
+_e2e_menu_item_is() {
+    local want="true"
+    [ "$3" = "enabled" ] || want="false"
+    [ "$(osascript -e "tell application \"System Events\" to tell process \"${E2E_PROCESS}\"
+        return enabled of menu item \"$2\" of menu 1 of menu bar item \"$1\" of menu bar 1
+    end tell" 2>>"${E2E_OUT}/${E2E_FLOW:-app}.osascript.log")" = "${want}" ]
 }
 
 # e2e_focus_field PLACEHOLDER: clicks into the text field whose placeholder contains PLACEHOLDER.

@@ -1,4 +1,5 @@
 import FabrikaterCore
+import Foundation
 import HerdrKit
 import Observation
 import TranscriptKit
@@ -38,20 +39,28 @@ public final class AppStore {
     private var notes: PaneNotes
     private let notesStore: any PaneNotesStore
     private let clipboard: any Clipboard
+    private let opener: any URLOpener
+    private let host: String
     @ObservationIgnored private var herdUpdates: AsyncStream<HerdUpdate>?
     private let log = Log(category: "AppModel")
 
-    /// - Parameter control: changes Herdr on the user's behalf: focus follows the selection, and the composer sends.
+    /// - Parameters:
+    ///   - control: changes Herdr on the user's behalf: focus follows the selection, and the composer sends.
+    ///   - host: the ssh alias the panes run on, for links that reach them from this Mac.
     public init(
         herdUpdates: AsyncStream<HerdUpdate>,
         transcripts: any TranscriptService,
         control: any HerdrControl,
         notes: any PaneNotesStore = InMemoryPaneNotesStore(),
-        clipboard: any Clipboard = InMemoryClipboard()
+        clipboard: any Clipboard = InMemoryClipboard(),
+        opener: any URLOpener = RecordingURLOpener(),
+        host: String = "arch"
     ) {
         self.herdUpdates = herdUpdates
         notesStore = notes
         self.clipboard = clipboard
+        self.opener = opener
+        self.host = host
         self.notes = notes.load()
         conversation = ConversationStore(transcripts: transcripts)
         composer = ComposerStore(control: control)
@@ -86,10 +95,13 @@ public final class AppStore {
         case .commitRename(let id, let text):
             guard renaming == id else { return }
             renaming = nil
-            let label = sections.flatMap { $0.rows.flatMap(\.panes) }.first { $0.id == id }?.label ?? ""
+            let label = sections.panes.first { $0.id == id }?.label ?? ""
             updateNotes(notes.renaming(id, to: text, over: label))
         case .cancelRename:
             renaming = nil
+        case .togglePin(let id):
+            guard let id = id ?? selection else { return }
+            updateNotes(notes.togglingPin(id))
         case .toggleSidebar:
             isSidebarVisible.toggle()
         case .setSidebarVisible(let visible):
@@ -124,6 +136,9 @@ public final class AppStore {
             conversation.expand(id)
         case .collapseEntry(let id):
             conversation.collapse(id)
+        case .openInVSCode(let id):
+            guard let url = vscodeLink(id) else { return }
+            opener.open(url)
         }
     }
 
@@ -134,6 +149,7 @@ public final class AppStore {
         case .send: composer.canSend
         case .renamePane(let id): (id ?? selection) != nil
         case .commitRename, .cancelRename: renaming != nil
+        case .togglePin(let id): (id ?? selection) != nil
         case .toggleSidebar, .setSidebarVisible, .setTextScale: true
         case .biggerText: !textScale.isLargest
         case .smallerText: !textScale.isSmallest
@@ -144,7 +160,20 @@ public final class AppStore {
         case .copyMessage(let id): conversation.transcript.entries.contains { $0.id == id }
         case .copyConversation: !conversation.transcript.entries.isEmpty
         case .expandEntry, .collapseEntry: true
+        case .openInVSCode(let id): vscodeLink(id) != nil
         }
+    }
+
+    /// The menu title of `command` as it applies now: Pin becomes Unpin for a pinned pane.
+    public func title(of command: AppCommand) -> String {
+        switch command {
+        case .togglePin(let id) where (id ?? selection).map { notes.pins.contains($0) } == true: "Unpin"
+        default: command.title
+        }
+    }
+
+    private func vscodeLink(_ id: PaneID?) -> URL? {
+        (id ?? selection).flatMap { herd.pane($0) }.flatMap { VSCodeLink.url(host: host, pane: $0) }
     }
 
     func apply(_ update: HerdUpdate) {
@@ -177,6 +206,7 @@ public final class AppStore {
     private func refreshSections() {
         sections = SidebarSection.sections(for: herd)
             .named(notes.names)
+            .pinned(notes.pins)
         switcher = switcher?.refreshing(sections.switcherItems(in: herd))
     }
 
@@ -218,7 +248,7 @@ public final class AppStore {
 
     /// The pane `offset` rows away from the selection in sidebar order, wrapping; the first pane when none is selected.
     private func neighbour(offset: Int) -> PaneID? {
-        let order = sections.flatMap { $0.rows.flatMap(\.panes) }.map(\.id)
+        let order = sections.panes.map(\.id)
         guard !order.isEmpty else { return nil }
         guard let selection, let index = order.firstIndex(of: selection) else {
             return offset >= 0 ? order.first : order.last
