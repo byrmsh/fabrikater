@@ -83,3 +83,29 @@ Manual on the Mac: a Codex pane's conversation renders its user turns, assistant
 ## Later
 
 Movable, dockable panels (IDE-style) on the layout model from `.claude/skills/macos-design`; the Settings scene from design.md (host alias, notifications, Return-to-send, font sizes); creating and closing tabs and panes; starting agents; search across all conversations; a `MenuBarExtra` with the "Needs you" list; image attachments in the composer.
+
+## Backlog: UX gaps against Cursor and similar tools
+
+A prioritized list from comparing fabrikater with Cursor's Agents window ([multi-agent help](https://cursor.com/help/ai-features/multi-agent), [2.0 changelog](https://cursor.com/changelog/2-0)) and Conductor ([overview](https://continuumcode.ai/guides/what-is-conductor/)), both of which manage many agents from one sidebar. None is scheduled yet; pick items into a milestone when they are next. Prompting, Herdr focus sync and faster loading are left out because they are in progress elsewhere. Items already planned above (notifications, "Needs you", search, Settings, `MenuBarExtra`) are not repeated.
+
+**First**
+
+1. **Rename sessions.** A local display name per pane, set from the context menu or by double-clicking the row (⌘⇧R), stored on the Mac and shown in the sidebar, header and window title. Herdr's own labels stay untouched; pushing the name to Herdr is a later, opt-in mutating command behind `SendPolicy`.
+2. **Room for the conversation.** Collapse the sidebar (⌃⌘S, standard `NavigationSplitView` toggle), drop the in-view header that repeats the window title (the status and agent kind move into the toolbar), a full-width reading mode, and text size with ⌘+ / ⌘− / ⌘0.
+3. **Quick switcher.** ⌘K opens a fuzzy finder over every pane by display name, workspace, tab and first prompt, so the user can jump without scrolling a long sidebar.
+4. **Pin and hide.** Pin panes to a group at the top (Cursor pins chats the same way); hide panes or whole workspaces the user does not care about, and a toggle for shell panes without an agent. All local to the Mac.
+5. **Richer sidebar rows.** Time since last activity, an unread marker for new assistant output since the pane was last opened, and on hover the last assistant line, so the user can triage without opening each pane. Full titles in a tooltip, since long labels truncate today.
+
+**Next**
+
+6. **Tame long rows.** Collapse compaction summaries and long pasted prompts to a few lines with "Show all" (today a compaction summary fills the screen).
+7. **Changes panel.** The files this session edited, derived from its Edit, Write and MultiEdit tool calls, each with its diff, like Cursor's multi-file review. Read from the log only, no host file reads.
+8. **Session facts.** In an inspector or the header: model, working directory, git branch, start time and duration, and the context used from the log's `usage` fields as a small meter.
+9. **Current plan.** The latest `TodoWrite` list pinned above the transcript as a checklist, so progress shows without scrolling.
+10. **More than one pane at a time.** Open a pane in its own window or tab (⌘-click or a context-menu item) so two sessions sit side by side; this fits the movable panels under "Later".
+
+**Later**
+
+11. **Copy and export.** Copy a message or a whole conversation as markdown; open the working directory in VS Code over Remote SSH (`vscode://vscode-remote/ssh-remote+arch/<path>`).
+12. **Sort by activity.** An option to order panes by last activity instead of Herdr's `number`.
+13. **Past sessions.** Browse ended sessions in a pane's project under `~/.claude/projects` and read them read-only.
