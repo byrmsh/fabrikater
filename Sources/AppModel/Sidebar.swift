@@ -68,6 +68,14 @@ extension SidebarSection {
     }
 }
 
+extension [SidebarSection] {
+    /// Every pane once, in sidebar order. A pane shown twice (pinned, B4) counts where it first appears.
+    var panes: [PaneRow] {
+        var seen = Set<PaneID>()
+        return flatMap { $0.rows.flatMap(\.panes) }.filter { seen.insert($0.id).inserted }
+    }
+}
+
 extension PaneRow {
     init(pane: Herd.Pane, tab: Herd.Tab?) {
         self.init(id: pane.id, label: Self.label(for: pane, tab: tab), status: pane.agentStatus, agent: pane.agent)
