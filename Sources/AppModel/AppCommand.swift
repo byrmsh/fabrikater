@@ -8,6 +8,11 @@ public enum AppCommand: Hashable, Sendable {
     case reloadConversation
     /// Sends the composer's draft to the selected pane.
     case send
+    /// Opens the inline name field on a pane's row; nil means the selected pane.
+    case renamePane(PaneID?)
+    /// Sets the name typed into the field; blank text clears it.
+    case commitRename(PaneID, String)
+    case cancelRename
 
     /// The menu title.
     public var title: String {
@@ -17,6 +22,9 @@ public enum AppCommand: Hashable, Sendable {
         case .selectPreviousPane: "Previous Pane"
         case .reloadConversation: "Reload Conversation"
         case .send: "Send"
+        case .renamePane: "Rename…"
+        case .commitRename: "Rename"
+        case .cancelRename: "Cancel Rename"
         }
     }
 }

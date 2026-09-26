@@ -89,3 +89,49 @@ Manual on the Mac: a Codex pane's conversation renders its user turns, assistant
 ## Later
 
 Movable, dockable panels (IDE-style) on the layout model from `.claude/skills/macos-design`; the Settings scene from design.md (host alias, notifications, Return-to-send, font sizes); creating and closing tabs and panes; starting agents; search across all conversations; a `MenuBarExtra` with the "Needs you" list; image attachments in the composer.
+
+## Backlog: UX features
+
+A list of small, independent features from comparing fabrikater with Cursor's Agents window ([multi-agent help](https://cursor.com/help/ai-features/multi-agent), [2.0 changelog](https://cursor.com/changelog/2-0)) and Conductor ([overview](https://continuumcode.ai/guides/what-is-conductor/)). Each item is one thread and one PR, built end to end without asking, and can be removed again without touching the others. Prompting, Herdr focus sync and faster loading are left out because they are being built elsewhere; items already planned in the milestones above (notifications, "Needs you", search, Settings, `MenuBarExtra`) are not repeated. Mark an item done here, with its PR, in the PR that builds it.
+
+### How a feature stays removable
+
+- **The logic is a pure function over values**, in its own file in `AppModel` (or `TranscriptKit` for transcript features), named after the feature: `Sidebar+Pinning.swift`, `Transcript+Collapsing.swift`. It takes the values it works on plus the feature's own state and returns new values. It has no I/O and is tested on Linux with plain values.
+- **The stores compose features as a pipeline**, one line per feature: `AppStore` builds `SidebarSection.sections(for: herd)` and then applies each sidebar feature in turn (`.named(names).pinned(pins).hiding(hidden)`). Removing a feature deletes its file, its line in the pipeline, its `AppCommand` cases and its view file. No feature reaches into another's file.
+- **Per-pane local state goes through one protocol.** B1 adds `PaneNotes`, a small `Sendable` value (names, pins, hidden ids, last-seen entry ids) behind a `PaneNotesStore` protocol with an in-memory fake for tests and a `UserDefaults` implementation wired in the composition root. Each feature adds only its own field. Herdr is never written to.
+- **User actions are `AppCommand` cases** with a `Keymap` entry where they have a shortcut, routed through `AppStore.perform(_:)`; views stay thin (`AppUI/<Feature>/`), designed and reviewed with `.claude/skills/macos-design`.
+- **A feature that grows `AppStore` past a screen of new code gets its own store** (recipe "Add a store plus a view" in [structure.md](structure.md)) instead of more branches in `AppStore`.
+
+Every PR runs `scripts/check.sh`, drives the Linux and macOS jobs green, and lists its visual checks under "Manual on the Mac" with `FABRIKATER_FIXTURES=Tests/Fixtures build/fabrikater.app/Contents/MacOS/fabrikater`, which shows the fixture herd without the host.
+
+### Items, in priority order
+
+**B1. Rename sessions.** **Done** ([#8](https://github.com/byrmsh/fabrikater/pull/8)). A local display name per pane: the row's context menu and Pane menu get Rename… (⌘⇧R), which opens an inline text field in the row; an empty name clears it. The name replaces the label in the sidebar, the header and the window title. Adds `PaneNotes`, `PaneNotesStore` and the `UserDefaults` implementation (the first feature to need them; key the names by `PaneID`, and note in architecture.md whether pane ids survive a Herdr restart, as a manual check). Logic: `Sidebar+Naming.swift`, `sections.named(_:)`. Tests: a named pane shows its name in the row and header, clearing restores the Herdr label, a name for a vanished pane is kept but unused, the store round-trips.
+
+**B2. Room for the conversation.** Remove `PaneHeaderView`, which repeats the window title; put the status (dot plus word) and agent kind into the toolbar next to Reload. Add View menu items Toggle Sidebar (⌃⌘S, the standard `NavigationSplitView` column visibility) and Bigger / Smaller / Actual Size text (⌘+, ⌘−, ⌘0) for the conversation. Logic: a `TextScale` value with clamped steps in `AppModel`, persisted with the window. Tests: the steps clamp and reset; the header value still carries status and agent.
+
+**B3. Quick switcher.** ⌘K opens a sheet with a search field over every pane, ranked by a fuzzy match on display name (B1's when set), workspace, tab and agent; Return selects, Esc closes. Logic: `QuickSwitcher.swift` with a pure `rank(query:panes:) -> [PaneRow]` (subsequence match, word-start and prefix bonuses, stable ties in sidebar order). Tests: ranking cases, empty query lists everything in sidebar order, no match gives an empty list.
+
+**B4. Pin panes.** Pin / Unpin in the row's context menu (⌘⇧P); pinned panes appear in a "Pinned" section at the top of the sidebar, still in their workspace below. Logic: `Sidebar+Pinning.swift`, `sections.pinned(_:)`. Tests: pinned section order follows pin order, a vanished pinned pane leaves the section, next and previous pane skip the duplicate.
+
+**B5. Hide panes and workspaces.** Hide in the context menu for a pane or a workspace section, and a View menu toggle Show Hidden plus a toggle Show Shell Panes (panes without an agent). Logic: `Sidebar+Hiding.swift`, `sections.hiding(_:showHidden:showShells:)`. Tests: hidden rows and sections drop out, the toggles bring them back, a selected pane that becomes hidden stays selected.
+
+**B6. Richer sidebar rows.** A relative last-activity time on each row ("3m"), taken from the time fabrikater last saw the pane's `agent_status` or `revision` change (the snapshot carries no timestamp; blank until the first change after launch); the full label as the row's tooltip (long labels truncate today). Logic: `Sidebar+Activity.swift`, tracking change times from successive herds, and a pure formatter taking `now`. Tests: change detection across herds, formatting boundaries with a fixed clock.
+
+**B7. Unread marker.** A dot on rows with new assistant output since the pane was last opened in the app, cleared on selection. Uses `PaneNotes` (last-seen transcript entry id per pane) and the status changes the herd already reports (a pane going `working` to `done`/`idle` while not selected marks it unread). Logic: `Sidebar+Unread.swift`. Tests: which transitions mark and clear, selection clears, relaunch keeps it.
+
+**B8. Collapse long rows.** Compaction summaries and user prompts longer than about 12 lines render collapsed to 4 lines with Show all / Show less; the choice is per entry and not persisted. Logic: `Transcript+Collapsing.swift` in `AppModel` deciding `isCollapsible` from line count. Tests: the threshold, a summary always collapsed by default, short entries untouched.
+
+**B9. Copy.** Copy Message in each entry's context menu and Copy Conversation as Markdown in the Pane menu (⌘⇧C). Logic: `Transcript+Markdown.swift` in `TranscriptKit`, a pure `markdown(of:)` rendering user turns, assistant text, tool rows as fenced input and summaries as quotes. Tests: against `claude.synthetic.jsonl`.
+
+**B10. Current plan.** The latest `TodoWrite` call's items shown as a compact checklist above the transcript (pending, in progress, completed), hidden when the session has none. Logic: `Transcript+Todos.swift` in `TranscriptKit`, parsing the tool input into `[Todo]`. Tests: add `TodoWrite` rows to the synthetic fixture; the latest call wins, malformed input yields no list.
+
+**B11. Session facts.** A popover from the toolbar status item showing model, working directory, git branch, first-seen time and context used, read from the log's rows (`message.model`, `cwd`, `gitBranch`, `message.usage`). Logic: `Transcript+Facts.swift` in `TranscriptKit`. Tests: fields present, absent and mixed across rows; context used is the latest usage's input plus cache tokens.
+
+**B12. Changes panel.** A list of the files this session changed, from its Edit, MultiEdit and Write tool calls, each expanding to the edit as a unified diff of `old_string`/`new_string` (Write shows the new content). Opens from the toolbar as an inspector (`.inspector`). Logic: `Transcript+Changes.swift` in `TranscriptKit`, grouping by path in first-touched order. Tests: grouping, several edits to one file, a failed tool result is excluded.
+
+**B13. Open in VS Code.** Pane menu item Open Folder in VS Code, opening `vscode://vscode-remote/ssh-remote+<host><cwd>` with the host alias and the pane's `cwd` from the snapshot (`foreground_cwd` when set). Logic: a pure URL builder in `AppModel` that percent-encodes the path. Tests: encoding, the `foreground_cwd` preference, disabled when neither is known.
+
+**B14. Sort by activity.** View menu Sort Panes By: Herdr Order / Recent Activity, applied within each workspace. Logic: `Sidebar+Sorting.swift` using B6's activity time. Tests: order and ties.
+
+**B15. Open a pane in a new window.** Open in New Window in the row's context menu, using a `WindowGroup(for: PaneID.self)` scene whose window shows only that pane's conversation. Needs `ConversationStore` created per window rather than owned by `AppStore`; propose the change first in the PR description and record it in an ADR if it changes the store layering.
