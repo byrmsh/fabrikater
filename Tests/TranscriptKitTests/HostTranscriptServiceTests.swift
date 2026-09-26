@@ -23,6 +23,7 @@ struct HostTranscriptServiceTests {
         let transcript = try await service.claudeTranscript(session: session, bytes: TranscriptWindow.full)
         #expect(transcript.entries.count == 9)
         #expect(!transcript.isClipped)
+        #expect(transcript.facts.firstSeen == SessionFacts.parseTimestamp("2026-09-26T10:00:00.000Z"))
     }
 
     @Test func marksATranscriptLongerThanTheWindowAsClipped() async throws {

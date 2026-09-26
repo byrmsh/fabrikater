@@ -4,10 +4,13 @@ public struct Transcript: Equatable, Sendable {
     public var entries: [TranscriptEntry]
     /// True when the log is longer than what was read, so older history exists.
     public var isClipped: Bool
+    /// What the log says about the session: model, folder, branch, start and context use (B11).
+    public var facts: SessionFacts
 
-    public init(entries: [TranscriptEntry] = [], isClipped: Bool = false) {
+    public init(entries: [TranscriptEntry] = [], isClipped: Bool = false, facts: SessionFacts = SessionFacts()) {
         self.entries = entries
         self.isClipped = isClipped
+        self.facts = facts
     }
 }
 
