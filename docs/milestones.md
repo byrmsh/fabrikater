@@ -110,7 +110,7 @@ Every PR runs `scripts/check.sh`, drives the Linux and macOS jobs green, and lis
 
 **B5. Hide panes and workspaces.** Hide in the context menu for a pane or a workspace section, and a View menu toggle Show Hidden plus a toggle Show Shell Panes (panes without an agent). Logic: `Sidebar+Hiding.swift`, `sections.hiding(_:showHidden:showShells:)`. Tests: hidden rows and sections drop out, the toggles bring them back, a selected pane that becomes hidden stays selected.
 
-**B6. Richer sidebar rows.** A relative last-activity time on each row ("3m"), taken from the pane's `updated_at` or, if the snapshot has none, the time fabrikater last saw its status change; the full label as the row's tooltip (long labels truncate today). Logic: `Sidebar+Activity.swift` with a pure formatter taking `now`. Tests: formatting boundaries with a fixed clock, fallback when the field is missing. Record in architecture.md which snapshot field was used.
+**B6. Richer sidebar rows.** A relative last-activity time on each row ("3m"), taken from the time fabrikater last saw the pane's `agent_status` or `revision` change (the snapshot carries no timestamp; blank until the first change after launch); the full label as the row's tooltip (long labels truncate today). Logic: `Sidebar+Activity.swift`, tracking change times from successive herds, and a pure formatter taking `now`. Tests: change detection across herds, formatting boundaries with a fixed clock.
 
 **B7. Unread marker.** A dot on rows with new assistant output since the pane was last opened in the app, cleared on selection. Uses `PaneNotes` (last-seen transcript entry id per pane) and the status changes the herd already reports (a pane going `working` to `done`/`idle` while not selected marks it unread). Logic: `Sidebar+Unread.swift`. Tests: which transitions mark and clear, selection clears, relaunch keeps it.
 
@@ -124,7 +124,7 @@ Every PR runs `scripts/check.sh`, drives the Linux and macOS jobs green, and lis
 
 **B12. Changes panel.** A list of the files this session changed, from its Edit, MultiEdit and Write tool calls, each expanding to the edit as a unified diff of `old_string`/`new_string` (Write shows the new content). Opens from the toolbar as an inspector (`.inspector`). Logic: `Transcript+Changes.swift` in `TranscriptKit`, grouping by path in first-touched order. Tests: grouping, several edits to one file, a failed tool result is excluded.
 
-**B13. Open in VS Code.** Pane menu item Open Folder in VS Code, opening `vscode://vscode-remote/ssh-remote+<host><cwd>` with the host alias and B11's `cwd`. Logic: a pure URL builder in `AppModel` that percent-encodes the path. Tests: encoding, disabled when `cwd` is unknown.
+**B13. Open in VS Code.** Pane menu item Open Folder in VS Code, opening `vscode://vscode-remote/ssh-remote+<host><cwd>` with the host alias and the pane's `cwd` from the snapshot (`foreground_cwd` when set). Logic: a pure URL builder in `AppModel` that percent-encodes the path. Tests: encoding, the `foreground_cwd` preference, disabled when neither is known.
 
 **B14. Sort by activity.** View menu Sort Panes By: Herdr Order / Recent Activity, applied within each workspace. Logic: `Sidebar+Sorting.swift` using B6's activity time. Tests: order and ties.
 
