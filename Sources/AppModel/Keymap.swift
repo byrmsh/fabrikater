@@ -37,6 +37,10 @@ public enum Keymap {
         .reloadConversation: KeyChord(.character("r")),
         .send: KeyChord(.return),
         .renamePane(nil): KeyChord(.character("r"), [.command, .shift]),
+        .toggleSidebar: KeyChord(.character("s"), [.command, .control]),
+        .biggerText: KeyChord(.character("+")),
+        .smallerText: KeyChord(.character("-")),
+        .actualSizeText: KeyChord(.character("0")),
     ]
 
     public static func chord(for command: AppCommand) -> KeyChord? {
