@@ -19,13 +19,16 @@ public enum ConnectionState: Equatable, Sendable {
     }
 }
 
-/// The header above the selected pane's conversation.
+/// The selected pane's title and location (the window title) and its agent and status (the toolbar).
 public struct PaneHeader: Equatable, Sendable {
     public var title: String
     /// "Workspace › Tab".
     public var location: String
     public var agent: String
     public var status: AgentStatus
+
+    /// "Claude, Working": the toolbar's spoken label and help tag.
+    public var summary: String { "\(agent), \(status.title)" }
 }
 
 /// The root store: the herd sidebar, the selection, and the commands that act on them.
@@ -38,6 +41,9 @@ public final class AppStore {
     public private(set) var header: PaneHeader?
     /// The pane whose row shows the inline name field.
     public private(set) var renaming: PaneID?
+    public private(set) var isSidebarVisible = true
+    /// The conversation's text size.
+    public private(set) var textScale = TextScale.actual
     public let conversation: ConversationStore
     public let composer: ComposerStore
 
@@ -95,6 +101,18 @@ public final class AppStore {
             updateNotes(notes.renaming(id, to: text, over: label))
         case .cancelRename:
             renaming = nil
+        case .toggleSidebar:
+            isSidebarVisible.toggle()
+        case .setSidebarVisible(let visible):
+            isSidebarVisible = visible
+        case .biggerText:
+            textScale = textScale.bigger
+        case .smallerText:
+            textScale = textScale.smaller
+        case .actualSizeText:
+            textScale = .actual
+        case .setTextScale(let scale):
+            textScale = scale
         }
     }
 
@@ -105,6 +123,10 @@ public final class AppStore {
         case .send: composer.canSend
         case .renamePane(let id): (id ?? selection) != nil
         case .commitRename, .cancelRename: renaming != nil
+        case .toggleSidebar, .setSidebarVisible, .setTextScale: true
+        case .biggerText: !textScale.isLargest
+        case .smallerText: !textScale.isSmallest
+        case .actualSizeText: textScale != .actual
         }
     }
 
