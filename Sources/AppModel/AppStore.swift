@@ -95,10 +95,13 @@ public final class AppStore {
         case .commitRename(let id, let text):
             guard renaming == id else { return }
             renaming = nil
-            let label = sections.flatMap { $0.rows.flatMap(\.panes) }.first { $0.id == id }?.label ?? ""
+            let label = sections.panes.first { $0.id == id }?.label ?? ""
             updateNotes(notes.renaming(id, to: text, over: label))
         case .cancelRename:
             renaming = nil
+        case .togglePin(let id):
+            guard let id = id ?? selection else { return }
+            updateNotes(notes.togglingPin(id))
         case .toggleSidebar:
             isSidebarVisible.toggle()
         case .setSidebarVisible(let visible):
@@ -142,6 +145,7 @@ public final class AppStore {
         case .send: composer.canSend
         case .renamePane(let id): (id ?? selection) != nil
         case .commitRename, .cancelRename: renaming != nil
+        case .togglePin(let id): (id ?? selection) != nil
         case .toggleSidebar, .setSidebarVisible, .setTextScale: true
         case .biggerText: !textScale.isLargest
         case .smallerText: !textScale.isSmallest
@@ -152,6 +156,14 @@ public final class AppStore {
         case .copyMessage(let id): conversation.transcript.entries.contains { $0.id == id }
         case .copyConversation: !conversation.transcript.entries.isEmpty
         case .openInVSCode(let id): vscodeLink(id) != nil
+        }
+    }
+
+    /// The menu title of `command` as it applies now: Pin becomes Unpin for a pinned pane.
+    public func title(of command: AppCommand) -> String {
+        switch command {
+        case .togglePin(let id) where (id ?? selection).map { notes.pins.contains($0) } == true: "Unpin"
+        default: command.title
         }
     }
 
@@ -189,6 +201,7 @@ public final class AppStore {
     private func refreshSections() {
         sections = SidebarSection.sections(for: herd)
             .named(notes.names)
+            .pinned(notes.pins)
         switcher = switcher?.refreshing(sections.switcherItems(in: herd))
     }
 
@@ -230,7 +243,7 @@ public final class AppStore {
 
     /// The pane `offset` rows away from the selection in sidebar order, wrapping; the first pane when none is selected.
     private func neighbour(offset: Int) -> PaneID? {
-        let order = sections.flatMap { $0.rows.flatMap(\.panes) }.map(\.id)
+        let order = sections.panes.map(\.id)
         guard !order.isEmpty else { return nil }
         guard let selection, let index = order.firstIndex(of: selection) else {
             return offset >= 0 ? order.first : order.last

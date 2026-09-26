@@ -13,6 +13,8 @@ public enum AppCommand: Hashable, Sendable {
     /// Sets the name typed into the field; blank text clears it.
     case commitRename(PaneID, String)
     case cancelRename
+    /// Pins a pane to the top of the sidebar, or unpins it; nil means the selected pane.
+    case togglePin(PaneID?)
     case toggleSidebar
     /// The sidebar was shown or hidden by the window itself (its toolbar button, or restoring the window).
     case setSidebarVisible(Bool)
@@ -46,6 +48,7 @@ public enum AppCommand: Hashable, Sendable {
         case .renamePane: "Rename…"
         case .commitRename: "Rename"
         case .cancelRename: "Cancel Rename"
+        case .togglePin: "Pin"
         case .toggleSidebar: "Toggle Sidebar"
         case .setSidebarVisible(let visible): visible ? "Show Sidebar" : "Hide Sidebar"
         case .biggerText: "Bigger"
