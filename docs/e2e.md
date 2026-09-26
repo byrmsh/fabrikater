@@ -28,7 +28,7 @@ e2e_expect_text "Rename the helper"
 e2e_shot conversation               # build/e2e/conversation.png, just the window
 ```
 
-Steps: `e2e_launch [fixture…|--none]`, `e2e_expect_text TEXT`, `e2e_expect_no_text TEXT` (checks once), `e2e_expect_gone TEXT` (waits for it to go), `e2e_key KEY [modifier…]`, `e2e_shot NAME`, `e2e_screen_text` (prints the text the checks search), `e2e_screen_dump` (every element with its role and text attributes), and `e2e_wait WHAT COMMAND…` for anything else. Add a step to `lib.sh` when two flows would repeat the same osascript.
+Steps: `e2e_launch [fixture…|--none]`, `e2e_expect_text TEXT`, `e2e_expect_no_text TEXT` (checks once), `e2e_expect_gone TEXT` (waits for it to go), `e2e_expect_focus TEXT` (waits for a focused field holding it, as before typing into a field that just opened), `e2e_key KEY [modifier…]`, `e2e_shot NAME`, `e2e_screen_text` (prints the text the checks search), `e2e_screen_dump` (every element with its role and text attributes), and `e2e_wait WHAT COMMAND…` for anything else. Add a step to `lib.sh` when two flows would repeat the same osascript.
 
 - Drive the app the way a person does: menu shortcuts from `Keymap`, typed text. No test-only switches in app code; if a flow cannot reach a state, add fixtures instead.
 - Assert on text a person reads, as accessibility exposes it: `e2e_screen_dump` shows what that is. Plain `Text` is an AXStaticText with the text as AXValue.

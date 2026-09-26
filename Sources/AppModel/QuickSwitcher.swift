@@ -13,11 +13,6 @@ public struct SwitcherItem: Equatable, Sendable, Identifiable {
 
     public var id: PaneID { row.id }
 
-    /// What VoiceOver reads for the result: the name, where it lives and its status.
-    public var accessibilityLabel: String {
-        [row.label, location, row.status.title].filter { !$0.isEmpty }.joined(separator: ", ")
-    }
-
     /// The text the query matches against, name first so a match on the name ranks highest.
     var searchText: String { [row.label, location, agent].joined(separator: " ") }
 }

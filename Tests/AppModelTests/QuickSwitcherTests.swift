@@ -92,7 +92,6 @@ struct QuickSwitcherStoreTests {
         #expect(switcher.highlighted == refactor)
         #expect(switcher.results.first?.location == "Synthetic A › api")
         #expect(switcher.results[1].agent == "Shell")
-        #expect(switcher.results.first?.accessibilityLabel == "Synthetic refactor, Synthetic A › api, Working")
     }
 
     @Test func matchesACustomName() throws {

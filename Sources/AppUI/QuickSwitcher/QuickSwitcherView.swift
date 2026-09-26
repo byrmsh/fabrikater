@@ -87,7 +87,5 @@ private struct QuickSwitcherRow: View {
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
         }
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(item.accessibilityLabel)
     }
 }
