@@ -85,6 +85,15 @@ extension PaneRow {
     }
 }
 
+extension Herd {
+    /// "Workspace › Tab", leaving out empty labels.
+    func location(of pane: Pane) -> String {
+        [workspace(pane.workspaceID)?.label, tab(pane.tabID)?.label]
+            .compactMap { $0?.isEmpty == false ? $0 : nil }
+            .joined(separator: " › ")
+    }
+}
+
 extension AgentStatus {
     /// The status in words, for accessibility labels and help tags.
     public var title: String {

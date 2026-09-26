@@ -21,6 +21,14 @@ public enum AppCommand: Hashable, Sendable {
     case actualSizeText
     /// Restores a saved text size, clamped to the steps.
     case setTextScale(TextScale)
+    case openQuickSwitcher
+    case closeQuickSwitcher
+    /// The text typed into the switcher's search field.
+    case searchQuickSwitcher(String)
+    /// Moves the switcher's highlight by this many results.
+    case moveQuickSwitcherHighlight(Int)
+    /// Selects a result and closes the switcher; nil means the highlighted result.
+    case chooseQuickSwitcherResult(PaneID?)
 
     /// The menu title.
     public var title: String {
@@ -39,6 +47,11 @@ public enum AppCommand: Hashable, Sendable {
         case .smallerText: "Smaller"
         case .actualSizeText: "Actual Size"
         case .setTextScale: "Text Size"
+        case .openQuickSwitcher: "Open Quickly…"
+        case .closeQuickSwitcher: "Close Switcher"
+        case .searchQuickSwitcher: "Search Panes"
+        case .moveQuickSwitcherHighlight: "Move Highlight"
+        case .chooseQuickSwitcherResult: "Open Pane"
         }
     }
 }

@@ -12,6 +12,8 @@ public struct PaneCommands: Commands {
 
     public var body: some Commands {
         CommandMenu("Pane") {
+            button(.openQuickSwitcher)
+            Divider()
             button(.selectPreviousPane)
             button(.selectNextPane)
             Divider()
