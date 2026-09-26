@@ -67,7 +67,7 @@ struct QuickSwitcherRankingTests {
 @MainActor
 struct QuickSwitcherStoreTests {
     private struct NoTranscripts: TranscriptService {
-        func claudeTranscript(session: SessionID) async throws -> Transcript { Transcript() }
+        func claudeTranscript(session: SessionID, bytes: Int) async throws -> Transcript { Transcript() }
     }
 
     private let refactor = PaneID("w1:p1")!
@@ -78,7 +78,7 @@ struct QuickSwitcherStoreTests {
     private func makeStore(names: [PaneID: String] = [:]) throws -> AppStore {
         let herd = try Herd(snapshotReply: Fixture.data(named: "snapshot.synthetic.json"))
         let store = AppStore(
-            herdUpdates: AsyncStream { $0.finish() }, transcripts: NoTranscripts(),
+            herdUpdates: AsyncStream { $0.finish() }, transcripts: NoTranscripts(), control: FakeControl(),
             notes: InMemoryPaneNotesStore(PaneNotes(names: names)))
         store.apply(.herd(herd))
         return store
@@ -153,7 +153,8 @@ struct QuickSwitcherStoreTests {
     }
 
     @Test func cannotOpenWithoutPanes() {
-        let store = AppStore(herdUpdates: AsyncStream { $0.finish() }, transcripts: NoTranscripts())
+        let store = AppStore(
+            herdUpdates: AsyncStream { $0.finish() }, transcripts: NoTranscripts(), control: FakeControl())
         #expect(!store.isEnabled(.openQuickSwitcher))
     }
 }
