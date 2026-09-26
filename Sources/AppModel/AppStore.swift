@@ -93,6 +93,20 @@ public final class AppStore {
         case .togglePin(let id):
             guard let id = id ?? selection else { return }
             updateNotes(notes.togglingPin(id))
+        case .toggleHidden(let id):
+            guard let id = id ?? selection else { return }
+            updateNotes(notes.togglingHidden(id))
+        case .toggleHiddenWorkspace(let id):
+            guard let id = workspace(id) else { return }
+            updateNotes(notes.togglingHiddenWorkspace(id))
+        case .toggleShowHidden:
+            var notes = notes
+            notes.hiding.showHidden.toggle()
+            updateNotes(notes)
+        case .toggleShowShells:
+            var notes = notes
+            notes.hiding.showShells.toggle()
+            updateNotes(notes)
         case .toggleSidebar:
             isSidebarVisible.toggle()
         case .setSidebarVisible(let visible):
@@ -133,7 +147,9 @@ public final class AppStore {
         case .send: composer.canSend
         case .renamePane(let id): (id ?? selection) != nil
         case .commitRename, .cancelRename: renaming != nil
-        case .togglePin(let id): (id ?? selection) != nil
+        case .togglePin(let id), .toggleHidden(let id): (id ?? selection) != nil
+        case .toggleHiddenWorkspace(let id): workspace(id) != nil
+        case .toggleShowHidden, .toggleShowShells: true
         case .toggleSidebar, .setSidebarVisible, .setTextScale: true
         case .biggerText: !textScale.isLargest
         case .smallerText: !textScale.isSmallest
@@ -150,8 +166,28 @@ public final class AppStore {
     public func title(of command: AppCommand) -> String {
         switch command {
         case .togglePin(let id) where (id ?? selection).map { notes.pins.contains($0) } == true: "Unpin"
+        case .toggleHidden(let id) where (id ?? selection).map { notes.hiding.panes.contains($0) } == true:
+            "Unhide Pane"
+        case .toggleHiddenWorkspace(let id) where workspace(id).map { notes.hiding.workspaces.contains($0) } == true:
+            "Unhide Workspace"
         default: command.title
         }
+    }
+
+    /// Whether a menu item that switches a setting shows a checkmark; nil for commands that are not settings.
+    public func isChecked(_ command: AppCommand) -> Bool? {
+        switch command {
+        case .toggleShowHidden: notes.hiding.showHidden
+        case .toggleShowShells: notes.hiding.showShells
+        default: nil
+        }
+    }
+
+    /// What the sidebar says when it has no rows: the connection's state, or that everything in the herd is hidden.
+    public var emptySidebar: EmptySidebar {
+        guard connection == .connected, !herd.panes.isEmpty else { return connection.emptySidebar }
+        return EmptySidebar(
+            title: "Everything Is Hidden", detail: "Show Hidden Panes and Show Shell Panes are in the View menu.")
     }
 
     func apply(_ update: HerdUpdate) {
@@ -184,6 +220,7 @@ public final class AppStore {
     private func refreshSections() {
         sections = SidebarSection.sections(for: herd)
             .named(notes.names)
+            .hiding(notes.hiding)
             .pinned(notes.pins)
         switcher = switcher?.refreshing(sections.switcherItems(in: herd))
     }
@@ -222,6 +259,12 @@ public final class AppStore {
             status: pane.agentStatus
         )
         .named(notes.names, id: pane.id)
+    }
+
+    /// The workspace `id` if Herdr has it; for nil, the selected pane's workspace.
+    private func workspace(_ id: String?) -> String? {
+        guard let id else { return selection.flatMap { herd.pane($0) }?.workspaceID }
+        return herd.workspace(id)?.id
     }
 
     /// The pane `offset` rows away from the selection in sidebar order, wrapping; the first pane when none is selected.

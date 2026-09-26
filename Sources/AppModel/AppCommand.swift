@@ -15,6 +15,14 @@ public enum AppCommand: Hashable, Sendable {
     case cancelRename
     /// Pins a pane to the top of the sidebar, or unpins it; nil means the selected pane.
     case togglePin(PaneID?)
+    /// Hides a pane from the sidebar, or shows it again; nil means the selected pane.
+    case toggleHidden(PaneID?)
+    /// Hides a workspace's section from the sidebar, or shows it again; nil means the selected pane's workspace.
+    case toggleHiddenWorkspace(String?)
+    /// Shows hidden panes and workspaces, marked, or leaves them out.
+    case toggleShowHidden
+    /// Shows panes without an agent, or leaves them out.
+    case toggleShowShells
     case toggleSidebar
     /// The sidebar was shown or hidden by the window itself (its toolbar button, or restoring the window).
     case setSidebarVisible(Bool)
@@ -47,6 +55,10 @@ public enum AppCommand: Hashable, Sendable {
         case .commitRename: "Rename"
         case .cancelRename: "Cancel Rename"
         case .togglePin: "Pin"
+        case .toggleHidden: "Hide Pane"
+        case .toggleHiddenWorkspace: "Hide Workspace"
+        case .toggleShowHidden: "Show Hidden Panes"
+        case .toggleShowShells: "Show Shell Panes"
         case .toggleSidebar: "Toggle Sidebar"
         case .setSidebarVisible(let visible): visible ? "Show Sidebar" : "Hide Sidebar"
         case .biggerText: "Bigger"

@@ -9,10 +9,13 @@ public struct PaneNotes: Equatable, Sendable {
     public var names: [PaneID: String] = [:]
     /// Pinned panes in the order they were pinned (B4). Kept for panes that are gone, in case they come back.
     public var pins: [PaneID] = []
+    /// Hidden panes and workspaces, and the View menu's toggles for them (B5).
+    public var hiding = Hiding()
 
-    public init(names: [PaneID: String] = [:], pins: [PaneID] = []) {
+    public init(names: [PaneID: String] = [:], pins: [PaneID] = [], hiding: Hiding = Hiding()) {
         self.names = names
         self.pins = pins
+        self.hiding = hiding
     }
 }
 
@@ -20,6 +23,7 @@ extension PaneNotes: Codable {
     private enum CodingKeys: String, CodingKey {
         case names
         case pins
+        case hiding
     }
 
     public init(from decoder: any Decoder) throws {
@@ -28,6 +32,7 @@ extension PaneNotes: Codable {
         self.names = Dictionary(
             names.compactMap { key, value in PaneID(key).map { ($0, value) } }, uniquingKeysWith: { $1 })
         pins = try container.decodeIfPresent([String].self, forKey: .pins)?.compactMap { PaneID($0) } ?? []
+        hiding = try container.decodeIfPresent(Hiding.self, forKey: .hiding) ?? Hiding()
     }
 
     public func encode(to encoder: any Encoder) throws {
@@ -35,6 +40,7 @@ extension PaneNotes: Codable {
         try container.encode(
             Dictionary(names.map { ($0.key.rawValue, $0.value) }, uniquingKeysWith: { $1 }), forKey: .names)
         try container.encode(pins.map(\.rawValue), forKey: .pins)
+        try container.encode(hiding, forKey: .hiding)
     }
 }
 
