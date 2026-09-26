@@ -27,7 +27,8 @@ e2e_launch() {
         cp "${E2E_FIXTURES}/${file}" "${e2e_fixture_dir}/"
     done
     # `open` does not pass the environment on, so run the bundled binary directly.
-    FABRIKATER_FIXTURES="${e2e_fixture_dir}" "${E2E_BINARY}" >"${E2E_OUT}/${E2E_FLOW:-app}.log" 2>&1 &
+    # Ignoring saved window state keeps one flow's hidden sidebar or text size out of the next.
+    FABRIKATER_FIXTURES="${e2e_fixture_dir}" "${E2E_BINARY}" -ApplePersistenceIgnoreState YES >"${E2E_OUT}/${E2E_FLOW:-app}.log" 2>&1 &
     e2e_pid=$!
     e2e_wait "the main window" _e2e_has_window
     osascript -e "tell application \"System Events\" to set frontmost of process \"${E2E_PROCESS}\" to true" >/dev/null
@@ -60,6 +61,15 @@ e2e_quit() {
 # e2e_expect_text TEXT: waits until some element in the main window shows TEXT (name, value or description).
 e2e_expect_text() {
     e2e_wait "\"$1\" on screen" _e2e_has_text "$1"
+}
+
+# e2e_expect_text_gone TEXT: waits until no element in the main window shows TEXT.
+e2e_expect_text_gone() {
+    e2e_wait "\"$1\" gone" _e2e_lacks_text "$1"
+}
+
+_e2e_lacks_text() {
+    ! _e2e_has_text "$1"
 }
 
 # e2e_expect_no_text TEXT: fails if TEXT is on screen now.
