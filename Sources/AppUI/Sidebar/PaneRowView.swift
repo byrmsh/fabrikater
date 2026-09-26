@@ -2,9 +2,9 @@ import AppModel
 import FabrikaterCore
 import SwiftUI
 
-/// A pane's status dot, agent symbol and label, or the name field in place of the label while renaming. A plain stack
-/// rather than a `Label`, whose title slot does not take keyboard focus for the field. The symbol gets a fixed width so
-/// labels line up and a wide symbol never runs into its label.
+/// A pane's status dot, agent symbol and label (or the name field in place of the label while renaming), then the unread
+/// dot. A plain stack rather than a `Label`, whose title slot does not take keyboard focus for the field. The symbol gets
+/// a fixed width so labels line up and a wide symbol never runs into its label.
 struct PaneRowView: View {
     let pane: PaneRow
     var renameField: RenameField?
@@ -25,6 +25,9 @@ struct PaneRowView: View {
                 Spacer(minLength: 4)
                 ActivityTime(activity: pane.activity(now:))
             }
+            if pane.isUnread {
+                UnreadDot()
+            }
         }
         .foregroundStyle(pane.isDimmed ? .secondary : .primary)
         .help("\(pane.label) (\(pane.id.rawValue)), \(pane.status.title)")
@@ -36,11 +39,14 @@ struct TabRowView: View {
 
     var body: some View {
         Label {
-            HStack {
+            HStack(spacing: 4) {
                 Text(tab.label)
                     .lineLimit(1)
                 Spacer(minLength: 4)
                 ActivityTime(activity: tab.activity(now:))
+                if tab.isUnread {
+                    UnreadDot()
+                }
             }
         } icon: {
             StatusDot(status: tab.status)

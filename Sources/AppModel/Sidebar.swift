@@ -36,6 +36,8 @@ public struct TabRow: Equatable, Sendable, Identifiable {
     public var panes: [PaneRow]
     /// When fabrikater last saw one of its panes change (B6).
     public var lastActivity: Date?
+    /// Whether one of its panes is unread (B7).
+    public var isUnread: Bool { panes.contains(where: \.isUnread) }
 }
 
 public struct PaneRow: Equatable, Sendable, Identifiable {
@@ -45,6 +47,8 @@ public struct PaneRow: Equatable, Sendable, Identifiable {
     public var agent: AgentKind?
     /// When fabrikater last saw the pane change (B6).
     public var lastActivity: Date?
+    /// The agent finished a turn since the pane was last selected (B7).
+    public var isUnread = false
     /// Shell panes without an agent are shown dimmed.
     public var isDimmed: Bool { agent == nil }
 }
@@ -107,16 +111,16 @@ extension Herd {
 }
 
 extension PaneRow {
-    /// What VoiceOver reads for the row: the label (a rename when set), the agent and the status.
+    /// What VoiceOver reads for the row: the label (a rename when set), the agent, the status and whether it is unread.
     public var spokenLabel: String {
-        "\(label), \(agent?.title ?? "Shell"), \(status.title)"
+        "\(label), \(agent?.title ?? "Shell"), \(status.title)\(isUnread ? ", Unread" : "")"
     }
 }
 
 extension TabRow {
-    /// What VoiceOver reads for the row: the label and the status.
+    /// What VoiceOver reads for the row: the label, the status and whether a pane in it is unread.
     public var spokenLabel: String {
-        "\(label), \(status.title)"
+        "\(label), \(status.title)\(isUnread ? ", Unread" : "")"
     }
 }
 

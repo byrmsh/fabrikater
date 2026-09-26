@@ -184,9 +184,11 @@ public final class AppStore {
     func apply(_ update: HerdUpdate) {
         switch update {
         case .herd(let herd):
-            let previous = selection.flatMap { self.herd.pane($0) }
+            let old = self.herd
+            let previous = selection.flatMap { old.pane($0) }
             self.herd = herd
             activity = activity.seeing(herd, at: now())
+            updateNotes(notes.markingFinishedTurns(from: old, to: herd, except: selection))
             refreshSections()
             connection = .connected
             if let selection, herd.pane(selection) == nil {
@@ -213,6 +215,7 @@ public final class AppStore {
         sections = SidebarSection.sections(for: herd)
             .named(notes.names)
             .active(activity.times)
+            .unread(notes.unread)
             .pinned(notes.pins)
         switcher = switcher?.refreshing(sections.switcherItems(in: herd))
     }
@@ -228,6 +231,7 @@ public final class AppStore {
     private func select(_ id: PaneID?) {
         guard id != selection else { return }
         selection = id
+        updateNotes(notes.reading(id))
         refreshSelection()
         focus.follow(id)
     }
