@@ -25,7 +25,8 @@ let package = Package(
         + library("HostKit", dependencies: ["FabrikaterCore"])
         + library("HerdrKit", dependencies: ["FabrikaterCore", "HostKit"])
         + library("TranscriptKit", dependencies: ["FabrikaterCore", "HostKit"])
-        + library("AppModel", dependencies: ["FabrikaterCore", "HerdrKit", "TranscriptKit"]),
+        + library("PromptKit", dependencies: ["FabrikaterCore"])
+        + library("AppModel", dependencies: ["FabrikaterCore", "HerdrKit", "PromptKit", "TranscriptKit"]),
     swiftLanguageModes: [.v6]
 )
 
