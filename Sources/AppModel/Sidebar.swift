@@ -94,6 +94,20 @@ extension Herd {
     }
 }
 
+extension PaneRow {
+    /// What VoiceOver reads for the row: the label (a rename when set), the agent and the status.
+    public var spokenLabel: String {
+        "\(label), \(agent?.title ?? "Shell"), \(status.title)"
+    }
+}
+
+extension TabRow {
+    /// What VoiceOver reads for the row: the label and the status.
+    public var spokenLabel: String {
+        "\(label), \(status.title)"
+    }
+}
+
 extension AgentStatus {
     /// The status in words, for accessibility labels and help tags.
     public var title: String {

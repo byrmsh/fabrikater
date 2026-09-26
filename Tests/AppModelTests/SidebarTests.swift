@@ -22,6 +22,14 @@ struct SidebarTests {
             sections[1].rows == [.pane(PaneRow(id: PaneID("w2:p1")!, label: "Scratch", status: .done, agent: .claude))])
     }
 
+    @Test func rowsSpeakTheirLabelAgentAndStatus() {
+        let pane = PaneRow(id: PaneID("w1:p1")!, label: "Refactor", status: .blocked, agent: .claude)
+        let shell = PaneRow(id: PaneID("w1:p2")!, label: "zsh", status: .unknown, agent: nil)
+        #expect(pane.spokenLabel == "Refactor, Claude, Needs input")
+        #expect(shell.spokenLabel == "zsh, Shell, Unknown")
+        #expect(TabRow(id: "w1:t1", label: "api", status: .working, panes: [pane]).spokenLabel == "api, Working")
+    }
+
     @Test func ordersWorkspacesAndTabsByNumber() {
         let herd = Herd(
             workspaces: [.init(id: "w9", label: "second", number: 2), .init(id: "w1", label: "first", number: 1)],
