@@ -15,6 +15,8 @@ public final class ConversationStore {
     public private(set) var isLoading = false
     /// Why there is no conversation, or why the last load failed (the transcript shown is then stale).
     public private(set) var message: String?
+    /// Which long entries the user expanded; reset when another pane is shown.
+    public private(set) var expansion = EntryExpansion()
 
     private let transcripts: any TranscriptService
     private let log = Log(category: "AppModel")
@@ -38,6 +40,7 @@ public final class ConversationStore {
         self.session = session
         let cached = session.flatMap { cache[$0] }
         transcript = cached ?? Transcript()
+        expansion = EntryExpansion()
         isLoading = false
         message = Self.unavailableReason(for: pane)
         if message == nil {
@@ -48,6 +51,14 @@ public final class ConversationStore {
     /// Re-reads the log, keeping the current transcript on screen until the new one arrives.
     func reload() {
         load(quickFirst: false)
+    }
+
+    func expand(_ id: String) {
+        expansion = expansion.expanding(id)
+    }
+
+    func collapse(_ id: String) {
+        expansion = expansion.collapsing(id)
     }
 
     private func load(quickFirst: Bool) {
