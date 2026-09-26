@@ -1,7 +1,7 @@
 # Copy Conversation as Markdown (⌘⇧C) puts the selected pane's conversation on the pasteboard.
 printf '' | pbcopy
 e2e_launch
-e2e_expect_text "Synthetic refactor"
+e2e_expect_label "Synthetic refactor, Claude, Working"
 e2e_key down command
 e2e_expect_text "I'll look at the helper first."
 e2e_key c command shift
