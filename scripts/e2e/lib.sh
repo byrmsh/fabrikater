@@ -110,6 +110,19 @@ e2e_key() {
     sleep 0.5
 }
 
+# e2e_expect_menu_item MENU ITEM enabled|disabled: waits until the menu bar's MENU holds ITEM in that state.
+e2e_expect_menu_item() {
+    e2e_wait "\"$2\" $3 in the $1 menu" _e2e_menu_item_is "$@"
+}
+
+_e2e_menu_item_is() {
+    local want="true"
+    [ "$3" = "enabled" ] || want="false"
+    [ "$(osascript -e "tell application \"System Events\" to tell process \"${E2E_PROCESS}\"
+        return enabled of menu item \"$2\" of menu 1 of menu bar item \"$1\" of menu bar 1
+    end tell" 2>>"${E2E_OUT}/${E2E_FLOW:-app}.osascript.log")" = "${want}" ]
+}
+
 # e2e_focus_field PLACEHOLDER: clicks into the text field whose placeholder contains PLACEHOLDER.
 e2e_focus_field() {
     e2e_wait "a field with placeholder \"$1\"" _e2e_focus_field "$1"
