@@ -55,10 +55,13 @@ The first line back is `{"id":"sub1","result":{"type":"subscription_started"}}`;
 
 Treat every event as a poke, never as state: on any event, re-read the snapshot (debounced by about 250 ms). Keep a slow safety poll of the snapshot (every 15 to 30 s) in case the stream silently stalls. This is the model Collie uses and it avoids a resync protocol.
 
+What the app does since M1 (`HerdrClient` and `HerdFeed` in `HerdrKit`): one fixed subscription of the workspace, tab and pane topology events plus `pane.updated` and `pane.agent_detected`, no per-pane `pane.agent_status_changed`, so the channel never needs reopening when panes change. Events arriving within 250 ms of the first cause one snapshot read, the safety poll runs every 20 s, and a dropped channel reconnects after 1, 2, 5, 15, then every 30 s. Whether `pane.updated` fires on a status change is not verified yet (milestones.md, M1).
+
 ### Transcript tail
 
 Session logs are append-only JSONL. Sizes on the host (**verified**, 377 Claude logs touched in the last 7 days): median 0.9 MB, 95th percentile 3.9 MB, largest 23.6 MB. So never fetch a whole log to show a conversation.
 
+- What M1 does: one command finds the log and reads its tail, `f=$(ls -1t ~/.claude/projects/*/'<uuid>.jsonl' 2>/dev/null | head -n 1); [ -n "$f" ] || exit 44; tail -c 524288 "$f"` (`HostCommand.claudeLogTail`), and re-runs it when the pane's status changes. The steps below are M2's plan.
 - Opening a conversation: `stat -c %s <path>` for the size, then fetch the last window (start with 512 KB, `tail -c 524288 <path>`), drop the first partial line, parse, render. Fetch older windows with `dd if=<path> bs=65536 skip=… count=…` (or `tail -c +<start> | head -c <len>`) when the user scrolls to the top.
 - Following: `ssh -T arch tail -c +<size+1> -F <path>` streams appended bytes. Buffer until a newline; a line without its newline is still being written.
 - The log can be replaced: Claude copies a thread into a new session id when it is moved to the background, and the snapshot then reports a new `agent_session.value` for the pane. When the pane's session id changes, close the tail and open the new log.
