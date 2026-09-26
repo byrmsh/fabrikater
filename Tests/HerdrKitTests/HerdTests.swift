@@ -14,6 +14,7 @@ struct HerdTests {
         #expect(herd.panes[0].title == "Synthetic refactor")
         #expect(herd.panes[0].cwd == "/home/user/project-1")
         #expect(herd.panes[0].foregroundCwd == "/home/user/project-1")
+        #expect(herd.panes.map(\.revision) == [17, 3, 9, 2])
     }
 
     @Test func decodesTheCapturedSnapshot() throws {
