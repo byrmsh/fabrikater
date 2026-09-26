@@ -2,22 +2,24 @@ import AppModel
 import FabrikaterCore
 import SwiftUI
 
-/// The selected pane: its header, then its conversation.
+/// The selected pane's conversation and composer; its title, status and agent are in the window's title bar and toolbar.
 struct DetailView: View {
     let store: AppStore
 
     var body: some View {
         if let header = store.header {
             VStack(spacing: 0) {
-                PaneHeaderView(header: header)
-                Divider()
                 TranscriptView(conversation: store.conversation, perform: store.perform)
                 Divider()
                 ComposerView(store: store)
             }
+            .environment(\.textScale, store.textScale.factor)
             .navigationTitle(header.title)
             .navigationSubtitle(header.location)
             .toolbar {
+                ToolbarItem {
+                    PaneStatusView(header: header)
+                }
                 ToolbarItem {
                     Button {
                         store.perform(.reloadConversation)
@@ -35,26 +37,5 @@ struct DetailView: View {
                 description: Text("Choose a pane in the sidebar to read its conversation.")
             )
         }
-    }
-}
-
-struct PaneHeaderView: View {
-    let header: PaneHeader
-
-    var body: some View {
-        HStack(spacing: 8) {
-            StatusDot(status: header.status)
-            Text(header.title)
-                .font(.headline)
-                .lineLimit(1)
-            Text(header.agent)
-                .foregroundStyle(.secondary)
-            Spacer()
-            Text(header.status.title)
-                .foregroundStyle(.secondary)
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
-        .accessibilityElement(children: .combine)
     }
 }
