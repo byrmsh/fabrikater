@@ -10,8 +10,8 @@ public protocol HerdrService: Sendable {
     func events() -> AsyncThrowingStream<Void, any Error>
 }
 
-/// `HerdrService` over a `HostCommandRunner`.
-public struct HerdrClient: HerdrService {
+/// `HerdrService` and `HerdrControl` over a `HostCommandRunner`.
+public struct HerdrClient: HerdrService, HerdrControl {
     /// One fixed subscription instead of per-pane `pane.agent_status_changed` (docs/milestones.md, M1).
     public static let subscriptions = [
         "workspace.created", "workspace.updated", "workspace.renamed", "workspace.moved", "workspace.reordered",
@@ -27,6 +27,13 @@ public struct HerdrClient: HerdrService {
 
     public func snapshot() async throws -> Herd {
         try Herd(snapshotReply: try await runner.run(.herdrSnapshot))
+    }
+
+    public func perform(_ requests: [HerdrRequest]) async throws {
+        guard !requests.isEmpty else { return }
+        let lines = requests.enumerated().map { $1.line(id: "fabrikater\($0 + 1)") + "\n" }
+        try Self.checkReplies(
+            try await runner.run(.herdrRequests, input: Data(lines.joined().utf8)), count: requests.count)
     }
 
     public func events() -> AsyncThrowingStream<Void, any Error> {
@@ -49,6 +56,20 @@ public struct HerdrClient: HerdrService {
             }
             continuation.onTermination = { _ in task.cancel() }
         }
+    }
+
+    /// Herdr replies one line per request: a `result` when it was done, an `error` object when it was refused.
+    /// Fewer replies than requests, or a line that is neither, means the rest may not have happened.
+    static func checkReplies(_ output: Data, count: Int) throws(HerdrError) {
+        let lines = output.split(separator: 0x0A)
+        for line in lines {
+            let reply = try? JSONSerialization.jsonObject(with: line) as? [String: Any]
+            if let error = reply?["error"] as? [String: Any] {
+                throw HerdrError(error["message"] as? String ?? "Herdr refused the request")
+            }
+            guard reply?["result"] != nil else { throw HerdrError("Herdr sent a reply that is not JSON") }
+        }
+        guard lines.count >= count else { throw HerdrError("Herdr did not answer every request") }
     }
 
     /// The first line back is `{"id":"sub1","result":{"type":"subscription_started"}}`, or an error reply.
