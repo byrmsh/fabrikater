@@ -28,7 +28,11 @@ struct FabrikaterApp: App {
             runner = SSHRunner(host: host)
         }
         let feed = HerdFeed(service: HerdrClient(runner: runner))
-        store = AppStore(herdUpdates: feed.updates(), transcripts: HostTranscriptService(runner: runner))
+        store = AppStore(
+            herdUpdates: feed.updates(),
+            transcripts: HostTranscriptService(runner: runner),
+            notes: UserDefaultsPaneNotesStore(defaults: .standard)
+        )
         log.info("launched")
     }
 
