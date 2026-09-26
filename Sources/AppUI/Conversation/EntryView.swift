@@ -41,8 +41,8 @@ struct EntryView: View {
                     .buttonStyle(.link)
                     .foregroundStyle(.tint)
                     .scaledFont(.callout)
-                    // A link-style button exposes no title to accessibility on its own.
-                    .accessibilityLabel(toggle.title)
+                    // A link-style button exposes neither its title nor a label to accessibility, only its help tag.
+                    .help(toggle.title)
             }
         }
     }

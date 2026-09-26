@@ -154,7 +154,8 @@ APPLESCRIPT
 )" = "focused" ]
 }
 
-# e2e_click TITLE: presses the first element titled or described as TITLE (a link button has only a description).
+# e2e_click TITLE: presses the first element whose title, description or help tag is TITLE (a link button has only
+# its help tag).
 e2e_click() {
     e2e_wait "a button titled \"$1\"" _e2e_click "$1"
     sleep 0.5
@@ -166,7 +167,7 @@ tell application "System Events"
     tell window 1 of process "${E2E_PROCESS}"
         repeat with uiItem in (entire contents as list)
             try
-                if title of uiItem is "$1" or description of uiItem is "$1" then
+                if title of uiItem is "$1" or description of uiItem is "$1" or help of uiItem is "$1" then
                     perform action "AXPress" of uiItem
                     return "pressed"
                 end if
