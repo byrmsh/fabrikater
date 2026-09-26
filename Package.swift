@@ -6,17 +6,23 @@ let swiftSettings: [SwiftSetting] = [
     .enableUpcomingFeature("MemberImportVisibility"),
 ]
 
+/// A library target with its `CLAUDE.md` and a `<name>Tests` test target over the same dependencies.
+func library(_ name: String, dependencies: [Target.Dependency] = []) -> [Target] {
+    [
+        .target(name: name, dependencies: dependencies, exclude: ["CLAUDE.md"], swiftSettings: swiftSettings),
+        .testTarget(
+            name: "\(name)Tests",
+            dependencies: [.target(name: name)] + dependencies,
+            swiftSettings: swiftSettings
+        ),
+    ]
+}
+
 let package = Package(
     name: "fabrikater",
     platforms: [.macOS(.v15)],
-    targets: [
-        .target(name: "FabrikaterCore", exclude: ["CLAUDE.md"], swiftSettings: swiftSettings),
-        .testTarget(
-            name: "FabrikaterCoreTests",
-            dependencies: ["FabrikaterCore"],
-            swiftSettings: swiftSettings
-        ),
-    ],
+    targets: library("FabrikaterCore")
+        + library("HostKit", dependencies: ["FabrikaterCore"]),
     swiftLanguageModes: [.v6]
 )
 
