@@ -39,7 +39,10 @@ struct EntryView: View {
             if let toggle {
                 Button(toggle.title) { perform(toggle) }
                     .buttonStyle(.link)
+                    .foregroundStyle(.tint)
                     .scaledFont(.callout)
+                    // A link-style button exposes no title to accessibility on its own.
+                    .accessibilityLabel(toggle.title)
             }
         }
     }
