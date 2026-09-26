@@ -32,10 +32,15 @@ let package = Package(
 // SwiftUI and AppKit exist only on macOS; on Linux the package is the logic targets and their tests.
 #if os(macOS)
     package.targets += [
-        .target(name: "AppUI", exclude: ["CLAUDE.md"], swiftSettings: swiftSettings),
+        .target(
+            name: "AppUI",
+            dependencies: ["AppModel", "FabrikaterCore", "TranscriptKit"],
+            exclude: ["CLAUDE.md"],
+            swiftSettings: swiftSettings
+        ),
         .executableTarget(
             name: "fabrikater",
-            dependencies: ["AppUI", "FabrikaterCore"],
+            dependencies: ["AppUI", "AppModel", "FabrikaterCore", "HostKit", "HerdrKit", "TranscriptKit"],
             exclude: ["CLAUDE.md"],
             swiftSettings: swiftSettings
         ),

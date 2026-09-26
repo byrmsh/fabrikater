@@ -1,17 +1,22 @@
+import AppModel
 import SwiftUI
 
 /// The main window: the herd sidebar and the selected pane (docs/design.md, "Window").
 public struct RootView: View {
+    let store: AppStore
     @ViewState private var columnVisibility = NavigationSplitViewVisibility.all
 
-    public init() {}
+    public init(store: AppStore) {
+        self.store = store
+    }
 
     public var body: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
-            List {}
+            SidebarView(store: store)
                 .navigationSplitViewColumnWidth(min: 220, ideal: 280)
         } detail: {
-            ContentUnavailableView("No Pane Selected", systemImage: "sidebar.left")
+            DetailView(store: store)
         }
+        .task { await store.run() }
     }
 }
