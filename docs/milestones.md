@@ -8,7 +8,7 @@ Each check has two parts. **CI-verifiable** is what `scripts/check.sh` and the L
 
 A SwiftPM package with one executable target and a `scripts/bundle.sh` that builds (`swift build -c release`, falling back to `--build-system native` if the default engine fails), assembles `build/fabrikater.app` with an Info.plist (`CFBundleIdentifier` `sh.bayram.fabrikater`, `LSMinimumSystemVersion` 15.0), copies resource bundles, and ad-hoc signs it. The app opens a window titled fabrikater. Use `@ViewState` (a typealias for `SwiftUI.State`) instead of `@State`; see [macos-tooling.md](macos-tooling.md).
 
-Done in the foundation session, together with the `FabrikaterCore`, `AppUI` and `fabrikater` targets, `scripts/check.sh`, CI and the docs in [structure.md](structure.md) and [decisions/](decisions/).
+**Done** ([#1](https://github.com/byrmsh/fabrikater/pull/1), follow-ups in [#2](https://github.com/byrmsh/fabrikater/pull/2)) in the foundation session, together with the `FabrikaterCore`, `AppUI` and `fabrikater` targets, `scripts/check.sh`, CI and the docs in [structure.md](structure.md) and [decisions/](decisions/).
 
 CI-verifiable: `scripts/check.sh` passes on Linux and on macOS under the Command Line Tools; `scripts/bundle.sh` builds the app; `codesign -dv` reports `Signature=adhoc` and identifier `sh.bayram.fabrikater`; the app is still running 5 s after `open`.
 
@@ -21,6 +21,8 @@ Manual on the Mac: `scripts/check.sh`; `scripts/bundle.sh && open build/fabrikat
 CI-verifiable: the snapshot decodes leniently from `Tests/Fixtures/snapshot.synthetic.json` and from the captured `Tests/Fixtures/snapshot.json`, including unknown fields and statuses; the argument builder produces the exact ssh argument vectors and rejects invalid ids; the replay runner serves fixtures; the sidebar store orders workspaces, tabs and panes by `number`, collapses single-pane tabs, falls back through the labels, and keeps the last herd when a refresh fails; an event triggers one debounced refresh; `SendPolicy` follows `FABRIKATER_SEND_ALLOWLIST` as architecture.md, "Send allowlist", defines it (listed labels only; set but empty refuses all; unset means `fabrikater-test` in debug and no limit in release), checks the label against a fresh snapshot, and refuses when that read fails or the pane is missing.
 
 Manual on the Mac (after `scripts/bundle.sh`): the sidebar lists the same workspaces and panes as `ssh arch herdr api snapshot | jq '.result.snapshot.workspaces[].label'`; a pane's status dot changes within about 2 s when the agent in it starts or finishes work; `FABRIKATER_FIXTURES=Tests/Fixtures build/fabrikater.app/Contents/MacOS/fabrikater` (the bundled release binary; `open` does not pass the variable on) shows the fixture herd without touching the host.
+
+Open for M1, put to the user in the plan: [architecture.md](architecture.md), "Events", subscribes to `pane.agent_status_changed` per pane, which means reopening the events channel whenever the set of agent panes changes (about 40 today). Every event only triggers a snapshot re-read, so one fixed subscription (`pane.updated`, `pane.agent_detected`, `workspace.updated`, …) plus the safety poll may give the same latency. Which of these events fire on a status change is unverified: build the fixed subscription behind the same interface, and put the check (a status dot changes within 2 s in `fabrikater-test`, with the stream logged) on the manual list. Fall back to per-pane subscriptions if it fails.
 
 ## M2: Claude conversation, read-only
 
@@ -37,6 +39,8 @@ The composer with per-pane drafts, Return to send, the key bar, and the send seq
 CI-verifiable: drafts are kept per pane and survive a relaunch; Return sends and Shift-Return inserts a newline; the composer clears only after a successful send and keeps the text with an error on failure; user text travels only on stdin (the argument vector never contains it); the send sequence and its race guard follow parsing.md 4.4 against screen fixtures; `SendPolicy` blocks sends outside `fabrikater-test`.
 
 Manual on the Mac: in the scratch pane (see [../CLAUDE.md](../CLAUDE.md)), start `claude` and send a one-line and a multi-line prompt from the app; both are submitted (the pane goes `working`) and appear in the conversation view. Esc and Ctrl-C from the key bar reach the pane. Record which of `pane send-text` and `agent prompt` submits multi-line text correctly in architecture.md.
+
+Open for M3, put to the user in the plan: [design.md](design.md) says Return sends. The app types into live agents, so a stray Return is costly; the alternative is ⌘Return to send by default, with Return-to-send as an opt-in. The user has not decided.
 
 ## M4: Terminal view
 
@@ -62,6 +66,8 @@ CI-verifiable: the "Needs you" store: which panes it lists, in which order, how 
 
 Manual on the Mac: with the app in the background, a scratch-pane agent finishing a turn produces a notification; clicking it selects that pane; the Dock badge matches the "Needs you" group.
 
+Open for M6: the "Needs you" list reorders as panes change state, so ⌘1…⌘9 can land on a different pane from the one the user just saw. They only select a pane and must never send or answer anything; confirm this reading of [design.md](design.md) with the user.
+
 ## M7: Other agents
 
 Parsers for Codex, pi/omp and OpenCode logs, in the order and with the rules in [parsing.md](parsing.md). Panes of an agent without a parser open in the Terminal view by default.
@@ -72,4 +78,4 @@ Manual on the Mac: a Codex pane's conversation renders its user turns, assistant
 
 ## Later
 
-The Settings scene from design.md (host alias, notifications, Return-to-send, font sizes); creating and closing tabs and panes; starting agents; search across all conversations; a `MenuBarExtra` with the "Needs you" list; image attachments in the composer.
+Movable, dockable panels (IDE-style) on the layout model from `.claude/skills/macos-design`; the Settings scene from design.md (host alias, notifications, Return-to-send, font sizes); creating and closing tabs and panes; starting agents; search across all conversations; a `MenuBarExtra` with the "Needs you" list; image attachments in the composer.
