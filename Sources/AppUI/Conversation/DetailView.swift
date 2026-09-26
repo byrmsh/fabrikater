@@ -1,6 +1,7 @@
 import AppModel
 import FabrikaterCore
 import SwiftUI
+import TranscriptKit
 
 /// The selected pane's conversation and composer; its title, status and agent are in the window's title bar and toolbar.
 struct DetailView: View {
