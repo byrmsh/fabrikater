@@ -10,12 +10,12 @@ struct PaneRowView: View {
             Text(pane.label)
                 .lineLimit(1)
                 .truncationMode(.tail)
+                .accessibilityLabel(pane.spokenLabel)
         } icon: {
             HStack(spacing: 4) {
                 StatusDot(status: pane.status)
                 Image(systemName: pane.agent.symbolName)
                     .foregroundStyle(.secondary)
-                    .accessibilityLabel(pane.agent?.title ?? "Shell")
             }
         }
         .foregroundStyle(pane.isDimmed ? .secondary : .primary)
@@ -30,10 +30,13 @@ struct TabRowView: View {
         Label {
             Text(tab.label)
                 .lineLimit(1)
+                .accessibilityLabel(tab.spokenLabel)
         } icon: {
             StatusDot(status: tab.status)
         }
-        .help("\(tab.label), \(tab.status.title)")
+        .help(tab.spokenLabel)
+        // A sidebar heading exposes no text to the Accessibility API; plain text does.
+        .accessibilityRemoveTraits(.isHeader)
     }
 }
 
