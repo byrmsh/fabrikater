@@ -35,6 +35,8 @@ public final class AppStore {
     public let composer: ComposerStore
 
     private var herd = Herd()
+    private var activity = PaneActivity()
+    private let now: @Sendable () -> Date
     private let focus: FocusSync
     private var notes: PaneNotes
     private let notesStore: any PaneNotesStore
@@ -47,6 +49,7 @@ public final class AppStore {
     /// - Parameters:
     ///   - control: changes Herdr on the user's behalf: focus follows the selection, and the composer sends.
     ///   - host: the ssh alias the panes run on, for links that reach them from this Mac.
+    ///   - now: the clock that stamps each pane's last activity.
     public init(
         herdUpdates: AsyncStream<HerdUpdate>,
         transcripts: any TranscriptService,
@@ -54,13 +57,15 @@ public final class AppStore {
         notes: any PaneNotesStore = InMemoryPaneNotesStore(),
         clipboard: any Clipboard = InMemoryClipboard(),
         opener: any URLOpener = RecordingURLOpener(),
-        host: String = "arch"
+        host: String = "arch",
+        now: @escaping @Sendable () -> Date = { Date() }
     ) {
         self.herdUpdates = herdUpdates
         notesStore = notes
         self.clipboard = clipboard
         self.opener = opener
         self.host = host
+        self.now = now
         self.notes = notes.load()
         conversation = ConversationStore(transcripts: transcripts)
         composer = ComposerStore(control: control)
@@ -176,6 +181,7 @@ public final class AppStore {
         case .herd(let herd):
             let previous = selection.flatMap { self.herd.pane($0) }
             self.herd = herd
+            activity = activity.seeing(herd, at: now())
             refreshSections()
             connection = .connected
             if let selection, herd.pane(selection) == nil {
@@ -201,6 +207,7 @@ public final class AppStore {
     private func refreshSections() {
         sections = SidebarSection.sections(for: herd)
             .named(notes.names)
+            .active(activity.times)
             .pinned(notes.pins)
         switcher = switcher?.refreshing(sections.switcherItems(in: herd))
     }

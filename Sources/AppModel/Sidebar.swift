@@ -34,6 +34,8 @@ public struct TabRow: Equatable, Sendable, Identifiable {
     public var label: String
     public var status: AgentStatus
     public var panes: [PaneRow]
+    /// When fabrikater last saw one of its panes change (B6).
+    public var lastActivity: Date?
 }
 
 public struct PaneRow: Equatable, Sendable, Identifiable {
@@ -41,6 +43,8 @@ public struct PaneRow: Equatable, Sendable, Identifiable {
     public var label: String
     public var status: AgentStatus
     public var agent: AgentKind?
+    /// When fabrikater last saw the pane change (B6).
+    public var lastActivity: Date?
     /// Shell panes without an agent are shown dimmed.
     public var isDimmed: Bool { agent == nil }
 }
