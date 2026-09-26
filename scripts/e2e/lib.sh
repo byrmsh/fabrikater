@@ -35,11 +35,11 @@ e2e_launch() {
 }
 
 # e2e_finish FLOW STATUS: scripts/e2e.sh calls it when a flow ends. A failed flow leaves FLOW-failure.png and
-# FLOW-failure.txt (the window's text, as the checks see it) behind.
+# FLOW-failure.txt (every element in the window with its text attributes) behind.
 e2e_finish() {
     if [ "$2" -ne 0 ] && [ -n "${e2e_pid}" ]; then
         e2e_shot "$1-failure" || true
-        e2e_screen_text >"${E2E_OUT}/$1-failure.txt" || true
+        e2e_screen_dump >"${E2E_OUT}/$1-failure.txt" || true
     fi
     e2e_quit
 }
@@ -139,19 +139,50 @@ _e2e_has_window() {
         -gt 0 ] 2>/dev/null
 }
 
-# e2e_screen_text: prints every name, value and description in the main window's accessibility tree, one per line.
+# e2e_screen_text: prints every title, value, description and help tag in the main window's accessibility tree, one per line.
 e2e_screen_text() {
     osascript 2>>"${E2E_OUT}/${E2E_FLOW:-app}.osascript.log" <<APPLESCRIPT
 set found to {}
 tell application "System Events"
     tell window 1 of process "${E2E_PROCESS}"
         repeat with uiItem in (entire contents as list)
-            repeat with axName in {"AXTitle", "AXValue", "AXDescription"}
+            repeat with axName in {"AXTitle", "AXValue", "AXDescription", "AXHelp"}
                 try
                     set text_ to value of attribute (contents of axName) of uiItem
                     if text_ is not missing value and text_ is not "" then set end of found to (text_ as text)
                 end try
             end repeat
+        end repeat
+    end tell
+end tell
+set AppleScript's text item delimiters to linefeed
+return found as text
+APPLESCRIPT
+}
+
+# e2e_screen_dump: prints each element in the main window with its role and every text attribute it has. Slow; for
+# working out what a check should look for.
+e2e_screen_dump() {
+    osascript 2>>"${E2E_OUT}/${E2E_FLOW:-app}.osascript.log" <<APPLESCRIPT
+set found to {}
+tell application "System Events"
+    tell window 1 of process "${E2E_PROCESS}"
+        repeat with uiItem in (entire contents as list)
+            set line_ to ""
+            try
+                set line_ to (role of uiItem) as text
+            end try
+            try
+                repeat with anAttribute in (attributes of uiItem)
+                    try
+                        set value_ to value of anAttribute
+                        if class of value_ is text and value_ is not "" then
+                            set line_ to line_ & " " & (name of anAttribute) & "=" & value_
+                        end if
+                    end try
+                end repeat
+            end try
+            set end of found to line_
         end repeat
     end tell
 end tell
