@@ -12,6 +12,8 @@ struct HerdTests {
         #expect(herd.panes.map(\.id.rawValue) == ["w1:p1", "w1:pA", "w1:pB", "w2:p1"])
         #expect(herd.panes.map(\.agent) == [.claude, nil, .codex, .claude])
         #expect(herd.panes[0].title == "Synthetic refactor")
+        #expect(herd.panes[0].cwd == "/home/user/project-1")
+        #expect(herd.panes[0].foregroundCwd == "/home/user/project-1")
     }
 
     @Test func decodesTheCapturedSnapshot() throws {
