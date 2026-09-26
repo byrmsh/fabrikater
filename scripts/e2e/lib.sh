@@ -14,11 +14,15 @@ e2e_fixture_dir=""
 
 # e2e_launch [fixture...]: starts the app replaying only the named files from Tests/Fixtures, and waits for its window.
 # The default is the synthetic herd and conversation. With no files at all (`e2e_launch --none`) every read fails.
+# Pane notes (names, pins) start empty unless E2E_KEEP_NOTES=1, which relaunches with the last run's notes.
 e2e_launch() {
     if [ "$#" -eq 0 ]; then
         set -- snapshot.synthetic.json events.synthetic.jsonl claude.synthetic.jsonl
     elif [ "$1" = "--none" ]; then
         shift
+    fi
+    if [ -z "${E2E_KEEP_NOTES:-}" ]; then
+        defaults delete fabrikater.fixtures >/dev/null 2>&1 || true
     fi
     e2e_fixture_dir="$(mktemp -d)"
     local file
