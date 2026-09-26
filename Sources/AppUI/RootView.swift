@@ -17,6 +17,18 @@ public struct RootView: View {
         } detail: {
             DetailView(store: store)
         }
+        .sheet(isPresented: isSwitching) {
+            QuickSwitcherView(store: store)
+        }
         .task { await store.run() }
+    }
+
+    private var isSwitching: Binding<Bool> {
+        Binding(
+            get: { store.switcher != nil },
+            set: { isPresented in
+                if !isPresented { store.perform(.closeQuickSwitcher) }
+            }
+        )
     }
 }
