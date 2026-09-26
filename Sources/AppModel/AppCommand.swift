@@ -40,6 +40,10 @@ public enum AppCommand: Hashable, Sendable {
     case collapseEntry(String)
     /// Opens a pane's folder in VS Code over Remote-SSH; nil means the selected pane.
     case openInVSCode(PaneID?)
+    /// Opens the selected pane's session facts, or closes them.
+    case toggleSessionFacts
+    /// The facts popover was opened or closed by the window itself (Esc, a click outside).
+    case setSessionFactsShown(Bool)
 
     /// The menu title.
     public var title: String {
@@ -69,6 +73,8 @@ public enum AppCommand: Hashable, Sendable {
         case .expandEntry: "Show All"
         case .collapseEntry: "Show Less"
         case .openInVSCode: "Open Folder in VS Code"
+        case .toggleSessionFacts: "Session Info"
+        case .setSessionFactsShown(let shown): shown ? "Show Session Info" : "Hide Session Info"
         }
     }
 }

@@ -31,6 +31,8 @@ public final class AppStore {
     public private(set) var textScale = TextScale.actual
     /// The ⌘K switcher while it is open.
     public private(set) var switcher: QuickSwitcher?
+    /// The session facts popover on the toolbar's status item is open.
+    public private(set) var isShowingSessionFacts = false
     public let conversation: ConversationStore
     public let composer: ComposerStore
 
@@ -139,6 +141,10 @@ public final class AppStore {
         case .openInVSCode(let id):
             guard let url = vscodeLink(id) else { return }
             opener.open(url)
+        case .toggleSessionFacts:
+            isShowingSessionFacts = header != nil && !isShowingSessionFacts
+        case .setSessionFactsShown(let shown):
+            isShowingSessionFacts = header != nil && shown
         }
     }
 
@@ -161,6 +167,8 @@ public final class AppStore {
         case .copyConversation: !conversation.transcript.entries.isEmpty
         case .expandEntry, .collapseEntry: true
         case .openInVSCode(let id): vscodeLink(id) != nil
+        case .toggleSessionFacts: header != nil
+        case .setSessionFactsShown: true
         }
     }
 
@@ -232,6 +240,9 @@ public final class AppStore {
     private func refreshSelection() {
         let pane = selection.flatMap { herd.pane($0) }
         header = pane.map(header(for:))
+        if header == nil {
+            isShowingSessionFacts = false
+        }
         conversation.show(pane)
         refreshComposer()
     }

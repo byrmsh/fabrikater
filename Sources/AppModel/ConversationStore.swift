@@ -24,6 +24,9 @@ public final class ConversationStore {
     private var cache = TranscriptCache()
     @ObservationIgnored private(set) var loadTask: Task<Void, Never>?
 
+    /// The session facts popover's rows (B11).
+    public var factRows: [FactRow] { transcript.facts.rows(isClipped: transcript.isClipped) }
+
     /// False when the pane has no conversation this version can read.
     public var canReload: Bool { session != nil }
 
