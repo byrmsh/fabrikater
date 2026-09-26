@@ -30,13 +30,12 @@ struct TabRowView: View {
         Label {
             Text(tab.label)
                 .lineLimit(1)
-                .accessibilityLabel(tab.spokenLabel)
         } icon: {
             StatusDot(status: tab.status)
         }
         .help(tab.spokenLabel)
-        // A sidebar heading exposes no text to the Accessibility API; plain text does.
-        .accessibilityRemoveTraits(.isHeader)
+        // The sidebar turns a disclosure label into a heading, which drops its accessibility label but keeps its value.
+        .accessibilityValue(tab.spokenLabel)
     }
 }
 
