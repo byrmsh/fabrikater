@@ -9,7 +9,7 @@ struct DetailView: View {
     var body: some View {
         if let header = store.header {
             VStack(spacing: 0) {
-                TranscriptView(conversation: store.conversation)
+                TranscriptView(conversation: store.conversation, perform: store.perform)
                 Divider()
                 ComposerView(store: store)
             }
