@@ -116,6 +116,15 @@ e2e_key() {
     sleep 0.5
 }
 
+# e2e_menu MENU ITEM: chooses ITEM from the menu bar's MENU, for commands without a shortcut. Example: e2e_menu Pane "Hide Pane"
+e2e_menu() {
+    osascript -e "tell application \"System Events\" to tell process \"${E2E_PROCESS}\"
+        set frontmost to true
+        click menu item \"$2\" of menu 1 of menu bar item \"$1\" of menu bar 1
+    end tell" >/dev/null
+    sleep 0.5
+}
+
 # e2e_focus_field PLACEHOLDER: clicks into the text field whose placeholder contains PLACEHOLDER.
 e2e_focus_field() {
     e2e_wait "a field with placeholder \"$1\"" _e2e_focus_field "$1"
