@@ -19,6 +19,8 @@ public struct PaneCommands: Commands {
             Divider()
             button(.renamePane(nil))
             button(.togglePin(nil))
+            button(.toggleHidden(nil))
+            button(.toggleHiddenWorkspace(nil))
             Divider()
             button(.reloadConversation)
             button(.copyConversation)

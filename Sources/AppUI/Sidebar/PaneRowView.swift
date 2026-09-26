@@ -18,7 +18,8 @@ struct PaneRowView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .foregroundStyle(pane.isDimmed ? .secondary : .primary)
+        .foregroundStyle(pane.isDimmed || pane.isHidden ? .secondary : .primary)
+        .opacity(pane.isHidden ? 0.6 : 1)
         .help("\(pane.label) (\(pane.id.rawValue)), \(pane.status.title)")
     }
 }
