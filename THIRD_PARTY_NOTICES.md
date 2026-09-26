@@ -2,7 +2,7 @@
 
 ## Collie
 
-fabrikater ports parsing logic from Collie (https://github.com/AltanS/collie, commit b7ddc17a25af76e87cd9b437053bf51821371055). Collie is distributed under the following license.
+fabrikater ports parsing logic from Collie (https://github.com/AltanS/collie, commit b7ddc17a25af76e87cd9b437053bf51821371055). The ported files are `Sources/TranscriptKit/ClaudeTranscriptParser.swift` (from `bridge/journal/claude.ts`) and `Sources/TranscriptKit/TextRules.swift` (from `bridge/journal/text.ts`); each names its source at the top. Collie is distributed under the following license.
 
 ```
 MIT License
