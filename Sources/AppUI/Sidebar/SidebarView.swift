@@ -33,7 +33,14 @@ struct SidebarView: View {
         .listStyle(.sidebar)
         .overlay {
             if store.sections.isEmpty {
-                ContentUnavailableView(store.connection.title, systemImage: "server.rack")
+                let empty = store.connection.emptySidebar
+                ContentUnavailableView {
+                    Label(empty.title, systemImage: "server.rack")
+                } description: {
+                    if let detail = empty.detail {
+                        Text(detail)
+                    }
+                }
             }
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
