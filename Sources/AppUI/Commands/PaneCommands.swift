@@ -22,6 +22,8 @@ public struct PaneCommands: Commands {
             button(.toggleHidden(nil))
             button(.toggleHiddenWorkspace(nil))
             Divider()
+            button(.openInVSCode(nil))
+            Divider()
             button(.reloadConversation)
             button(.copyConversation)
             Divider()

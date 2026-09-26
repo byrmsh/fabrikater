@@ -64,6 +64,8 @@ public struct Herd: Equatable, Sendable {
         public var agentStatus: AgentStatus
         public var agentSession: AgentSession?
         public var cwd: String?
+        /// The directory of the process in the foreground, when it differs from the shell's (`foreground_cwd`).
+        public var foregroundCwd: String?
         /// `terminal_title_stripped`; Claude sets it to the conversation title.
         public var title: String?
 
@@ -75,6 +77,7 @@ public struct Herd: Equatable, Sendable {
             agentStatus: AgentStatus = .unknown,
             agentSession: AgentSession? = nil,
             cwd: String? = nil,
+            foregroundCwd: String? = nil,
             title: String? = nil
         ) {
             self.id = id
@@ -84,6 +87,7 @@ public struct Herd: Equatable, Sendable {
             self.agentStatus = agentStatus
             self.agentSession = agentSession
             self.cwd = cwd
+            self.foregroundCwd = foregroundCwd
             self.title = title
         }
 
@@ -223,6 +227,7 @@ extension Herd.Pane: Decodable {
         case agentStatus = "agent_status"
         case agentSession = "agent_session"
         case cwd
+        case foregroundCwd = "foreground_cwd"
         case title = "terminal_title_stripped"
     }
 
@@ -235,6 +240,7 @@ extension Herd.Pane: Decodable {
         agentStatus = try container.decodeIfPresent(AgentStatus.self, forKey: .agentStatus) ?? .unknown
         agentSession = try? container.decodeIfPresent(Herd.AgentSession.self, forKey: .agentSession)
         cwd = try? container.decodeIfPresent(String.self, forKey: .cwd)
+        foregroundCwd = try? container.decodeIfPresent(String.self, forKey: .foregroundCwd)
         title = try? container.decodeIfPresent(String.self, forKey: .title)
     }
 }

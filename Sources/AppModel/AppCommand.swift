@@ -42,6 +42,8 @@ public enum AppCommand: Hashable, Sendable {
     /// Copies one conversation entry, by id, as markdown.
     case copyMessage(String)
     case copyConversation
+    /// Opens a pane's folder in VS Code over Remote-SSH; nil means the selected pane.
+    case openInVSCode(PaneID?)
 
     /// The menu title.
     public var title: String {
@@ -72,6 +74,7 @@ public enum AppCommand: Hashable, Sendable {
         case .chooseQuickSwitcherResult: "Open Pane"
         case .copyMessage: "Copy Message"
         case .copyConversation: "Copy Conversation as Markdown"
+        case .openInVSCode: "Open Folder in VS Code"
         }
     }
 }
