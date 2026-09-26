@@ -4,6 +4,7 @@ e2e_expect_text "Synthetic refactor (w1:p1), Working"
 e2e_key down command
 e2e_expect_text "Rename the helper and run the tests"
 e2e_key r command shift
+e2e_expect_focus "Synthetic refactor"
 e2e_key a command
 e2e_key "Release notes"
 e2e_shot rename-editing

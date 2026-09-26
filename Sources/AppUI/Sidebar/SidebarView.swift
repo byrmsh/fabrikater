@@ -57,8 +57,7 @@ struct SidebarView: View {
     private func paneRow(_ pane: PaneRow) -> some View {
         Group {
             if store.renaming == pane.id {
-                HStack(spacing: 6) {
-                    PaneRowIcons(pane: pane)
+                PaneRowView(pane: pane) {
                     RenameField(label: pane.label) {
                         store.perform(.commitRename(pane.id, $0))
                     } cancel: {
