@@ -138,7 +138,7 @@ APPLESCRIPT
 )" = "focused" ]
 }
 
-# e2e_click TITLE: presses the first element titled or described as TITLE in the main window.
+# e2e_click TITLE: presses the first element titled or described as TITLE (a link button has only a description).
 e2e_click() {
     e2e_wait "a button titled \"$1\"" _e2e_click "$1"
     sleep 0.5
