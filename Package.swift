@@ -23,7 +23,8 @@ let package = Package(
     platforms: [.macOS(.v15)],
     targets: library("FabrikaterCore")
         + library("HostKit", dependencies: ["FabrikaterCore"])
-        + library("HerdrKit", dependencies: ["FabrikaterCore", "HostKit"]),
+        + library("HerdrKit", dependencies: ["FabrikaterCore", "HostKit"])
+        + library("TranscriptKit", dependencies: ["FabrikaterCore", "HostKit"]),
     swiftLanguageModes: [.v6]
 )
 
