@@ -3,22 +3,6 @@ import HerdrKit
 import Observation
 import TranscriptKit
 
-/// Whether the herd on screen is current.
-public enum ConnectionState: Equatable, Sendable {
-    case connecting
-    case connected
-    /// The last read failed; the herd shown is the last one that succeeded.
-    case stale(String)
-
-    public var title: String {
-        switch self {
-        case .connecting: "Connecting…"
-        case .connected: "Connected"
-        case .stale: "Offline, showing the last known state"
-        }
-    }
-}
-
 /// The header above the selected pane's conversation.
 public struct PaneHeader: Equatable, Sendable {
     public var title: String
@@ -47,6 +31,7 @@ public final class AppStore {
     private let focus: FocusSync
     private var notes: PaneNotes
     private let notesStore: any PaneNotesStore
+    private let clipboard: any Clipboard
     @ObservationIgnored private var herdUpdates: AsyncStream<HerdUpdate>?
     private let log = Log(category: "AppModel")
 
@@ -55,10 +40,12 @@ public final class AppStore {
         herdUpdates: AsyncStream<HerdUpdate>,
         transcripts: any TranscriptService,
         control: any HerdrControl,
-        notes: any PaneNotesStore = InMemoryPaneNotesStore()
+        notes: any PaneNotesStore = InMemoryPaneNotesStore(),
+        clipboard: any Clipboard = InMemoryClipboard()
     ) {
         self.herdUpdates = herdUpdates
         notesStore = notes
+        self.clipboard = clipboard
         self.notes = notes.load()
         conversation = ConversationStore(transcripts: transcripts)
         composer = ComposerStore(control: control)
@@ -109,6 +96,12 @@ public final class AppStore {
             guard let chosen = id ?? switcher?.highlighted else { return }
             switcher = nil
             select(chosen)
+        case .copyMessage(let id):
+            guard let entry = conversation.transcript.entries.first(where: { $0.id == id }) else { return }
+            clipboard.copy(Transcript.markdownBody(of: entry))
+        case .copyConversation:
+            guard !conversation.transcript.entries.isEmpty else { return }
+            clipboard.copy(Transcript.markdown(of: conversation.transcript.entries))
         }
     }
 
@@ -122,6 +115,8 @@ public final class AppStore {
         case .openQuickSwitcher: !sections.isEmpty && switcher == nil
         case .closeQuickSwitcher, .searchQuickSwitcher, .moveQuickSwitcherHighlight: switcher != nil
         case .chooseQuickSwitcherResult(let id): (id ?? switcher?.highlighted) != nil
+        case .copyMessage(let id): conversation.transcript.entries.contains { $0.id == id }
+        case .copyConversation: !conversation.transcript.entries.isEmpty
         }
     }
 
@@ -146,7 +141,7 @@ public final class AppStore {
                 conversation.reload()
             }
         case .failed(let reason):
-            connection = .stale(reason)
+            connection = sections.isEmpty ? .offline(reason) : .stale(reason)
             refreshComposer()
         }
     }

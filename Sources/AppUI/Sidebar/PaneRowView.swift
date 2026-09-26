@@ -2,12 +2,12 @@ import AppModel
 import FabrikaterCore
 import SwiftUI
 
-/// A pane's status dot, agent symbol and title. The title is the label, or the name field while renaming; a plain
-/// stack rather than a `Label`, whose title slot does not take keyboard focus for the field. The symbol gets a fixed
-/// width so titles line up and a wide symbol never runs into its title.
-struct PaneRowView<Title: View>: View {
+/// A pane's status dot, agent symbol and label, or the name field in place of the label while renaming. A plain stack
+/// rather than a `Label`, whose title slot does not take keyboard focus for the field. The symbol gets a fixed width so
+/// labels line up and a wide symbol never runs into its label.
+struct PaneRowView: View {
     let pane: PaneRow
-    @ViewBuilder let title: Title
+    var renameField: RenameField?
 
     var body: some View {
         HStack(spacing: 4) {
@@ -15,18 +15,17 @@ struct PaneRowView<Title: View>: View {
             Image(systemName: pane.agent.symbolName)
                 .foregroundStyle(.secondary)
                 .frame(width: 20)
-            title
-                .lineLimit(1)
-                .truncationMode(.tail)
+            if let renameField {
+                renameField
+            } else {
+                Text(pane.label)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                    .accessibilityLabel(pane.spokenLabel)
+            }
         }
         .foregroundStyle(pane.isDimmed ? .secondary : .primary)
         .help("\(pane.label) (\(pane.id.rawValue)), \(pane.status.title)")
-    }
-}
-
-extension PaneRowView where Title == Text {
-    init(pane: PaneRow) {
-        self.init(pane: pane) { Text(pane.label) }
     }
 }
 
@@ -40,9 +39,9 @@ struct TabRowView: View {
         } icon: {
             StatusDot(status: tab.status)
         }
-        .help("\(tab.label), \(tab.status.title)")
-        .accessibilityElement(children: .combine)
-        .accessibilityValue(tab.status.title)
+        .help(tab.spokenLabel)
+        // The sidebar turns a disclosure label into a heading, which drops its accessibility label but keeps its value.
+        .accessibilityValue(tab.spokenLabel)
     }
 }
 

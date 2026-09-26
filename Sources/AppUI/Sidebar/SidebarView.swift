@@ -10,7 +10,7 @@ struct SidebarView: View {
     var body: some View {
         List(selection: selection) {
             ForEach(store.sections) { section in
-                Section(section.title) {
+                Section {
                     ForEach(section.rows) { row in
                         switch row {
                         case .pane(let pane):
@@ -23,13 +23,24 @@ struct SidebarView: View {
                             }
                         }
                     }
+                } header: {
+                    // A sidebar section heading drops its accessibility label but keeps its value.
+                    Text(section.title)
+                        .accessibilityValue(section.title)
                 }
             }
         }
         .listStyle(.sidebar)
         .overlay {
             if store.sections.isEmpty {
-                ContentUnavailableView(store.connection.title, systemImage: "server.rack")
+                let empty = store.connection.emptySidebar
+                ContentUnavailableView {
+                    Label(empty.title, systemImage: "server.rack")
+                } description: {
+                    if let detail = empty.detail {
+                        Text(detail)
+                    }
+                }
             }
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
@@ -57,13 +68,14 @@ struct SidebarView: View {
     private func paneRow(_ pane: PaneRow) -> some View {
         Group {
             if store.renaming == pane.id {
-                PaneRowView(pane: pane) {
-                    RenameField(label: pane.label) {
+                PaneRowView(
+                    pane: pane,
+                    renameField: RenameField(label: pane.label) {
                         store.perform(.commitRename(pane.id, $0))
                     } cancel: {
                         store.perform(.cancelRename)
                     }
-                }
+                )
             } else {
                 PaneRowView(pane: pane)
             }

@@ -24,7 +24,7 @@ struct ConnectionFooter: View {
         switch connection {
         case .connecting: "circle.dotted"
         case .connected: "circle.fill"
-        case .stale: "exclamationmark.triangle.fill"
+        case .stale, .offline: "exclamationmark.triangle.fill"
         }
     }
 
@@ -32,14 +32,11 @@ struct ConnectionFooter: View {
         switch connection {
         case .connecting: .secondary
         case .connected: .green
-        case .stale: .orange
+        case .stale, .offline: .orange
         }
     }
 
     private var detail: String {
-        if case .stale(let reason) = connection {
-            return reason
-        }
-        return connection.title
+        connection.failure ?? connection.title
     }
 }
