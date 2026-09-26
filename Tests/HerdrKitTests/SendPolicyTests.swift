@@ -53,3 +53,32 @@ struct SendPolicyTests {
         try await SendPolicy(allowedLabels: nil).authorize(pane) { throw HerdrError("never read") }
     }
 }
+
+struct PolicedControlTests {
+    private final class Recorder: HerdrControl, @unchecked Sendable {
+        private(set) var performed: [[HerdrRequest]] = []
+        func perform(_ requests: [HerdrRequest]) async throws { performed.append(requests) }
+    }
+
+    private let work = PaneID("w1:p1")!
+    private let herd = Herd(
+        workspaces: [.init(id: "w1", label: "work", number: 1)], tabs: [],
+        panes: [Herd.Pane(id: PaneID("w1:p1")!, tabID: "w1:t1", workspaceID: "w1")])
+
+    @Test func focusNeedsNoPermission() async throws {
+        let recorder = Recorder()
+        let control = PolicedControl(recorder, policy: SendPolicy(allowedLabels: [])) { throw HerdrError("never read") }
+        try await control.perform([.focus(work)])
+        #expect(recorder.performed == [[.focus(work)]])
+    }
+
+    @Test func typingOutsideTheAllowlistSendsNothing() async {
+        let recorder = Recorder()
+        let herd = herd
+        let control = PolicedControl(recorder, policy: SendPolicy(allowedLabels: ["fabrikater-test"])) { herd }
+        await #expect(throws: SendPolicy.Refusal.notAllowed(workspace: "work")) {
+            try await control.perform(HerdrRequest.prompt("hi", to: work))
+        }
+        #expect(recorder.performed.isEmpty)
+    }
+}

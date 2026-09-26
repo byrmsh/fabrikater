@@ -20,21 +20,22 @@ struct HostTranscriptServiceTests {
 
     @Test func loadsTheLogThroughTheRunner() async throws {
         let service = HostTranscriptService(runner: ReplayRunner(directory: Fixture.directory))
-        let transcript = try await service.claudeTranscript(session: session)
+        let transcript = try await service.claudeTranscript(session: session, bytes: TranscriptWindow.full)
         #expect(transcript.entries.count == 9)
         #expect(!transcript.isClipped)
     }
 
     @Test func marksATranscriptLongerThanTheWindowAsClipped() async throws {
-        let service = HostTranscriptService(runner: ReplayRunner(directory: Fixture.directory), window: 1000)
-        let transcript = try await service.claudeTranscript(session: session)
+        let service = HostTranscriptService(runner: ReplayRunner(directory: Fixture.directory))
+        let transcript = try await service.claudeTranscript(session: session, bytes: 1000)
         #expect(transcript.isClipped)
         #expect(transcript.entries.last?.id == "a7")
     }
 
     @Test func reportsAMissingLog() async {
         await #expect(throws: TranscriptError.noLog) {
-            try await HostTranscriptService(runner: MissingLogRunner()).claudeTranscript(session: session)
+            try await HostTranscriptService(runner: MissingLogRunner()).claudeTranscript(
+                session: session, bytes: TranscriptWindow.full)
         }
     }
 }

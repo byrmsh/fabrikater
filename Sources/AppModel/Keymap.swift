@@ -4,6 +4,7 @@ public struct KeyChord: Hashable, Sendable {
         case character(Character)
         case upArrow
         case downArrow
+        case `return`
     }
 
     public struct Modifiers: OptionSet, Hashable, Sendable {
@@ -34,7 +35,9 @@ public enum Keymap {
         .selectNextPane: KeyChord(.downArrow),
         .selectPreviousPane: KeyChord(.upArrow),
         .reloadConversation: KeyChord(.character("r")),
+        .send: KeyChord(.return),
         .renamePane(nil): KeyChord(.character("r"), [.command, .shift]),
+        .openQuickSwitcher: KeyChord(.character("k")),
     ]
 
     public static func chord(for command: AppCommand) -> KeyChord? {

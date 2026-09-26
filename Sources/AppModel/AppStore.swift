@@ -22,23 +22,31 @@ public final class AppStore {
     public private(set) var header: PaneHeader?
     /// The pane whose row shows the inline name field.
     public private(set) var renaming: PaneID?
+    /// The ⌘K switcher while it is open.
+    public private(set) var switcher: QuickSwitcher?
     public let conversation: ConversationStore
+    public let composer: ComposerStore
 
     private var herd = Herd()
+    private let focus: FocusSync
     private var notes: PaneNotes
     private let notesStore: any PaneNotesStore
     @ObservationIgnored private var herdUpdates: AsyncStream<HerdUpdate>?
     private let log = Log(category: "AppModel")
 
+    /// - Parameter control: changes Herdr on the user's behalf: focus follows the selection, and the composer sends.
     public init(
         herdUpdates: AsyncStream<HerdUpdate>,
         transcripts: any TranscriptService,
+        control: any HerdrControl,
         notes: any PaneNotesStore = InMemoryPaneNotesStore()
     ) {
         self.herdUpdates = herdUpdates
         notesStore = notes
         self.notes = notes.load()
         conversation = ConversationStore(transcripts: transcripts)
+        composer = ComposerStore(control: control)
+        focus = FocusSync(control: control)
     }
 
     /// Applies herd updates until the stream ends. Call once, for the lifetime of the window.
@@ -50,6 +58,8 @@ public final class AppStore {
         }
     }
 
+    var focusTask: Task<Void, Never>? { focus.task }
+
     public func perform(_ command: AppCommand) {
         switch command {
         case .selectPane(let id):
@@ -60,6 +70,8 @@ public final class AppStore {
             select(neighbour(offset: -1))
         case .reloadConversation:
             conversation.reload()
+        case .send:
+            composer.send()
         case .renamePane(let id):
             renaming = id ?? selection
         case .commitRename(let id, let text):
@@ -69,6 +81,18 @@ public final class AppStore {
             updateNotes(notes.renaming(id, to: text, over: label))
         case .cancelRename:
             renaming = nil
+        case .openQuickSwitcher:
+            switcher = QuickSwitcher(items: sections.switcherItems(in: herd))
+        case .closeQuickSwitcher:
+            switcher = nil
+        case .searchQuickSwitcher(let query):
+            switcher = switcher?.searching(query)
+        case .moveQuickSwitcherHighlight(let offset):
+            switcher = switcher?.moving(by: offset)
+        case .chooseQuickSwitcherResult(let id):
+            guard let chosen = id ?? switcher?.highlighted else { return }
+            switcher = nil
+            select(chosen)
         }
     }
 
@@ -76,8 +100,12 @@ public final class AppStore {
         switch command {
         case .selectPane, .selectNextPane, .selectPreviousPane: !sections.isEmpty
         case .reloadConversation: conversation.canReload
+        case .send: composer.canSend
         case .renamePane(let id): (id ?? selection) != nil
         case .commitRename, .cancelRename: renaming != nil
+        case .openQuickSwitcher: !sections.isEmpty && switcher == nil
+        case .closeQuickSwitcher, .searchQuickSwitcher, .moveQuickSwitcherHighlight: switcher != nil
+        case .chooseQuickSwitcherResult(let id): (id ?? switcher?.highlighted) != nil
         }
     }
 
@@ -103,6 +131,7 @@ public final class AppStore {
             }
         case .failed(let reason):
             connection = sections.isEmpty ? .offline(reason) : .stale(reason)
+            refreshComposer()
         }
     }
 
@@ -110,6 +139,7 @@ public final class AppStore {
     private func refreshSections() {
         sections = SidebarSection.sections(for: herd)
             .named(notes.names)
+        switcher = switcher?.refreshing(sections.switcherItems(in: herd))
     }
 
     private func updateNotes(_ notes: PaneNotes) {
@@ -124,22 +154,24 @@ public final class AppStore {
         guard id != selection else { return }
         selection = id
         refreshSelection()
+        focus.follow(id)
     }
 
     private func refreshSelection() {
         let pane = selection.flatMap { herd.pane($0) }
         header = pane.map(header(for:))
         conversation.show(pane)
+        refreshComposer()
+    }
+
+    private func refreshComposer() {
+        composer.show(selection.flatMap { herd.pane($0) }, isOnline: connection == .connected)
     }
 
     private func header(for pane: Herd.Pane) -> PaneHeader {
-        let tab = herd.tab(pane.tabID)
-        let location = [herd.workspace(pane.workspaceID)?.label, tab?.label]
-            .compactMap { $0?.isEmpty == false ? $0 : nil }
-            .joined(separator: " › ")
-        return PaneHeader(
-            title: PaneRow.label(for: pane, tab: tab),
-            location: location,
+        PaneHeader(
+            title: PaneRow.label(for: pane, tab: herd.tab(pane.tabID)),
+            location: herd.location(of: pane),
             agent: pane.agent?.title ?? "Shell",
             status: pane.agentStatus
         )
