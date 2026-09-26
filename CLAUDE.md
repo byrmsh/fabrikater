@@ -9,6 +9,7 @@ A native macOS SwiftUI app that shows and drives coding agents running in Herdr 
 - [docs/structure.md](docs/structure.md): the targets, what may depend on what, the engineering rules, and recipes for common changes.
 - [docs/decisions/](docs/decisions/): why the structure, tooling and CI are the way they are.
 - [docs/macos-tooling.md](docs/macos-tooling.md): building without Xcode, and the library choices.
+- [docs/e2e.md](docs/e2e.md): the end-to-end flows and screenshots, how to add a flow and how to look at the screenshots.
 - The `CLAUDE.md` inside each target you touch.
 
 `scripts/check.sh` is the one check: format lint, source lint, build with warnings as errors, tests. Run it before every commit. It must stay green at every commit.
@@ -20,7 +21,8 @@ Cloud sessions run on Linux with no macOS, no Xcode and no access to `arch`.
 - The SessionStart hook (`.claude/hooks/session-start.sh`) installs Swift 6.4 under `~/.cache/fabrikater` and puts it on `PATH`. If `swift` is missing, run the hook by hand: `CLAUDE_CODE_REMOTE=true CLAUDE_ENV_FILE=/dev/null .claude/hooks/session-start.sh`, then `export PATH="$HOME/.cache/fabrikater/swift-6.4.0/usr/bin:$PATH"`.
 - On Linux, `Package.swift` leaves out `AppUI` and the `fabrikater` executable. `scripts/check.sh` builds and tests every other target. Put all logic there, test it there, and keep views thin.
 - You cannot compile or see views. Design every surface with `.claude/skills/macos-design` (the repo's own macOS design rules), review every view you write against it, `.claude/skills/swiftui-pro` and `.claude/skills/swiftui-expert-skill` (macOS references), and let CI's macOS job compile it.
-- CI: `.github/workflows/linux.yml` runs `scripts/check.sh` on every PR. `.github/workflows/macos.yml` runs it on the `xcode-27` runner under the Command Line Tools (the user's toolchain), then `scripts/bundle.sh`, the signature check and a launch check. Read the results with the GitHub tools and drive both green.
+- CI: `.github/workflows/linux.yml` runs `scripts/check.sh` on every PR. `.github/workflows/macos.yml` runs it on the `xcode-27` runner under the Command Line Tools (the user's toolchain), then `scripts/bundle.sh`, the signature check and the end-to-end flows (`scripts/e2e.sh`). Read the results with the GitHub tools and drive both green.
+- To see the app, download the macOS run's `e2e-screenshots` artifact and read the PNGs (docs/e2e.md). After a UI change, look at them, and add or extend a flow in `scripts/e2e/flows/` for the behaviour you built.
 - Never contact the host. Test against fixtures in `Tests/Fixtures/`: `*.synthetic.*` files are hand-written from the documented shapes, and real captures come from the user running `scripts/capture-fixtures.sh`. List any capture you need in the PR.
 - Anything that needs the host or the user's eyes goes on the PR's "manual on the Mac" checklist, with exact commands.
 - Collie's source is public: `git clone https://github.com/AltanS/collie` works read-only through the session proxy. Check out the commit pinned in parsing.md.
