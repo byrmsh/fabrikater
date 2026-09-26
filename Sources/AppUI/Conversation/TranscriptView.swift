@@ -29,10 +29,17 @@ struct TranscriptView: View {
                             .frame(maxWidth: .infinity)
                     }
                     ForEach(conversation.transcript.entries) { entry in
-                        EntryView(entry: entry)
-                            .contextMenu {
-                                Button(AppCommand.copyMessage(entry.id).title) { perform(.copyMessage(entry.id)) }
+                        let toggle = conversation.expansion.toggle(for: entry)
+                        EntryView(
+                            entry: entry, isCollapsed: conversation.expansion.isCollapsed(entry), toggle: toggle,
+                            perform: perform
+                        )
+                        .contextMenu {
+                            Button(AppCommand.copyMessage(entry.id).title) { perform(.copyMessage(entry.id)) }
+                            if let toggle {
+                                Button(toggle.title) { perform(toggle) }
                             }
+                        }
                     }
                 }
                 .padding(16)
