@@ -3,22 +3,6 @@ import HerdrKit
 import Observation
 import TranscriptKit
 
-/// Whether the herd on screen is current.
-public enum ConnectionState: Equatable, Sendable {
-    case connecting
-    case connected
-    /// The last read failed; the herd shown is the last one that succeeded.
-    case stale(String)
-
-    public var title: String {
-        switch self {
-        case .connecting: "Connecting…"
-        case .connected: "Connected"
-        case .stale: "Offline, showing the last known state"
-        }
-    }
-}
-
 /// The header above the selected pane's conversation.
 public struct PaneHeader: Equatable, Sendable {
     public var title: String
@@ -157,7 +141,7 @@ public final class AppStore {
                 conversation.reload()
             }
         case .failed(let reason):
-            connection = .stale(reason)
+            connection = sections.isEmpty ? .offline(reason) : .stale(reason)
             refreshComposer()
         }
     }

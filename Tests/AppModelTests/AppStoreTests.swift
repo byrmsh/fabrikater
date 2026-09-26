@@ -48,6 +48,14 @@ struct AppStoreTests {
         #expect(store.sections.count == 2)
     }
 
+    @Test func aFailedReadWithNothingLoadedSaysOfflineWithoutClaimingAKnownState() {
+        let store = AppStore(herdUpdates: AsyncStream { $0.finish() }, transcripts: transcripts, control: control)
+        store.apply(.failed("ssh failed: no route to host"))
+        #expect(store.connection == .offline("ssh failed: no route to host"))
+        #expect(store.connection.title == "Offline")
+        #expect(store.connection.emptySidebar == EmptySidebar(title: "Offline", detail: "ssh failed: no route to host"))
+    }
+
     @Test func selectingAClaudePaneLoadsItsConversation() async throws {
         let (store, _) = try makeStore()
         store.perform(.selectPane(scratch))
