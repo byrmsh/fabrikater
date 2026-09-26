@@ -18,6 +18,7 @@
 | `pinning` | Pin (⌘⇧P) on the selected pane adds a Pinned section above the workspaces, the pin survives a relaunch, and Unpin removes the section | `pinning.png`, `pinning-unpinned.png` |
 | `unread` | swapping in `snapshot-later.synthetic.json` (the refactor pane's turn ends) marks that unselected row Unread, the mark survives a relaunch, and selecting the pane clears it | `unread.png`, `unread-read.png` |
 | `vscode` | Open Folder in VS Code is disabled in the Pane menu until a pane with a known folder is selected (never chosen, so no VS Code starts) | `vscode.png` |
+| `facts` | Session Info (⌘I) opens a popover on the toolbar's status item with the model, folder, branch and context used from `claude-facts.synthetic.jsonl`, and Esc closes it | `facts.png` |
 | `offline` | with no snapshot fixture the sidebar says Offline and why, and does not claim a last known state | `offline.png` |
 
 A failed step stops its flow and fails the job after the other flows ran. It leaves in `build/e2e/`: `<flow>-failure.png`, `<flow>-failure.txt` (every element in the window with its role and text attributes; the text checks search AXTitle, AXValue, AXDescription and AXHelp), `<flow>.log` (the app's output) and `<flow>.osascript.log`. When a text check fails, read the `.txt` first.
