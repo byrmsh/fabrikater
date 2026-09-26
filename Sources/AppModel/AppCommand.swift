@@ -29,6 +29,9 @@ public enum AppCommand: Hashable, Sendable {
     case moveQuickSwitcherHighlight(Int)
     /// Selects a result and closes the switcher; nil means the highlighted result.
     case chooseQuickSwitcherResult(PaneID?)
+    /// Copies one conversation entry, by id, as markdown.
+    case copyMessage(String)
+    case copyConversation
 
     /// The menu title.
     public var title: String {
@@ -52,6 +55,8 @@ public enum AppCommand: Hashable, Sendable {
         case .searchQuickSwitcher: "Search Panes"
         case .moveQuickSwitcherHighlight: "Move Highlight"
         case .chooseQuickSwitcherResult: "Open Pane"
+        case .copyMessage: "Copy Message"
+        case .copyConversation: "Copy Conversation as Markdown"
         }
     }
 }

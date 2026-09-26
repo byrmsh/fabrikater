@@ -42,6 +42,7 @@ public enum Keymap {
         .smallerText: KeyChord(.character("-")),
         .actualSizeText: KeyChord(.character("0")),
         .openQuickSwitcher: KeyChord(.character("k")),
+        .copyConversation: KeyChord(.character("c"), [.command, .shift]),
     ]
 
     public static func chord(for command: AppCommand) -> KeyChord? {

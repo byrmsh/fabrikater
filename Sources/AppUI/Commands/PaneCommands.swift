@@ -20,6 +20,7 @@ public struct PaneCommands: Commands {
             button(.renamePane(nil))
             Divider()
             button(.reloadConversation)
+            button(.copyConversation)
             Divider()
             button(.send)
         }
