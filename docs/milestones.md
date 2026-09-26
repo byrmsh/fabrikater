@@ -130,7 +130,7 @@ Every PR runs `scripts/check.sh`, drives the Linux and macOS jobs green, and lis
 
 **B12. Changes panel.** A list of the files this session changed, from its Edit, MultiEdit and Write tool calls, each expanding to the edit as a unified diff of `old_string`/`new_string` (Write shows the new content). Opens from the toolbar as an inspector (`.inspector`). Logic: `Transcript+Changes.swift` in `TranscriptKit`, grouping by path in first-touched order. Tests: grouping, several edits to one file, a failed tool result is excluded.
 
-**B13. Open in VS Code.** Pane menu item Open Folder in VS Code, opening `vscode://vscode-remote/ssh-remote+<host><cwd>` with the host alias and the pane's `cwd` from the snapshot (`foreground_cwd` when set). Logic: a pure URL builder in `AppModel` that percent-encodes the path. Tests: encoding, the `foreground_cwd` preference, disabled when neither is known.
+**B13. Open in VS Code.** **Done** ([#16](https://github.com/byrmsh/fabrikater/pull/16)). Pane menu and row context menu item Open Folder in VS Code, opening `vscode://vscode-remote/ssh-remote+<host><cwd>` with the host alias and the pane's `cwd` from the snapshot (`foreground_cwd` when set). Logic: a pure URL builder in `AppModel` that percent-encodes the path. Tests: encoding, the `foreground_cwd` preference, disabled when neither is known.
 
 **B14. Sort by activity.** View menu Sort Panes By: Herdr Order / Recent Activity, applied within each workspace. Logic: `Sidebar+Sorting.swift` using B6's activity time. Tests: order and ties.
 
