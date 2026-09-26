@@ -19,11 +19,21 @@ Cloud sessions run on Linux with no macOS, no Xcode and no access to `arch`.
 
 - The SessionStart hook (`.claude/hooks/session-start.sh`) installs Swift 6.4 under `~/.cache/fabrikater` and puts it on `PATH`. If `swift` is missing, run the hook by hand: `CLAUDE_CODE_REMOTE=true CLAUDE_ENV_FILE=/dev/null .claude/hooks/session-start.sh`, then `export PATH="$HOME/.cache/fabrikater/swift-6.4.0/usr/bin:$PATH"`.
 - On Linux, `Package.swift` leaves out `AppUI` and the `fabrikater` executable. `scripts/check.sh` builds and tests every other target. Put all logic there, test it there, and keep views thin.
-- You cannot compile or see views. Review every view you write against `.claude/skills/swiftui-pro` and `.claude/skills/swiftui-expert-skill` (macOS references), and let CI's macOS job compile it.
+- You cannot compile or see views. Design every surface with `.claude/skills/macos-design` (the repo's own macOS design rules), review every view you write against it, `.claude/skills/swiftui-pro` and `.claude/skills/swiftui-expert-skill` (macOS references), and let CI's macOS job compile it.
 - CI: `.github/workflows/linux.yml` runs `scripts/check.sh` on every PR. `.github/workflows/macos.yml` runs it on the `xcode-27` runner under the Command Line Tools (the user's toolchain), then `scripts/bundle.sh`, the signature check and a launch check. Read the results with the GitHub tools and drive both green.
 - Never contact the host. Test against fixtures in `Tests/Fixtures/`: `*.synthetic.*` files are hand-written from the documented shapes, and real captures come from the user running `scripts/capture-fixtures.sh`. List any capture you need in the PR.
 - Anything that needs the host or the user's eyes goes on the PR's "manual on the Mac" checklist, with exact commands.
 - Collie's source is public: `git clone https://github.com/AltanS/collie` works read-only through the session proxy. Check out the commit pinned in parsing.md.
+
+## Milestone sessions
+
+Each milestone in [docs/milestones.md](docs/milestones.md) is one session and one PR. Build the first milestone that is not marked done.
+
+- Start from the latest `main`. Present a plan first (targets and files, tests, the milestone's open questions with a recommendation) and wait for approval.
+- Never push to `main`; the user merges. Work after a merge is a new PR from a fresh `main`.
+- The PR description covers what was built, CI results with links, the "manual on the Mac" checklist, any capture the user must run, open questions and pushback.
+- Drive both CI jobs green. Command Line Tools failures show up only in the macOS job, so push early when a change touches `Package.swift`, `AppUI`, the executable or `scripts/`. `Actions → macOS → Run workflow → toolchain: xcode` checks the Xcode path on demand.
+- In the same PR, mark the milestone done in milestones.md, resolve or carry forward its open questions, and fix any doc the work proved wrong.
 
 ## Local session on the Mac
 
@@ -49,7 +59,7 @@ For testing sends, prompts and the terminal view, use a scratch workspace labell
 
 ## Skills
 
-`.claude/skills/` holds vendored SwiftUI, Swift concurrency and Swift testing skills (licences in THIRD_PARTY_NOTICES.md). They assume Xcode and iOS, and **the repo's rules win** wherever they disagree: `@ViewState` instead of `@State`; no `#Preview`, `@Previewable`, `@Entry` or SwiftData; macOS idioms (menus, keyboard shortcuts, `NavigationSplitView`, windows and settings scenes) rather than iOS ones; the target layering in docs/structure.md.
+`.claude/skills/macos-design` is fabrikater's own skill: platform-neutral UI state, commands and panel layout in `AppModel`, native macOS chrome, density, and a review checklist for every UI change ([docs/decisions/0006](docs/decisions/0006-repo-owned-macos-design-skill.md)). The rest of `.claude/skills/` holds vendored SwiftUI, Swift concurrency and Swift testing skills (licences in THIRD_PARTY_NOTICES.md). They assume Xcode and iOS, and **the repo's rules win** wherever they disagree: `@ViewState` instead of `@State`; no `#Preview`, `@Previewable`, `@Entry` or SwiftData; macOS idioms (menus, keyboard shortcuts, `NavigationSplitView`, windows and settings scenes) rather than iOS ones; the target layering in docs/structure.md.
 
 ## Conventions
 
