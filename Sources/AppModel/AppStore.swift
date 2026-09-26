@@ -44,6 +44,8 @@ public final class AppStore {
     public private(set) var isSidebarVisible = true
     /// The conversation's text size.
     public private(set) var textScale = TextScale.actual
+    /// The ⌘K switcher while it is open.
+    public private(set) var switcher: QuickSwitcher?
     public let conversation: ConversationStore
     public let composer: ComposerStore
 
@@ -113,6 +115,18 @@ public final class AppStore {
             textScale = .actual
         case .setTextScale(let scale):
             textScale = scale
+        case .openQuickSwitcher:
+            switcher = QuickSwitcher(items: sections.switcherItems(in: herd))
+        case .closeQuickSwitcher:
+            switcher = nil
+        case .searchQuickSwitcher(let query):
+            switcher = switcher?.searching(query)
+        case .moveQuickSwitcherHighlight(let offset):
+            switcher = switcher?.moving(by: offset)
+        case .chooseQuickSwitcherResult(let id):
+            guard let chosen = id ?? switcher?.highlighted else { return }
+            switcher = nil
+            select(chosen)
         }
     }
 
@@ -127,6 +141,9 @@ public final class AppStore {
         case .biggerText: !textScale.isLargest
         case .smallerText: !textScale.isSmallest
         case .actualSizeText: textScale != .actual
+        case .openQuickSwitcher: !sections.isEmpty && switcher == nil
+        case .closeQuickSwitcher, .searchQuickSwitcher, .moveQuickSwitcherHighlight: switcher != nil
+        case .chooseQuickSwitcherResult(let id): (id ?? switcher?.highlighted) != nil
         }
     }
 
@@ -160,6 +177,7 @@ public final class AppStore {
     private func refreshSections() {
         sections = SidebarSection.sections(for: herd)
             .named(notes.names)
+        switcher = switcher?.refreshing(sections.switcherItems(in: herd))
     }
 
     private func updateNotes(_ notes: PaneNotes) {
@@ -189,13 +207,9 @@ public final class AppStore {
     }
 
     private func header(for pane: Herd.Pane) -> PaneHeader {
-        let tab = herd.tab(pane.tabID)
-        let location = [herd.workspace(pane.workspaceID)?.label, tab?.label]
-            .compactMap { $0?.isEmpty == false ? $0 : nil }
-            .joined(separator: " › ")
-        return PaneHeader(
-            title: PaneRow.label(for: pane, tab: tab),
-            location: location,
+        PaneHeader(
+            title: PaneRow.label(for: pane, tab: herd.tab(pane.tabID)),
+            location: herd.location(of: pane),
             agent: pane.agent?.title ?? "Shell",
             status: pane.agentStatus
         )

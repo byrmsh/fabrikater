@@ -18,7 +18,7 @@ One main window, a standard macOS three-part `NavigationSplitView`:
 
 The arrangement of these panels comes from a layout model in `AppModel`, not from the view hierarchy (`.claude/skills/macos-design`, `references/layout-model.md`). The first version has the fixed shape above; a later milestone makes panels movable and dockable, IDE-style (Xcode, Zed), without rewriting the views.
 
-The selection survives relaunch. Keyboard: ⌘1…⌘9 jump to the first nine panes in the "Needs you" group, ⌘↑/⌘↓ move through the sidebar, ⌘L focuses the composer, ⌘T toggles Conversation/Terminal, ⌘F searches the conversation.
+The selection survives relaunch. Keyboard: ⌘1…⌘9 jump to the first nine panes in the "Needs you" group, ⌘↑/⌘↓ move through the sidebar, ⌘K opens a quick switcher that jumps to any pane by name, workspace, tab or agent, ⌘L focuses the composer, ⌘T toggles Conversation/Terminal, ⌘F searches the conversation.
 
 ## Conversation view
 

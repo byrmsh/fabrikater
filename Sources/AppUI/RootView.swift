@@ -19,6 +19,9 @@ public struct RootView: View {
         } detail: {
             DetailView(store: store)
         }
+        .sheet(isPresented: isSwitching) {
+            QuickSwitcherView(store: store)
+        }
         .onAppear {
             store.perform(.setTextScale(TextScale(step: savedTextScaleStep)))
             store.perform(.setSidebarVisible(savedSidebarVisible))
@@ -35,5 +38,14 @@ public struct RootView: View {
         } set: { visibility in
             store.perform(.setSidebarVisible(visibility != .detailOnly))
         }
+    }
+
+    private var isSwitching: Binding<Bool> {
+        Binding(
+            get: { store.switcher != nil },
+            set: { isPresented in
+                if !isPresented { store.perform(.closeQuickSwitcher) }
+            }
+        )
     }
 }
