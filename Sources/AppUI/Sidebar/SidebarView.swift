@@ -68,11 +68,14 @@ struct SidebarView: View {
     private func paneRow(_ pane: PaneRow) -> some View {
         Group {
             if store.renaming == pane.id {
-                RenameField(label: pane.label) {
-                    store.perform(.commitRename(pane.id, $0))
-                } cancel: {
-                    store.perform(.cancelRename)
-                }
+                PaneRowView(
+                    pane: pane,
+                    renameField: RenameField(label: pane.label) {
+                        store.perform(.commitRename(pane.id, $0))
+                    } cancel: {
+                        store.perform(.cancelRename)
+                    }
+                )
             } else {
                 PaneRowView(pane: pane)
             }

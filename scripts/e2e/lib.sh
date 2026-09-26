@@ -87,6 +87,11 @@ e2e_expect_gone() {
     e2e_wait "\"$1\" to leave the screen" _e2e_lacks_text "$1"
 }
 
+# e2e_expect_focus TEXT: waits until the focused element holds TEXT, as a text field does once it takes focus.
+e2e_expect_focus() {
+    e2e_wait "a focused field holding \"$1\"" _e2e_focus_is "$1"
+}
+
 # e2e_key KEY [modifier...]: presses a key in the app. KEY is a character or down, up, left, right, return, escape;
 # modifiers are command, shift, option, control. Example: e2e_key down command
 e2e_key() {
@@ -259,6 +264,12 @@ APPLESCRIPT
 
 _e2e_has_text() {
     e2e_screen_text | grep -qF -- "$1"
+}
+
+_e2e_focus_is() {
+    [ "$(osascript -e "tell application \"System Events\" to tell process \"${E2E_PROCESS}\"
+        return value of (value of attribute \"AXFocusedUIElement\")
+    end tell" 2>/dev/null)" = "$1" ]
 }
 
 _e2e_lacks_text() {
