@@ -38,6 +38,10 @@ public enum Keymap {
         .send: KeyChord(.return),
         .renamePane(nil): KeyChord(.character("r"), [.command, .shift]),
         .togglePin(nil): KeyChord(.character("p"), [.command, .shift]),
+        .toggleSidebar: KeyChord(.character("s"), [.command, .control]),
+        .biggerText: KeyChord(.character("+")),
+        .smallerText: KeyChord(.character("-")),
+        .actualSizeText: KeyChord(.character("0")),
         .openQuickSwitcher: KeyChord(.character("k")),
         .copyConversation: KeyChord(.character("c"), [.command, .shift]),
     ]

@@ -28,9 +28,7 @@ public struct PaneCommands: Commands {
     }
 
     private func button(_ command: AppCommand) -> some View {
-        Button(store.title(of: command)) { store.perform(command) }
-            .keyboardShortcut(Keymap.chord(for: command)?.shortcut)
-            .disabled(!store.isEnabled(command))
+        CommandButton(store: store, command: command)
     }
 }
 
