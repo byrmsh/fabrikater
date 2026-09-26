@@ -12,6 +12,9 @@ public enum HostCommand: Hashable, Sendable {
     /// The last `bytes` bytes of the Claude session log for `session`, found by scanning the project directories
     /// (docs/parsing.md 1.2). Exits with `notFoundStatus` when no log exists.
     case claudeLogTail(session: SessionID, bytes: Int)
+    /// The pane's current screen as ANSI text, for checking what typed text would land in (docs/parsing.md 4.1).
+    /// `visible` never scrolls the operator's terminal, unlike a long `recent` read.
+    case herdrPaneScreen(PaneID)
 
     /// The exit status a command's script uses for "the file does not exist".
     public static let notFoundStatus: Int32 = 44
@@ -33,6 +36,8 @@ public enum HostCommand: Hashable, Sendable {
             // TODO(M2): follow hand-overs and the conversation root to the live file (docs/parsing.md 1.3).
             "f=$(ls -1t ~/.claude/projects/*/\(shellQuoted(session.rawValue + ".jsonl")) 2>/dev/null | head -n 1); "
                 + "[ -n \"$f\" ] || exit \(Self.notFoundStatus); tail -c \(max(bytes, 1)) \"$f\""
+        case .herdrPaneScreen(let pane):
+            "herdr pane read \(shellQuoted(pane.rawValue)) --source visible --format ansi"
         }
     }
 
@@ -40,7 +45,7 @@ public enum HostCommand: Hashable, Sendable {
     public var isStreaming: Bool {
         switch self {
         case .herdrEvents: true
-        case .herdrSnapshot, .herdrRequests, .claudeLogTail: false
+        case .herdrSnapshot, .herdrRequests, .claudeLogTail, .herdrPaneScreen: false
         }
     }
 
@@ -51,6 +56,7 @@ public enum HostCommand: Hashable, Sendable {
         case .herdrEvents: .seconds(0)
         case .herdrRequests: .seconds(15)
         case .claudeLogTail: .seconds(20)
+        case .herdrPaneScreen: .seconds(5)
         }
     }
 
@@ -61,8 +67,15 @@ public enum HostCommand: Hashable, Sendable {
         case .herdrEvents: ["events.synthetic.jsonl"]
         case .herdrRequests: ["requests.synthetic.jsonl"]
         case .claudeLogTail(let session, _): ["claude-\(session.rawValue).jsonl", "claude.synthetic.jsonl"]
+        case .herdrPaneScreen(let pane):
+            ["screen-\(pane.fileName).txt", "screen-\(pane.fileName).synthetic.txt", "screen.synthetic.txt"]
         }
     }
+}
+
+extension PaneID {
+    /// The id with `:` replaced, for fixture file names: `w1:p1` is `w1-p1`.
+    var fileName: String { rawValue.replacing(":", with: "-") }
 }
 
 /// Wraps `value` in single quotes for a POSIX shell, so the remote shell passes it through as one word.

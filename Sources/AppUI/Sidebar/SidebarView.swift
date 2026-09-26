@@ -25,7 +25,6 @@ struct SidebarView: View {
                     }
                 } header: {
                     Text(section.title)
-                        .accessibilityLabel(section.title)
                         .accessibilityAddTraits(.isHeader)
                 }
             }

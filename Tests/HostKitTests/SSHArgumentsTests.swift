@@ -31,6 +31,12 @@ struct SSHArgumentsTests {
                 + " | head -n 1); [ -n \"$f\" ] || exit 44; tail -c 1024 \"$f\"")
     }
 
+    @Test func paneScreenReadsOnlyTheVisibleScreen() throws {
+        let pane = try #require(PaneID("w3:pQ"))
+        #expect(
+            HostCommand.herdrPaneScreen(pane).remoteScript == "herdr pane read 'w3:pQ' --source visible --format ansi")
+    }
+
     @Test func shellQuotingSurvivesSingleQuotes() {
         #expect(shellQuoted("a'b") == #"'a'\''b'"#)
     }

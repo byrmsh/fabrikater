@@ -199,6 +199,16 @@ struct AppStoreTests {
         #expect(store.composer.error == SendPolicy.Refusal.paneMissing.description)
     }
 
+    @Test func aBlockedPaneSaysItIsWaitingAndTakesNoPrompt() throws {
+        let (store, _) = try makeStore()
+        store.perform(.selectPane(codex))
+        store.composer.draft = "1"
+        #expect(store.composer.notice == ComposerStore.blockedNotice)
+        #expect(!store.isEnabled(.send))
+        store.perform(.selectPane(scratch))
+        #expect(store.composer.notice == nil)
+    }
+
     @Test func draftsArePerPaneAndSendingStopsWhileOffline() throws {
         let (store, _) = try makeStore()
         store.perform(.selectPane(scratch))
