@@ -10,8 +10,14 @@ public protocol HerdrService: Sendable {
     func events() -> AsyncThrowingStream<Void, any Error>
 }
 
-/// `HerdrService` and `HerdrControl` over a `HostCommandRunner`.
-public struct HerdrClient: HerdrService, HerdrControl {
+/// Reads what a pane shows. `HerdrClient` is the real one; tests use a fake.
+public protocol PaneReader: Sendable {
+    /// The pane's visible screen as ANSI text.
+    func screen(of pane: PaneID) async throws -> String
+}
+
+/// `HerdrService`, `HerdrControl` and `PaneReader` over a `HostCommandRunner`.
+public struct HerdrClient: HerdrService, HerdrControl, PaneReader {
     /// One fixed subscription instead of per-pane `pane.agent_status_changed` (docs/milestones.md, M1).
     public static let subscriptions = [
         "workspace.created", "workspace.updated", "workspace.renamed", "workspace.moved", "workspace.reordered",
@@ -27,6 +33,10 @@ public struct HerdrClient: HerdrService, HerdrControl {
 
     public func snapshot() async throws -> Herd {
         try Herd(snapshotReply: try await runner.run(.herdrSnapshot))
+    }
+
+    public func screen(of pane: PaneID) async throws -> String {
+        String(decoding: try await runner.run(.herdrPaneScreen(pane)), as: UTF8.self)
     }
 
     public func perform(_ requests: [HerdrRequest]) async throws {
