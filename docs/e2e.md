@@ -8,6 +8,7 @@
 |---|---|---|
 | `sidebar` | the synthetic herd's workspaces and panes carry accessible names, the footer says Connected, nothing is selected | `sidebar.png` |
 | `conversation` | Next Pane (⌘↓) selects the first Claude pane and its conversation renders from `claude.synthetic.jsonl` | `conversation.png` |
+| `room` | the toolbar says "Claude, Working" for the selected pane, ⌃⌘S hides the sidebar, ⌘+ twice enlarges the conversation's text, and ⌘0 plus ⌃⌘S bring both back | `room.png` (sidebar hidden, text two steps bigger) |
 | `composer` | typing a prompt and pressing Return sends it to the selected pane and clears the draft | `composer-draft.png`, `composer-sent.png` |
 | `send-guard` | with a permission prompt on the pane's screen (`screen-w1-p1.synthetic.txt`), Return sends nothing and the draft stays with the reason | `send-guard.png` |
 | `copy` | Copy Conversation as Markdown (⌘⇧C) puts the conversation on the pasteboard as markdown, saved as `copy.md` | `copy.png` |
@@ -34,6 +35,7 @@ Steps: `e2e_launch [fixture…|--none]` (pane notes start empty; `E2E_KEEP_NOTES
 - Drive the app the way a person does: menu shortcuts from `Keymap`, typed text. No test-only switches in app code; if a flow cannot reach a state, add fixtures instead.
 - Assert on text a person reads, as accessibility exposes it: `e2e_screen_dump` shows what that is. Plain `Text` is an AXStaticText with the text as AXValue.
 - Find a sidebar row or heading by what VoiceOver reads (`e2e_expect_label "Synthetic refactor, Claude, Working"`, `e2e_expect_label "Synthetic A"`), not by its help tag. A pane row reads its label (the rename when set), agent and status (`PaneRow.spokenLabel`); a tab row its label and status. SwiftUI's sidebar headings (workspace sections and tab disclosure rows) drop their accessibility label and keep only the value, so those carry their text as the value.
+- Every launch starts clean: it ignores saved window state (`-ApplePersistenceIgnoreState YES`) and clears the fixture defaults domain `sh.bayram.fabrikater.fixtures`, where `FABRIKATER_FIXTURES` runs keep pane names, so a flow that renames a pane, hides the sidebar or changes the text size cannot leak it into the next, and never touches the real pane names. `E2E_KEEP_NOTES=1 e2e_launch` skips the clearing, to check that notes survive a relaunch.
 - Fixtures come only from `Tests/Fixtures`. A flow needing a new shape gets a new `*.synthetic.*` file there; `e2e_launch` copies just the named files so the replay runner cannot pick up another one.
 
 ## Looking at the screenshots

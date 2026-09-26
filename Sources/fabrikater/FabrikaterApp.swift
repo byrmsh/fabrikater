@@ -16,12 +16,12 @@ struct FabrikaterApp: App {
         let log = Log(category: "App")
         let environment = ProcessInfo.processInfo.environment
         let runner: any HostCommandRunner
-        let notesDefaults: UserDefaults
+        // Fixture runs keep their notes apart, so a demo or an e2e flow never touches the real pane names.
+        var defaults = UserDefaults.standard
         if let fixtures = environment["FABRIKATER_FIXTURES"] {
             log.info("replaying fixtures")
             runner = ReplayRunner(directory: URL(filePath: fixtures))
-            // Kept apart, so renaming or pinning a fixture pane never touches the real notes.
-            notesDefaults = UserDefaults(suiteName: "fabrikater.fixtures") ?? .standard
+            defaults = UserDefaults(suiteName: "sh.bayram.fabrikater.fixtures") ?? .standard
         } else {
             let alias = environment["FABRIKATER_HOST"] ?? "arch"
             let host = HostAlias(alias) ?? HostAlias("arch")!
@@ -29,7 +29,6 @@ struct FabrikaterApp: App {
                 log.error("FABRIKATER_HOST is not a valid ssh alias; using arch")
             }
             runner = SSHRunner(host: host)
-            notesDefaults = .standard
         }
         let client = HerdrClient(runner: runner)
         #if DEBUG
@@ -42,7 +41,7 @@ struct FabrikaterApp: App {
             herdUpdates: HerdFeed(service: client).updates(),
             transcripts: HostTranscriptService(runner: runner),
             control: PolicedControl(SendGuard(client, reader: client), policy: policy) { try await client.snapshot() },
-            notes: UserDefaultsPaneNotesStore(defaults: notesDefaults),
+            notes: UserDefaultsPaneNotesStore(defaults: defaults),
             clipboard: PasteboardClipboard()
         )
         log.info("launched")
@@ -55,6 +54,7 @@ struct FabrikaterApp: App {
         .defaultSize(width: 1100, height: 720)
         .windowToolbarStyle(.unified)
         .commands {
+            ViewCommands(store: store)
             PaneCommands(store: store)
         }
     }
