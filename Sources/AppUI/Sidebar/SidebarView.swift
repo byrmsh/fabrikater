@@ -24,9 +24,9 @@ struct SidebarView: View {
                         }
                     }
                 } header: {
-                    // A sidebar heading exposes no text to the Accessibility API; plain text does.
+                    // A sidebar section heading drops its accessibility label but keeps its value.
                     Text(section.title)
-                        .accessibilityRemoveTraits(.isHeader)
+                        .accessibilityValue(section.title)
                 }
             }
         }
