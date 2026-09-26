@@ -9,12 +9,12 @@ One SwiftPM package. Each layer is its own target, so the compiler enforces the 
 | Target | Builds on | Exists since | Holds | Depends on |
 |---|---|---|---|---|
 | `FabrikaterCore` | Linux, macOS | M0 | Plain value types shared by every layer (`PaneID`, `AgentKind`, `AgentStatus`) and the `Log` wrapper. Foundation only. | nothing |
-| `HostKit` | Linux, macOS | M1 (planned) | `HostCommandRunner` protocol; the real runner (`/usr/bin/ssh` through `Process`) and the replay runner (reads recorded fixtures); the one argument builder that accepts only validated identifiers; typed errors and timeouts. | Core |
-| `HerdrKit` | Linux, macOS | M1 (planned) | Herdr's snapshot model with lenient decoding, the events channel, pane reads, sends, and `SendPolicy`. | Core, HostKit |
-| `TranscriptKit` | Linux, macOS | M2 (planned) | Session-log resolution, the per-agent log parsers and the byte-offset tailer ([parsing.md](parsing.md) sections 1 to 3). | Core, HostKit |
+| `HostKit` | Linux, macOS | M1 | `HostCommand` (every remote script, its timeout and replay fixture), `SSHArguments`, the `HostCommandRunner` protocol with `SSHRunner` (`/usr/bin/ssh` through `Process`) and `ReplayRunner` (fixture files), `LineBuffer`, and `HostError`. | Core |
+| `HerdrKit` | Linux, macOS | M1 | `Herd` (the snapshot, decoded leniently), `HerdrClient` (snapshot and events channel), `HerdFeed` (coalesced refresh plus safety poll), and `SendPolicy`. Pane reads and sends come in M3 and M4. | Core, HostKit |
+| `TranscriptKit` | Linux, macOS | M1 (minimal) | The transcript model, the Claude parser and `HostTranscriptService` (one read of the log's last 512 KB). Hand-over resolution, backfill and the byte-offset tailer come in M2 ([parsing.md](parsing.md) sections 1 to 3). | Core, HostKit |
 | `PromptKit` | Linux, macOS | M5 (planned) | ANSI parsing, the screen grammars and the answer guard ([parsing.md](parsing.md) section 4). | Core |
-| `AppModel` | Linux, macOS | M1 (planned) | `@MainActor @Observable` stores: herd/sidebar, selection, drafts, connection state, and so on, plus the platform-neutral UI values from `.claude/skills/macos-design`: `AppCommand`, `Keymap` and `WorkspaceLayout`. Each store gets its services through protocols, injected by its initializer. | Core, and HerdrKit, TranscriptKit and PromptKit through their protocols |
-| `AppUI` | macOS | M0 | Thin SwiftUI views over `AppModel`, one folder per feature (`Sidebar/`, `Conversation/`, `Composer/`, …), plus `ViewState`. | AppModel (from M1) |
+| `AppModel` | Linux, macOS | M1 | `@MainActor @Observable` stores (`AppStore`: sidebar, selection, connection state; `ConversationStore`: the selected pane's transcript; later drafts and so on), plus the platform-neutral UI values from `.claude/skills/macos-design`: `AppCommand`, `Keymap` and (from M4) `WorkspaceLayout`. Each store gets its services through protocols or streams, injected by its initializer. | Core, and HerdrKit, TranscriptKit and PromptKit through their protocols |
+| `AppUI` | macOS | M0 | Thin SwiftUI views over `AppModel`, one folder per feature (`Sidebar/`, `Conversation/`, `Commands/`, `Composer/`, …), plus `ViewState`. | AppModel, and TranscriptKit for the transcript value types it renders |
 | `fabrikater` | macOS | M0 | The executable: `FabrikaterApp` and the single composition root. It wires the real services, or the replay ones when launched with `FABRIKATER_FIXTURES=<dir>` (from M1, in debug and release builds). The host alias comes from `FABRIKATER_HOST` (default `arch`) until the Settings scene exists. | everything |
 
 ```
@@ -57,21 +57,21 @@ Test fixtures live in `Tests/Fixtures/` and are shared by every test target. Loa
 
 ## Recipes
 
-These describe the shapes planned for M1 onward. The first milestone to build each piece settles the details; if they differ, update the recipe in the same PR.
+M1 settled the host, Herdr and store recipes below; the parser recipe is still a plan until M2. If a milestone finds a recipe wrong, update it in the same PR.
 
 ### Add a host command
 
-1. Add the command to the argument builder in `HostKit` as a typed case, for example `.statSize(path: RemotePath)`. Arguments must be validated identifier types (`PaneID`, a session id, a path built from validated parts), never a bare `String` from the UI. User text never becomes an argument: it goes on stdin, and the remote side reads it with `"$(cat)"`.
-2. Give it a timeout and map its failures onto the typed error.
-3. Record its output as a fixture (extend `scripts/capture-fixtures.sh` if it reads the host) and add a replay case, so tests and `FABRIKATER_FIXTURES` mode can run it.
+1. Add a case to `HostCommand` in `HostKit`, for example `.statSize(session: SessionID)`, with its `remoteScript`. Arguments must be validated types (`PaneID`, `SessionID`), never a bare `String` from the UI, and anything interpolated goes through `shellQuoted`. User text never becomes an argument: it goes on stdin, and the remote side reads it with `"$(cat)"`.
+2. Give it a `timeout` (or mark it `isStreaming`). Runners map every failure onto `HostError`; a script can signal "not found" with `HostCommand.notFoundStatus`.
+3. Give it `fixtureNames` and add the fixture to `Tests/Fixtures/` (extend `scripts/capture-fixtures.sh` if it reads the host), so `ReplayRunner`, tests and `FABRIKATER_FIXTURES` mode can run it.
 4. Test on Linux the exact argument vector the builder produces, including a rejected identifier.
 5. If the command mutates the host (a send, a key), it goes through `SendPolicy` in `HerdrKit`, never around it.
 
 ### Add a Herdr event
 
-1. Add the subscription type to the `events.subscribe` request in `HerdrKit` (valid names are in [architecture.md](architecture.md), "Events").
-2. Treat the event as a poke: it triggers the debounced snapshot re-read and carries no state into the model. Only add a payload decoder if a specific UI reaction needs one.
-3. Add a synthetic event line to the events fixture and a test that it triggers a refresh.
+1. Add the subscription type to `HerdrClient.subscriptions` in `HerdrKit` (valid names are in [architecture.md](architecture.md), "Events").
+2. Treat the event as a poke: `HerdFeed` turns it into a coalesced snapshot re-read, and it carries no state into the model. Only add a payload decoder if a specific UI reaction needs one.
+3. Add a synthetic event line to `Tests/Fixtures/events.synthetic.jsonl` if a test needs it.
 
 ### Add an agent parser
 
@@ -82,8 +82,8 @@ These describe the shapes planned for M1 onward. The first milestone to build ea
 
 ### Add a store plus a view
 
-1. Write the store in `AppModel` as a `@MainActor @Observable final class`. Its initializer takes the protocols it needs. Its input methods update state synchronously, then start any host work in a `Task`.
+1. Write the store in `AppModel` as a `@MainActor @Observable final class`. Its initializer takes the protocols or streams it needs. Its input methods update state synchronously, then start any host work in a `Task`. User actions are `AppCommand` cases routed through `AppStore.perform(_:)`.
 2. Test it on Linux with fake services: state after each input, what happens when a service errors, and stale data kept while offline.
-3. Write the view in `AppUI/<Feature>/`. It reads the store and calls its methods, and holds only view-local state (`@ViewState private var`). Design and review it with `.claude/skills/macos-design` and the vendored skills in `.claude/skills/`, where the repo's rules win.
-4. Wire the store once in the composition root in `fabrikater`.
+3. Write the view in `AppUI/<Feature>/`. It reads the store and calls `perform(_:)`, and holds only view-local state (`@ViewState private var`). Design and review it with `.claude/skills/macos-design` and the vendored skills in `.claude/skills/`, where the repo's rules win.
+4. Wire the store once in the composition root in `fabrikater` (`FabrikaterApp.init`), and add menu items to `AppUI/Commands/`.
 5. Anything visual goes on the PR's "manual on the Mac" checklist.
