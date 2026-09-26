@@ -15,6 +15,8 @@ public struct PaneCommands: Commands {
             button(.selectPreviousPane)
             button(.selectNextPane)
             Divider()
+            button(.renamePane(nil))
+            Divider()
             button(.reloadConversation)
         }
     }
