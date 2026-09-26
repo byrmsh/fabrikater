@@ -24,7 +24,7 @@ struct TranscriptView: View {
                 LazyVStack(alignment: .leading, spacing: 12) {
                     if conversation.transcript.isClipped {
                         Text("Older messages are not loaded.")
-                            .font(.callout)
+                            .scaledFont(.callout)
                             .foregroundStyle(.secondary)
                             .frame(maxWidth: .infinity)
                     }

@@ -21,9 +21,12 @@ struct FabrikaterApp: App {
             log.error("FABRIKATER_HOST is not a valid ssh alias; using arch")
         }
         let runner: any HostCommandRunner
+        // Fixture runs keep their notes apart, so a demo or an e2e flow never touches the real pane names.
+        var defaults = UserDefaults.standard
         if let fixtures = environment["FABRIKATER_FIXTURES"] {
             log.info("replaying fixtures")
             runner = ReplayRunner(directory: URL(filePath: fixtures))
+            defaults = UserDefaults(suiteName: "sh.bayram.fabrikater.fixtures") ?? .standard
         } else {
             runner = SSHRunner(host: host)
         }
@@ -38,7 +41,7 @@ struct FabrikaterApp: App {
             herdUpdates: HerdFeed(service: client).updates(),
             transcripts: HostTranscriptService(runner: runner),
             control: PolicedControl(SendGuard(client, reader: client), policy: policy) { try await client.snapshot() },
-            notes: UserDefaultsPaneNotesStore(defaults: .standard),
+            notes: UserDefaultsPaneNotesStore(defaults: defaults),
             clipboard: PasteboardClipboard(),
             opener: WorkspaceURLOpener(),
             host: host.rawValue
@@ -53,6 +56,7 @@ struct FabrikaterApp: App {
         .defaultSize(width: 1100, height: 720)
         .windowToolbarStyle(.unified)
         .commands {
+            ViewCommands(store: store)
             PaneCommands(store: store)
         }
     }

@@ -26,8 +26,11 @@ e2e_launch() {
     for file in "$@"; do
         cp "${E2E_FIXTURES}/${file}" "${e2e_fixture_dir}/"
     done
-    # `open` does not pass the environment on, so run the bundled binary directly.
-    FABRIKATER_FIXTURES="${e2e_fixture_dir}" "${E2E_BINARY}" >"${E2E_OUT}/${E2E_FLOW:-app}.log" 2>&1 &
+    # Fixture runs keep pane names in their own defaults domain; clearing it keeps one flow's renames out of the next.
+    defaults delete sh.bayram.fabrikater.fixtures >/dev/null 2>&1 || true
+    # `open` does not pass the environment on, so run the bundled binary directly. Ignoring saved window state keeps
+    # one flow's hidden sidebar or text size out of the next.
+    FABRIKATER_FIXTURES="${e2e_fixture_dir}" "${E2E_BINARY}" -ApplePersistenceIgnoreState YES >"${E2E_OUT}/${E2E_FLOW:-app}.log" 2>&1 &
     e2e_pid=$!
     e2e_wait "the main window" _e2e_has_window
     osascript -e "tell application \"System Events\" to set frontmost of process \"${E2E_PROCESS}\" to true" >/dev/null
