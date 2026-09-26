@@ -18,6 +18,7 @@ public struct PaneCommands: Commands {
             button(.selectNextPane)
             Divider()
             button(.renamePane(nil))
+            button(.togglePin(nil))
             button(.openInVSCode(nil))
             Divider()
             button(.reloadConversation)
