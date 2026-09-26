@@ -82,6 +82,9 @@ struct SidebarView: View {
             Button(AppCommand.renamePane(pane.id).title) {
                 store.perform(.renamePane(pane.id))
             }
+            Button(store.title(of: .togglePin(pane.id))) {
+                store.perform(.togglePin(pane.id))
+            }
             Button(AppCommand.reloadConversation.title) {
                 store.perform(.selectPane(pane.id))
                 store.perform(.reloadConversation)
