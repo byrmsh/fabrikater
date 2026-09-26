@@ -214,6 +214,10 @@ tell application "System Events"
                 set line_ to (role of uiItem) as text
             end try
             try
+                set kids_ to count of (UI elements of uiItem)
+                if kids_ > 0 then set line_ to line_ & " children=" & kids_
+            end try
+            try
                 repeat with anAttribute in (attributes of uiItem)
                     try
                         set value_ to value of anAttribute
