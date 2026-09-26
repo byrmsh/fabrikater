@@ -13,7 +13,7 @@ M1 brings the first host code. The user asked for a working prototype end to end
 - **Runners are the seam.** `SSHRunner` (real, `Process` plus `/usr/bin/ssh`) and `ReplayRunner` (fixture files) both implement `HostCommandRunner`. Everything above talks to a runner, so `FABRIKATER_FIXTURES` swaps the whole host out.
 - **Events are pokes into one feed.** `HerdFeed` (an actor in `HerdrKit`) merges a safety poll (20 s) and the event channel into one `AsyncStream<HerdUpdate>`. Events within 250 ms of the first cause one snapshot read. The subscription is one fixed list of topology and pane events, not per-pane `pane.agent_status_changed` (the open question in M1).
 - **Stores take streams and protocols.** `AppStore` consumes the `AsyncStream<HerdUpdate>` and gets a `TranscriptService`; tests pass a finished stream and a fake. `AppUI` also imports `TranscriptKit`, to render the transcript value types without re-wrapping them in `AppModel`.
-- **Selection is read-only.** Selecting a pane in the app does not move Herdr's focus: the docs keep the app from mutating live panes, and focus-follows-selection waits for the user's explicit approval.
+- **Selection is read-only.** Selecting a pane in the app does not move Herdr's focus: the docs keep the app from mutating live panes, and focus-follows-selection waits for the user's explicit approval. (Superseded by [0008](0008-app-drives-live-panes.md): the user approved it.)
 
 ## Consequences
 
