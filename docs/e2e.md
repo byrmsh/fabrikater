@@ -10,7 +10,7 @@
 | `conversation` | Next Pane (⌘↓) selects the first Claude pane and its conversation renders from `claude.synthetic.jsonl` | `conversation.png` |
 | `offline` | with no snapshot fixture the sidebar says it is offline | `offline.png` |
 
-A failed step stops its flow, leaves `<flow>-failure.png` and `<flow>.log` (the app's stderr) in `build/e2e/`, and fails the job after the other flows ran.
+A failed step stops its flow and fails the job after the other flows ran. It leaves in `build/e2e/`: `<flow>-failure.png`, `<flow>-failure.txt` (every title, value and description in the window, which is what the text checks search), `<flow>.log` (the app's output) and `<flow>.osascript.log`. When a text check fails, read the `.txt` first.
 
 ## Adding a flow
 
@@ -25,7 +25,7 @@ e2e_expect_text "Rename the helper"
 e2e_shot conversation               # build/e2e/conversation.png, just the window
 ```
 
-Steps: `e2e_launch [fixture…|--none]`, `e2e_expect_text TEXT`, `e2e_expect_no_text TEXT`, `e2e_key KEY [modifier…]`, `e2e_shot NAME`, and `e2e_wait WHAT COMMAND…` for anything else. Add a step to `lib.sh` when two flows would repeat the same osascript.
+Steps: `e2e_launch [fixture…|--none]`, `e2e_expect_text TEXT`, `e2e_expect_no_text TEXT`, `e2e_key KEY [modifier…]`, `e2e_shot NAME`, `e2e_screen_text` (prints the window's text), and `e2e_wait WHAT COMMAND…` for anything else. Add a step to `lib.sh` when two flows would repeat the same osascript.
 
 - Drive the app the way a person does: menu shortcuts from `Keymap`, typed text. No test-only switches in app code; if a flow cannot reach a state, add fixtures instead.
 - Assert on text a person reads. Accessibility exposes `Text` as static text, so labels in the fixtures are the easiest anchors.

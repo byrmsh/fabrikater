@@ -40,7 +40,7 @@ for flow in "${flows[@]}"; do
     (
         set -euo pipefail
         E2E_FLOW="${flow}"
-        trap 'e2e_finish "${flow}" $?' EXIT
+        trap 'status=$?; e2e_finish "${flow}" "${status}"; exit "${status}"' EXIT
         source "scripts/e2e/flows/${flow}.sh"
     )
     status=$?
