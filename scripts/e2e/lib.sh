@@ -70,13 +70,9 @@ e2e_expect_no_text() {
     fi
 }
 
-# e2e_expect_text_gone TEXT: waits until no element in the main window shows TEXT.
-e2e_expect_text_gone() {
+# e2e_expect_gone TEXT: waits until no element in the main window shows TEXT, as after closing a sheet.
+e2e_expect_gone() {
     e2e_wait "\"$1\" to leave the screen" _e2e_lacks_text "$1"
-}
-
-_e2e_lacks_text() {
-    ! _e2e_has_text "$1"
 }
 
 # e2e_key KEY [modifier...]: presses a key in the app. KEY is a character or down, up, left, right, return, escape;
@@ -104,15 +100,6 @@ e2e_key() {
     osascript -e "tell application \"System Events\" to tell process \"${E2E_PROCESS}\"
         set frontmost to true
         ${press}${using}
-    end tell" >/dev/null
-    sleep 0.5
-}
-
-# e2e_type TEXT: types TEXT into whatever has keyboard focus, as a person would.
-e2e_type() {
-    osascript -e "tell application \"System Events\" to tell process \"${E2E_PROCESS}\"
-        set frontmost to true
-        keystroke \"$1\"
     end tell" >/dev/null
     sleep 0.5
 }
@@ -235,4 +222,8 @@ APPLESCRIPT
 
 _e2e_has_text() {
     e2e_screen_text | grep -qF -- "$1"
+}
+
+_e2e_lacks_text() {
+    ! _e2e_has_text "$1"
 }
