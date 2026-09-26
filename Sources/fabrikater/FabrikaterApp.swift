@@ -42,7 +42,8 @@ struct FabrikaterApp: App {
             herdUpdates: HerdFeed(service: client).updates(),
             transcripts: HostTranscriptService(runner: runner),
             control: PolicedControl(SendGuard(client, reader: client), policy: policy) { try await client.snapshot() },
-            notes: UserDefaultsPaneNotesStore(defaults: notesDefaults)
+            notes: UserDefaultsPaneNotesStore(defaults: notesDefaults),
+            clipboard: PasteboardClipboard()
         )
         log.info("launched")
     }

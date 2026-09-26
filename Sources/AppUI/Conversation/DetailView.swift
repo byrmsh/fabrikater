@@ -11,7 +11,7 @@ struct DetailView: View {
             VStack(spacing: 0) {
                 PaneHeaderView(header: header)
                 Divider()
-                TranscriptView(conversation: store.conversation)
+                TranscriptView(conversation: store.conversation, perform: store.perform)
                 Divider()
                 ComposerView(store: store)
             }

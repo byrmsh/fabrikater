@@ -21,6 +21,7 @@ public struct PaneCommands: Commands {
             button(.togglePin(nil))
             Divider()
             button(.reloadConversation)
+            button(.copyConversation)
             Divider()
             button(.send)
         }
