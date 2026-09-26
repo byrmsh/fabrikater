@@ -6,6 +6,8 @@ public enum AppCommand: Hashable, Sendable {
     case selectNextPane
     case selectPreviousPane
     case reloadConversation
+    /// Sends the composer's draft to the selected pane.
+    case send
 
     /// The menu title.
     public var title: String {
@@ -14,6 +16,7 @@ public enum AppCommand: Hashable, Sendable {
         case .selectNextPane: "Next Pane"
         case .selectPreviousPane: "Previous Pane"
         case .reloadConversation: "Reload Conversation"
+        case .send: "Send"
         }
     }
 }

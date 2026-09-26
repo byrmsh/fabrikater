@@ -24,13 +24,13 @@ struct AppStoreTests {
     }
 
     private let transcripts = FakeTranscripts()
-
+    private let control = FakeControl()
     private let scratch = PaneID("w2:p1")!
     private let codex = PaneID("w1:pB")!
 
     private func makeStore() throws -> (AppStore, Herd) {
         let herd = try Herd(snapshotReply: Fixture.data(named: "snapshot.synthetic.json"))
-        let store = AppStore(herdUpdates: AsyncStream { $0.finish() }, transcripts: transcripts)
+        let store = AppStore(herdUpdates: AsyncStream { $0.finish() }, transcripts: transcripts, control: control)
         store.apply(.herd(herd))
         return (store, herd)
     }
@@ -135,5 +135,63 @@ struct AppStoreTests {
         #expect(store.conversation.isLoading)
         await store.conversation.loadTask?.value
         #expect(transcripts.windows == [TranscriptWindow.quick, TranscriptWindow.full])
+    }
+
+    @Test func herdrFocusFollowsOnlyTheSettledSelection() async throws {
+        let (store, _) = try makeStore()
+        store.perform(.selectNextPane)
+        store.perform(.selectNextPane)
+        store.perform(.selectPane(scratch))
+        await store.focusTask?.value
+        #expect(control.performed == [[.focus(scratch)]])
+    }
+
+    @Test func sendingDeliversThePromptAndClearsTheDraft() async throws {
+        let (store, _) = try makeStore()
+        #expect(!store.isEnabled(.send))
+        store.perform(.selectPane(scratch))
+        store.composer.draft = "  hello  "
+        #expect(store.isEnabled(.send))
+        store.perform(.send)
+        #expect(store.composer.isSending)
+        await store.composer.sendTask?.value
+        #expect(control.performed.last == HerdrRequest.prompt("hello", to: scratch))
+        #expect(store.composer.draft.isEmpty)
+        #expect(!store.composer.isSending)
+    }
+
+    @Test func aFailedSendKeepsTheDraftAndShowsWhy() async throws {
+        let (store, _) = try makeStore()
+        store.perform(.selectPane(scratch))
+        store.composer.draft = "hello"
+        control.error = SendPolicy.Refusal.paneMissing
+        store.perform(.send)
+        await store.composer.sendTask?.value
+        #expect(store.composer.draft == "hello")
+        #expect(store.composer.error == SendPolicy.Refusal.paneMissing.description)
+    }
+
+    @Test func draftsArePerPaneAndSendingStopsWhileOffline() throws {
+        let (store, _) = try makeStore()
+        store.perform(.selectPane(scratch))
+        store.composer.draft = "for scratch"
+        store.perform(.selectPane(codex))
+        #expect(store.composer.draft.isEmpty)
+        store.perform(.selectPane(scratch))
+        #expect(store.composer.draft == "for scratch")
+        store.apply(.failed("offline"))
+        #expect(!store.isEnabled(.send))
+        #expect(store.composer.disabledReason != nil)
+    }
+}
+
+/// Records the requests it performs, or throws `error`.
+final class FakeControl: HerdrControl, @unchecked Sendable {
+    var error: (any Error)?
+    private(set) var performed: [[HerdrRequest]] = []
+
+    func perform(_ requests: [HerdrRequest]) async throws {
+        if let error { throw error }
+        performed.append(requests)
     }
 }
