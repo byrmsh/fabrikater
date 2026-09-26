@@ -24,9 +24,11 @@ public enum HostCommand: Hashable, Sendable {
         case .herdrEvents:
             #"socat - UNIX-CONNECT:"$HOME/.config/herdr/herdr.sock""#
         case .herdrRequests:
-            // The socket answers one request per connection; `-t 5` waits for the reply after stdin closes.
+            // The socket answers one request per connection; `-t 5` waits for the reply after stdin closes. A refusal
+            // stops the loop, so Enter is never sent after its text was refused.
             #"n=0; while IFS= read -r l; do [ $n -eq 0 ] || sleep 0.3; n=1; "#
-                + #"printf '%s\n' "$l" | socat -t 5 - UNIX-CONNECT:"$HOME/.config/herdr/herdr.sock" || exit 1; done"#
+                + #"r=$(printf '%s\n' "$l" | socat -t 5 - UNIX-CONNECT:"$HOME/.config/herdr/herdr.sock") || exit 1; "#
+                + #"printf '%s\n' "$r"; case "$r" in *'"error":{'*) exit 0;; esac; done"#
         case .claudeLogTail(let session, let bytes):
             // TODO(M2): follow hand-overs and the conversation root to the live file (docs/parsing.md 1.3).
             "f=$(ls -1t ~/.claude/projects/*/\(shellQuoted(session.rawValue + ".jsonl")) 2>/dev/null | head -n 1); "

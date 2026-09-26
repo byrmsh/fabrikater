@@ -171,6 +171,26 @@ struct AppStoreTests {
         #expect(store.composer.error == SendPolicy.Refusal.paneMissing.description)
     }
 
+    @Test func textTypedDuringASendStaysAndAFailureStaysWithItsPane() async throws {
+        let (store, _) = try makeStore()
+        store.perform(.selectPane(scratch))
+        store.composer.draft = "first"
+        store.perform(.send)
+        store.composer.draft = "first and more"
+        await store.composer.sendTask?.value
+        #expect(store.composer.draft == " and more")
+
+        control.error = SendPolicy.Refusal.paneMissing
+        store.composer.draft = "second"
+        store.perform(.send)
+        store.perform(.selectPane(codex))
+        #expect(!store.composer.isSending)
+        await store.composer.sendTask?.value
+        #expect(store.composer.error == nil)
+        store.perform(.selectPane(scratch))
+        #expect(store.composer.error == SendPolicy.Refusal.paneMissing.description)
+    }
+
     @Test func draftsArePerPaneAndSendingStopsWhileOffline() throws {
         let (store, _) = try makeStore()
         store.perform(.selectPane(scratch))

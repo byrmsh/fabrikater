@@ -21,7 +21,6 @@ struct ComposerView: View {
                     .padding(8)
                     .background(.quinary, in: .rect(cornerRadius: 8))
                     .onSubmit { store.perform(.send) }
-                    .disabled(composer.disabledReason != nil)
                 Button {
                     store.perform(.send)
                 } label: {
