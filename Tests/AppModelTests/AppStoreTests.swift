@@ -11,16 +11,20 @@ struct AppStoreTests {
     private final class FakeTranscripts: TranscriptService, @unchecked Sendable {
         var transcript = Transcript(entries: [TranscriptEntry(id: "e1", role: .user, parts: [.text("hi")])])
         var error: (any Error)?
-        private(set) var loads = 0
+        /// Set to answer the quick window with a clipped transcript, as a long log would.
+        var quickIsClipped = false
+        private(set) var windows: [Int] = []
+        var loads: Int { windows.count }
 
-        func claudeTranscript(session: SessionID) async throws -> Transcript {
-            loads += 1
+        func claudeTranscript(session: SessionID, bytes: Int) async throws -> Transcript {
+            windows.append(bytes)
             if let error { throw error }
-            return transcript
+            return bytes == TranscriptWindow.quick && quickIsClipped ? Transcript(isClipped: true) : transcript
         }
     }
 
     private let transcripts = FakeTranscripts()
+
     private let scratch = PaneID("w2:p1")!
     private let codex = PaneID("w1:pB")!
 
@@ -103,5 +107,33 @@ struct AppStoreTests {
         #expect(store.selection?.rawValue == "w1:p1")
         store.perform(.selectNextPane)
         #expect(store.selection?.rawValue == "w1:pA")
+    }
+
+    @Test func aLongLogShowsTheQuickWindowFirstThenTheFullOne() async throws {
+        let (store, _) = try makeStore()
+        transcripts.quickIsClipped = true
+        store.perform(.selectPane(scratch))
+        await store.conversation.loadTask?.value
+        #expect(transcripts.windows == [TranscriptWindow.quick, TranscriptWindow.full])
+        #expect(store.conversation.transcript == transcripts.transcript)
+    }
+
+    @Test func aShortLogNeedsOnlyTheQuickWindow() async throws {
+        let (store, _) = try makeStore()
+        store.perform(.selectPane(scratch))
+        await store.conversation.loadTask?.value
+        #expect(transcripts.windows == [TranscriptWindow.quick])
+    }
+
+    @Test func goingBackToAPaneShowsItsCachedConversationAtOnce() async throws {
+        let (store, _) = try makeStore()
+        store.perform(.selectPane(scratch))
+        await store.conversation.loadTask?.value
+        store.perform(.selectPane(codex))
+        store.perform(.selectPane(scratch))
+        #expect(store.conversation.transcript == transcripts.transcript)
+        #expect(store.conversation.isLoading)
+        await store.conversation.loadTask?.value
+        #expect(transcripts.windows == [TranscriptWindow.quick, TranscriptWindow.full])
     }
 }
