@@ -1,0 +1,3 @@
+{"id":"sub1","result":{"type":"subscription_started"}}
+{"type":"pane_updated","pane_id":"w1:p1"}
+{"type":"pane_agent_detected","pane_id":"w1:pB"}
