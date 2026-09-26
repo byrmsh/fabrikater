@@ -8,6 +8,7 @@
 |---|---|---|
 | `sidebar` | the synthetic herd's panes are listed with their statuses, the footer says Connected, nothing is selected | `sidebar.png` |
 | `conversation` | Next Pane (⌘↓) selects the first Claude pane and its conversation renders from `claude.synthetic.jsonl` | `conversation.png` |
+| `room` | the toolbar says "Claude, Working" for the selected pane, ⌃⌘S hides the sidebar, ⌘+ twice enlarges the conversation's text, and ⌘0 plus ⌃⌘S bring both back | `room.png` (sidebar hidden, text two steps bigger) |
 | `offline` | with no snapshot fixture the sidebar says it is offline | `offline.png` |
 
 A failed step stops its flow and fails the job after the other flows ran. It leaves in `build/e2e/`: `<flow>-failure.png`, `<flow>-failure.txt` (every element in the window with its role and text attributes; the text checks search AXTitle, AXValue, AXDescription and AXHelp), `<flow>.log` (the app's output) and `<flow>.osascript.log`. When a text check fails, read the `.txt` first.
@@ -25,11 +26,12 @@ e2e_expect_text "Rename the helper"
 e2e_shot conversation               # build/e2e/conversation.png, just the window
 ```
 
-Steps: `e2e_launch [fixture…|--none]`, `e2e_expect_text TEXT`, `e2e_expect_no_text TEXT`, `e2e_key KEY [modifier…]`, `e2e_shot NAME`, `e2e_screen_text` (prints the text the checks search), `e2e_screen_dump` (every element with its role and text attributes), and `e2e_wait WHAT COMMAND…` for anything else. Add a step to `lib.sh` when two flows would repeat the same osascript.
+Steps: `e2e_launch [fixture…|--none]`, `e2e_expect_text TEXT`, `e2e_expect_no_text TEXT`, `e2e_expect_text_gone TEXT` (waits for it to leave), `e2e_key KEY [modifier…]`, `e2e_shot NAME`, `e2e_screen_text` (prints the text the checks search), `e2e_screen_dump` (every element with its role and text attributes), and `e2e_wait WHAT COMMAND…` for anything else. Add a step to `lib.sh` when two flows would repeat the same osascript.
 
 - Drive the app the way a person does: menu shortcuts from `Keymap`, typed text. No test-only switches in app code; if a flow cannot reach a state, add fixtures instead.
 - Assert on text a person reads, as accessibility exposes it: `e2e_screen_dump` shows what that is. Plain `Text` is an AXStaticText with the text as AXValue.
 - Known gap, found by this harness: sidebar rows combine their children, so a row exposes only its status as AXValue and its label only through the help tag (`Synthetic refactor (w1:p1), Working`); section headings (workspace labels) expose no text at all. VoiceOver reads the same, so the fix belongs in `AppUI` (an `accessibilityLabel` on the rows and headings); until then flows match rows by their help tag.
+- Every launch ignores saved window state (`-ApplePersistenceIgnoreState YES`), so a flow that hides the sidebar or changes the text size cannot leak it into the next.
 - Fixtures come only from `Tests/Fixtures`. A flow needing a new shape gets a new `*.synthetic.*` file there; `e2e_launch` copies just the named files so the replay runner cannot pick up another one.
 
 ## Looking at the screenshots
