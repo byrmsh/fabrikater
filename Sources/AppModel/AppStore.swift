@@ -132,6 +132,10 @@ public final class AppStore {
         case .copyConversation:
             guard !conversation.transcript.entries.isEmpty else { return }
             clipboard.copy(Transcript.markdown(of: conversation.transcript.entries))
+        case .expandEntry(let id):
+            conversation.expand(id)
+        case .collapseEntry(let id):
+            conversation.collapse(id)
         case .openInVSCode(let id):
             guard let url = vscodeLink(id) else { return }
             opener.open(url)
@@ -155,6 +159,7 @@ public final class AppStore {
         case .chooseQuickSwitcherResult(let id): (id ?? switcher?.highlighted) != nil
         case .copyMessage(let id): conversation.transcript.entries.contains { $0.id == id }
         case .copyConversation: !conversation.transcript.entries.isEmpty
+        case .expandEntry, .collapseEntry: true
         case .openInVSCode(let id): vscodeLink(id) != nil
         }
     }

@@ -34,6 +34,10 @@ public enum AppCommand: Hashable, Sendable {
     /// Copies one conversation entry, by id, as markdown.
     case copyMessage(String)
     case copyConversation
+    /// Shows a collapsed conversation entry, by id, in full.
+    case expandEntry(String)
+    /// Collapses an expanded entry, by id, back to its first lines.
+    case collapseEntry(String)
     /// Opens a pane's folder in VS Code over Remote-SSH; nil means the selected pane.
     case openInVSCode(PaneID?)
 
@@ -62,6 +66,8 @@ public enum AppCommand: Hashable, Sendable {
         case .chooseQuickSwitcherResult: "Open Pane"
         case .copyMessage: "Copy Message"
         case .copyConversation: "Copy Conversation as Markdown"
+        case .expandEntry: "Show All"
+        case .collapseEntry: "Show Less"
         case .openInVSCode: "Open Folder in VS Code"
         }
     }
