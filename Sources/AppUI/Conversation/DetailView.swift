@@ -12,6 +12,8 @@ struct DetailView: View {
                 PaneHeaderView(header: header)
                 Divider()
                 TranscriptView(conversation: store.conversation)
+                Divider()
+                ComposerView(store: store)
             }
             .navigationTitle(header.title)
             .navigationSubtitle(header.location)

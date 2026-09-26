@@ -27,10 +27,17 @@ struct FabrikaterApp: App {
             }
             runner = SSHRunner(host: host)
         }
-        let feed = HerdFeed(service: HerdrClient(runner: runner))
+        let client = HerdrClient(runner: runner)
+        #if DEBUG
+            let isDebugBuild = true
+        #else
+            let isDebugBuild = false
+        #endif
+        let policy = SendPolicy(environment: environment, isDebugBuild: isDebugBuild)
         store = AppStore(
-            herdUpdates: feed.updates(),
+            herdUpdates: HerdFeed(service: client).updates(),
             transcripts: HostTranscriptService(runner: runner),
+            control: PolicedControl(client, policy: policy) { try await client.snapshot() },
             notes: UserDefaultsPaneNotesStore(defaults: .standard)
         )
         log.info("launched")
