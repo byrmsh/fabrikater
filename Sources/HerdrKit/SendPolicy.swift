@@ -55,3 +55,25 @@ public struct SendPolicy: Equatable, Sendable {
         }
     }
 }
+
+/// A `HerdrControl` that asks `SendPolicy` before any request that types into a pane. Focus needs no permission.
+public struct PolicedControl: HerdrControl {
+    private let control: any HerdrControl
+    private let policy: SendPolicy
+    private let fresh: @Sendable () async throws -> Herd
+
+    /// - Parameter fresh: reads a snapshot now, for the policy's label check.
+    public init(_ control: any HerdrControl, policy: SendPolicy, fresh: @escaping @Sendable () async throws -> Herd) {
+        self.control = control
+        self.policy = policy
+        self.fresh = fresh
+    }
+
+    public func perform(_ requests: [HerdrRequest]) async throws {
+        var checked: Set<PaneID> = []
+        for request in requests where request.typesIntoPane && checked.insert(request.pane).inserted {
+            try await policy.authorize(request.pane, fresh: fresh)
+        }
+        try await control.perform(requests)
+    }
+}

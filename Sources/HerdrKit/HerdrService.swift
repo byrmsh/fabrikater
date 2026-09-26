@@ -10,8 +10,8 @@ public protocol HerdrService: Sendable {
     func events() -> AsyncThrowingStream<Void, any Error>
 }
 
-/// `HerdrService` over a `HostCommandRunner`.
-public struct HerdrClient: HerdrService {
+/// `HerdrService` and `HerdrControl` over a `HostCommandRunner`.
+public struct HerdrClient: HerdrService, HerdrControl {
     /// One fixed subscription instead of per-pane `pane.agent_status_changed` (docs/milestones.md, M1).
     public static let subscriptions = [
         "workspace.created", "workspace.updated", "workspace.renamed", "workspace.moved", "workspace.reordered",
@@ -27,6 +27,12 @@ public struct HerdrClient: HerdrService {
 
     public func snapshot() async throws -> Herd {
         try Herd(snapshotReply: try await runner.run(.herdrSnapshot))
+    }
+
+    public func perform(_ requests: [HerdrRequest]) async throws {
+        guard !requests.isEmpty else { return }
+        let lines = requests.enumerated().map { $1.line(id: "fabrikater\($0 + 1)") + "\n" }
+        try Self.checkReplies(try await runner.run(.herdrRequests, input: Data(lines.joined().utf8)))
     }
 
     public func events() -> AsyncThrowingStream<Void, any Error> {
@@ -48,6 +54,16 @@ public struct HerdrClient: HerdrService {
                 }
             }
             continuation.onTermination = { _ in task.cancel() }
+        }
+    }
+
+    /// Replies one line per request; a reply with an `error` object means Herdr refused that request.
+    static func checkReplies(_ output: Data) throws(HerdrError) {
+        for line in output.split(separator: 0x0A) {
+            let reply = try? JSONSerialization.jsonObject(with: line) as? [String: Any]
+            if let error = reply?["error"] as? [String: Any] {
+                throw HerdrError(error["message"] as? String ?? "Herdr refused the request")
+            }
         }
     }
 
