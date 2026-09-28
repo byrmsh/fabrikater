@@ -32,10 +32,14 @@ let package = Package(
 
 // SwiftUI and AppKit exist only on macOS; on Linux the package is the logic targets and their tests.
 #if os(macOS)
+    // Pinned: SwiftTerm's main branch is taking breaking changes (docs/decisions/0012).
+    package.dependencies += [.package(url: "https://github.com/migueldeicaza/SwiftTerm", exact: "1.20.0")]
     package.targets += [
         .target(
             name: "AppUI",
-            dependencies: ["AppModel", "FabrikaterCore", "TranscriptKit"],
+            dependencies: [
+                "AppModel", "FabrikaterCore", "TranscriptKit", .product(name: "SwiftTerm", package: "SwiftTerm"),
+            ],
             exclude: ["CLAUDE.md"],
             swiftSettings: swiftSettings
         ),
