@@ -14,12 +14,12 @@ import PromptKit
 public struct SendGuard: HerdrControl {
     private let control: any HerdrControl
     private let reader: any PaneReader
-    private let sleep: @Sendable (Duration) async throws -> Void
+    private let sleep: Pause
 
     /// - Parameter sleep: waits between the reads that look for the typed text in the input box.
     public init(
         _ control: any HerdrControl, reader: any PaneReader,
-        sleep: @escaping @Sendable (Duration) async throws -> Void = { try await Task.sleep(for: $0) }
+        sleep: @escaping Pause = taskSleep
     ) {
         self.control = control
         self.reader = reader
@@ -58,10 +58,6 @@ public struct SendGuard: HerdrControl {
         }
     }
 
-    /// Reads before looking for the typed text, and the wait between them: Collie's 8 × 350 ms.
-    static let verifyReads = 8
-    static let verifyInterval = Duration.milliseconds(350)
-
     public func perform(_ requests: [HerdrRequest]) async throws {
         var typed = false
         var index = requests.startIndex
@@ -91,8 +87,8 @@ public struct SendGuard: HerdrControl {
         if let draft = box.draft { throw Refusal.occupied(draft) }
         try await send(.checked(Self.check(box), .sendText(pane, text)), typed: false)
         let sent = text.replacing("\u{1B}[200~", with: "").replacing("\u{1B}[201~", with: "")
-        for attempt in 0..<Self.verifyReads {
-            if attempt > 0 { try await sleep(Self.verifyInterval) }
+        for attempt in 0..<ScreenWait.reads {
+            if attempt > 0 { try await sleep(ScreenWait.interval) }
             guard let ansi = try? await reader.screen(of: pane) else { continue }
             let screen = Screen(ansi: ansi)
             if let dialog = Dialog(on: screen) { throw Refusal.dialog(question: dialog.question, typed: true) }

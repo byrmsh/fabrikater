@@ -102,7 +102,7 @@ struct TerminalTests {
         await settle { terminal.screen != nil }
         terminal.show(scratch)
         #expect(terminal.screen == nil)
-        #expect(terminal.placeholder == "Reading the terminal…")
+        #expect(terminal.content == .reading("Reading the terminal…"))
         await settle { reader.reads.count == 2 }
         #expect(reader.reads == [refactor, scratch])
     }
@@ -128,7 +128,7 @@ struct TerminalTests {
         terminal.setVisible(true)
         terminal.show(nil)
         #expect(!terminal.isPolling)
-        #expect(terminal.placeholder == "This pane is no longer in Herdr.")
+        #expect(terminal.content == .gone("This pane is no longer in Herdr."))
     }
 
     @Test func aFailedReadKeepsTheLastScreenAndSaysItIsStale() async {
@@ -142,12 +142,28 @@ struct TerminalTests {
         await settle { terminal.failure != nil }
         #expect(terminal.screen == TerminalScreen(ansi: "one"))
         #expect(terminal.failure?.contains("timed out") == true)
+        #expect(terminal.content == .screen(TerminalScreen(ansi: "one"), stale: terminal.failure))
         #expect(terminal.isPolling)
         reader.error = nil
         await settle { ticker.waiting == 1 }
         ticker.tick()
         await settle { terminal.failure == nil }
         #expect(terminal.screen == TerminalScreen(ansi: "one"))
+    }
+
+    @Test func aFirstReadThatFailsSaysTheTerminalIsUnavailable() async {
+        let reader = FakeTerminals("one")
+        reader.error = HerdrError("timed out")
+        let terminal = makeTerminal(reader)
+        terminal.show(refactor)
+        terminal.setVisible(true)
+        await settle { terminal.failure != nil }
+        guard case .unavailable(let title, let reason) = terminal.content else {
+            Issue.record("expected the terminal to be unavailable, got \(terminal.content)")
+            return
+        }
+        #expect(title == "Terminal Unavailable")
+        #expect(reason.contains("timed out"))
     }
 
     @Test func screenBytesResetTheTerminalAndEndLinesWithCarriageReturns() {
@@ -246,6 +262,6 @@ struct TerminalTests {
         #expect(window.terminal.isPolling)
         store.apply(.herd(Herd()))
         #expect(!window.terminal.isPolling)
-        #expect(window.terminal.placeholder == "This pane is no longer in Herdr.")
+        #expect(window.terminal.content == .gone("This pane is no longer in Herdr."))
     }
 }

@@ -85,5 +85,6 @@ struct MenuTargetTests {
         #expect(target.isEnabled(.send))
         #expect(target.route(.reloadConversation) == .window(.reloadConversation))
         #expect(target.route(.sendKey(.escape)) == .window(.sendKey(.escape)))
+        #expect(target.route(.loadEarlier) == .window(.loadEarlier))
     }
 }

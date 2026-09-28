@@ -22,14 +22,14 @@ public final class TerminalStore {
 
     private let reader: any TerminalReader
     private let interval: Duration
-    private let pause: @Sendable (Duration) async throws -> Void
+    private let pause: Pause
     @ObservationIgnored private(set) var pollTask: Task<Void, Never>?
 
     /// - Parameter pause: waits between reads; tests pass one they release by hand.
     public init(
         reader: any TerminalReader,
         interval: Duration = .milliseconds(1200),
-        pause: @escaping @Sendable (Duration) async throws -> Void = { try await Task.sleep(for: $0) }
+        pause: @escaping Pause = taskSleep
     ) {
         self.reader = reader
         self.interval = interval
@@ -39,11 +39,12 @@ public final class TerminalStore {
     /// True while reads repeat.
     public var isPolling: Bool { pollTask != nil }
 
-    /// What the view says instead of a screen: nothing to read, or the first read still on its way. Nil once a screen
-    /// or a failure arrived.
-    public var placeholder: String? {
-        guard screen == nil, failure == nil else { return nil }
-        return paneID == nil ? "This pane is no longer in Herdr." : "Reading the terminal…"
+    /// What the view shows: the last screen (stale while `failure` is set), why none could be read, that the first
+    /// read is on its way, or that there is no pane.
+    public var content: TerminalContent {
+        if let screen { return .screen(screen, stale: failure) }
+        if let failure { return .unavailable(title: "Terminal Unavailable", reason: failure) }
+        return paneID == nil ? .gone("This pane is no longer in Herdr.") : .reading("Reading the terminal…")
     }
 
     /// Shows `pane`'s terminal, or none, `columns` cells wide.
@@ -99,6 +100,18 @@ public final class TerminalStore {
             failure = "The terminal could not be read: \(error)"
         }
     }
+}
+
+/// What a terminal view shows (`TerminalStore.content`).
+public enum TerminalContent: Equatable, Sendable {
+    /// The pane's screen, with why it is stale when the last read failed.
+    case screen(TerminalScreen, stale: String?)
+    /// No screen was read yet and the last read failed.
+    case unavailable(title: String, reason: String)
+    /// The first read is on its way.
+    case reading(String)
+    /// The window has no pane to read.
+    case gone(String)
 }
 
 /// Reads every pane as blank: the default for tests that do not look at the terminal.

@@ -97,7 +97,7 @@ struct SendGuardTests {
             try await guarded(control, reader).perform(HerdrRequest.prompt("hello, world", to: pane))
         }
         #expect(control.performed.count == 1)
-        #expect(reader.reads == 1 + SendGuard.verifyReads)
+        #expect(reader.reads == 1 + ScreenWait.reads)
     }
 
     @Test func aScreenThatChangedOnTheHostIsARefusal() async throws {
