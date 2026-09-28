@@ -95,5 +95,6 @@ struct TranscriptChangesTests {
         #expect(edit.lines.count == Transcript.diffLineLimit)
         #expect(edit.omittedLines == 50)
         #expect(edit.addedLines == 450)
+        #expect(edit.omittedSummary == "50 more lines")
     }
 }

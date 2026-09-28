@@ -52,6 +52,8 @@ public enum AppCommand: Hashable, Sendable {
     case toggleChanges
     /// The inspector was shown or hidden by the window itself.
     case setChangesShown(Bool)
+    /// Copies a changed file's path.
+    case copyPath(String)
 
     /// The menu title.
     public var title: String {
@@ -87,6 +89,7 @@ public enum AppCommand: Hashable, Sendable {
         case .openInVSCode: "Open Folder in VS Code"
         case .toggleChanges: "Show Changes"
         case .setChangesShown(let shown): shown ? "Show Changes" : "Hide Changes"
+        case .copyPath: "Copy Path"
         }
     }
 }

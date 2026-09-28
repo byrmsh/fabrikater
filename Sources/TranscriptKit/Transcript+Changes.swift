@@ -64,6 +64,15 @@ public struct FileEdit: Equatable, Sendable, Identifiable {
 
     public var addedLines: Int { lines.count { $0.kind == .added } + (kind == .write ? omittedLines : 0) }
     public var removedLines: Int { lines.count { $0.kind == .removed } }
+
+    /// "12 more lines" under a cut edit, or nil when all of it shows.
+    public var omittedSummary: String? {
+        switch omittedLines {
+        case 0: nil
+        case 1: "1 more line"
+        default: "\(omittedLines) more lines"
+        }
+    }
 }
 
 public struct DiffLine: Equatable, Sendable {

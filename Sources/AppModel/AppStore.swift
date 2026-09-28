@@ -164,6 +164,8 @@ public final class AppStore {
             isShowingChanges.toggle()
         case .setChangesShown(let shown):
             isShowingChanges = shown
+        case .copyPath(let path):
+            clipboard.copy(path)
         }
     }
 
@@ -189,7 +191,7 @@ public final class AppStore {
         case .expandEntry, .collapseEntry: true
         case .openInVSCode(let id): vscodeLink(id) != nil
         case .toggleChanges: header != nil
-        case .setChangesShown: true
+        case .setChangesShown, .copyPath: true
         }
     }
 

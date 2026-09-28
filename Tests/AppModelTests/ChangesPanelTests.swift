@@ -64,6 +64,15 @@ struct ChangesPanelTests {
         #expect(!store.isShowingChanges)
     }
 
+    @Test func copyPathPutsThePathOnTheClipboard() async throws {
+        let clipboard = InMemoryClipboard()
+        let store = AppStore(
+            herdUpdates: AsyncStream { $0.finish() }, transcripts: FixedTranscripts(transcript: Transcript()),
+            control: FakeControl(), clipboard: clipboard)
+        store.perform(.copyPath(file.path))
+        #expect(clipboard.text == file.path)
+    }
+
     @Test func withNoPaneSelectedTheToggleIsDisabled() {
         let store = AppStore(
             herdUpdates: AsyncStream { $0.finish() }, transcripts: FixedTranscripts(transcript: Transcript()),
