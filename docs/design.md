@@ -41,7 +41,7 @@ The first version reads the conversation from the session log only. A later vers
 
 ## Terminal view
 
-A read-only rendering of the pane's recent screen text with ANSI colours, in a terminal view sized to the pane's columns. It exists for what the conversation cannot show: spinners, TUI menus, errors printed outside the log, and agents without a parser. It scrolls locally. Clicking it does not send keystrokes; the key bar in the composer does.
+A read-only rendering of the pane's recent screen text with ANSI colours, in a terminal view sized to the pane's columns. It exists for what the conversation cannot show: spinners, TUI menus, errors printed outside the log, and agents without a parser. It scrolls locally. Clicking it does not send keystrokes; the key bar in the composer does. As built (M4): the terminal is as wide as the view and clips wider lines instead of wrapping them; a new read waits while the user has scrolled up; a failed read keeps the last screen with a notice; the text size follows View ▸ Bigger and Smaller.
 
 ## Composer
 

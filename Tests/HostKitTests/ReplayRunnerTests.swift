@@ -25,6 +25,13 @@ struct ReplayRunnerTests {
         #expect(other == (try Fixture.data(named: "screen.synthetic.txt")))
     }
 
+    @Test func servesATerminalByPaneThenFallsBackToTheScreen() async throws {
+        let shell = try await runner.run(.herdrPaneRecent(try #require(PaneID("w1:pA")), lines: 400))
+        #expect(shell == (try Fixture.data(named: "terminal-w1-pA.synthetic.txt")))
+        let claude = try await runner.run(.herdrPaneRecent(try #require(PaneID("w1:p1")), lines: 400))
+        #expect(claude == (try Fixture.data(named: "screen-w1-p1.synthetic.txt")))
+    }
+
     @Test func typedTextShowsOnThePromptRowUntilEnter() async throws {
         let pane = try #require(PaneID("w2:p1"))
         let text =

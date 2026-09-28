@@ -68,6 +68,12 @@ public enum AppCommand: Hashable, Sendable {
     case setChangesShown(Bool)
     /// Copies a changed file's path.
     case copyPath(String)
+    /// Switches the detail between the conversation and the terminal.
+    case toggleTerminal
+    /// Shows one of the detail's panels, from the toolbar's control or a restored window.
+    case showPanel(DetailPanel)
+    /// The terminal view came on screen or left it, which starts and stops its reads.
+    case setTerminalVisible(Bool)
 
     /// The menu title.
     public var title: String {
@@ -111,6 +117,9 @@ public enum AppCommand: Hashable, Sendable {
         case .toggleChanges: "Show Changes"
         case .setChangesShown(let shown): shown ? "Show Changes" : "Hide Changes"
         case .copyPath: "Copy Path"
+        case .toggleTerminal: "Show Terminal"
+        case .showPanel(let panel): panel.title
+        case .setTerminalVisible(let visible): visible ? "Show Terminal" : "Hide Terminal"
         }
     }
 }

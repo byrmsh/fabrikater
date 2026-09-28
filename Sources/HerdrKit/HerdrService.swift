@@ -16,8 +16,14 @@ public protocol PaneReader: Sendable {
     func screen(of pane: PaneID) async throws -> String
 }
 
-/// `HerdrService`, `HerdrControl` and `PaneReader` over a `HostCommandRunner`.
-public struct HerdrClient: HerdrService, HerdrControl, PaneReader {
+/// Reads a pane's recent output for the terminal view. `HerdrClient` is the real one; tests use a fake.
+public protocol TerminalReader: Sendable {
+    /// The pane's last `lines` lines of screen and scrollback as ANSI text.
+    func recent(of pane: PaneID, lines: Int) async throws -> String
+}
+
+/// `HerdrService`, `HerdrControl`, `PaneReader` and `TerminalReader` over a `HostCommandRunner`.
+public struct HerdrClient: HerdrService, HerdrControl, PaneReader, TerminalReader {
     /// One fixed subscription instead of per-pane `pane.agent_status_changed` (docs/milestones.md, M1).
     public static let subscriptions = [
         "workspace.created", "workspace.updated", "workspace.renamed", "workspace.moved", "workspace.reordered",
@@ -37,6 +43,10 @@ public struct HerdrClient: HerdrService, HerdrControl, PaneReader {
 
     public func screen(of pane: PaneID) async throws -> String {
         String(decoding: try await runner.run(.herdrPaneScreen(pane)), as: UTF8.self)
+    }
+
+    public func recent(of pane: PaneID, lines: Int) async throws -> String {
+        String(decoding: try await runner.run(.herdrPaneRecent(pane, lines: lines)), as: UTF8.self)
     }
 
     public func perform(_ requests: [HerdrRequest]) async throws {

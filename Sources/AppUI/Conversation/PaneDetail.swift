@@ -3,7 +3,7 @@ import FabrikaterCore
 import SwiftUI
 import TranscriptKit
 
-/// One pane's plan, conversation and composer, with its changes inspector, and its title, status, Reload and Show
+/// One pane's plan and conversation or its terminal, and its composer, with its changes inspector, and its title, status, Reload and Show
 /// Changes in the window's title bar and toolbar: the main window's detail and a pane window alike.
 struct PaneDetail: View {
     let model: any PaneDetailModel
@@ -13,12 +13,17 @@ struct PaneDetail: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            ConversationColumn(conversation: model.conversation, perform: perform)
-                .overlay(alignment: .bottom) {
-                    if let notice {
-                        StaleBanner(message: notice)
-                    }
+            Group {
+                switch model.layout.detail {
+                case .conversation: ConversationColumn(conversation: model.conversation, perform: perform)
+                case .terminal: TerminalPanel(terminal: model.terminal, perform: perform)
                 }
+            }
+            .overlay(alignment: .bottom) {
+                if let notice {
+                    StaleBanner(message: notice)
+                }
+            }
             Divider()
             if model.prompt.isShown {
                 PromptCardView(prompt: model.prompt, perform: perform)
@@ -33,6 +38,10 @@ struct PaneDetail: View {
         .navigationTitle(header.title)
         .navigationSubtitle(header.location)
         .toolbar {
+            ToolbarItem(placement: .principal) {
+                DetailPanelPicker(
+                    layout: model.layout, isEnabled: model.isEnabled(.toggleTerminal), perform: perform)
+            }
             ToolbarItem {
                 SessionFactsButton(model: model, header: header)
             }
