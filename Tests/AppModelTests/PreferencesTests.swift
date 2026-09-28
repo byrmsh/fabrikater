@@ -29,6 +29,7 @@ struct PreferencesTests {
         #expect(preferences.notifiesBlocked && preferences.notifiesFinished && preferences.playsSound)
         #expect(preferences.conversationScale(.actual) == 1)
         #expect(preferences.terminalFontSize(.actual) == 12)
+        #expect(SendKey.commandReturn.composerPlaceholder == "Message the agent. ⌘Return sends, Return adds a line.")
     }
 
     @Test func textSizesClampAndCombineWithTheWindowsSteps() {

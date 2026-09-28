@@ -19,7 +19,7 @@ struct ComposerView: View {
                     .lineLimit(2)
             }
             HStack(alignment: .bottom, spacing: 8) {
-                TextField(composer.placeholder, text: $composer.draft, axis: .vertical)
+                TextField(sendKey.composerPlaceholder, text: $composer.draft, axis: .vertical)
                     .textFieldStyle(.plain)
                     .scaledFont(.body)
                     .lineLimit(1...8)

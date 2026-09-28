@@ -17,6 +17,14 @@ public enum SendKey: String, CaseIterable, Codable, Sendable {
         }
     }
 
+    /// The composer's placeholder, which names the send key.
+    public var composerPlaceholder: String {
+        switch self {
+        case .return: "Message the agent. Return sends, Option-Return adds a line."
+        case .commandReturn: "Message the agent. ⌘Return sends, Return adds a line."
+        }
+    }
+
     /// What the other key does, under the picker.
     public var newlineHint: String {
         switch self {

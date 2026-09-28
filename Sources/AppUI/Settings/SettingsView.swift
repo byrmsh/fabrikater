@@ -15,7 +15,6 @@ public struct SettingsView: View {
             Section {
                 TextField("Host", text: host, prompt: Text(preferences.hostPlaceholder))
                     .autocorrectionDisabled()
-                    .fontDesign(.monospaced)
             } header: {
                 Text("Connection")
             } footer: {
@@ -67,6 +66,9 @@ public struct SettingsView: View {
         }
     }
 
+    /// A preference the form edits; the key path is captured by the binding's closures, so it must be `Sendable`.
+    private typealias Field<Value> = any WritableKeyPath<Preferences, Value> & Sendable
+
     private var host: Binding<String> {
         Binding {
             preferences.hostText
@@ -75,9 +77,7 @@ public struct SettingsView: View {
         }
     }
 
-    private func binding<Value: Equatable>(_ field: any WritableKeyPath<Preferences, Value> & Sendable) -> Binding<
-        Value
-    > {
+    private func binding<Value: Equatable>(_ field: Field<Value>) -> Binding<Value> {
         Binding {
             preferences.preferences[keyPath: field]
         } set: { value in
