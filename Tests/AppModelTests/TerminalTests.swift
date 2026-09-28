@@ -107,6 +107,20 @@ struct TerminalTests {
         #expect(reader.reads == [refactor, scratch])
     }
 
+    @Test func aNewWidthForTheSamePaneKeepsTheScreenAndTheReads() async {
+        let reader = FakeTerminals("one")
+        let terminal = makeTerminal(reader)
+        terminal.show(refactor, columns: 120)
+        terminal.setVisible(true)
+        await settle { terminal.screen != nil }
+        terminal.show(refactor, columns: 182)
+        #expect(terminal.columns == 182)
+        #expect(terminal.screen == TerminalScreen(ansi: "one"))
+        #expect(reader.reads == [refactor])
+        terminal.show(scratch)
+        #expect(terminal.columns == nil)
+    }
+
     @Test func noPaneStopsReading() async {
         let reader = FakeTerminals("one")
         let terminal = makeTerminal(reader)

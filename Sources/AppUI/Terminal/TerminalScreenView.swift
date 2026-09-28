@@ -27,10 +27,9 @@ struct TerminalScreenView: NSViewRepresentable {
 
     func updateNSView(_ view: SnapshotTerminalView, context: Context) {
         let coordinator = context.coordinator
-        let size = 12 * scale
-        if coordinator.fontSize != size {
-            coordinator.fontSize = size
-            view.font = NSFont.monospacedSystemFont(ofSize: size, weight: .regular)
+        if coordinator.scale != scale {
+            coordinator.scale = scale
+            view.font = Self.font(scale: scale)
             coordinator.resized(view)
         }
         if coordinator.colorScheme != colorScheme {
@@ -44,9 +43,22 @@ struct TerminalScreenView: NSViewRepresentable {
         coordinator.show(screen, in: view)
     }
 
+    static func font(scale: Double) -> NSFont {
+        NSFont.monospacedSystemFont(ofSize: 12 * scale, weight: .regular)
+    }
+
+    /// The frame width that fits `columns` cells: SwiftTerm's cell is the advance of "W", and its scroller sits
+    /// beside the cells. One point spare keeps rounding from losing the last column.
+    static func width(columns: Int, scale: Double) -> CGFloat {
+        let font = font(scale: scale)
+        let cell = font.advancement(forGlyph: font.glyph(withName: "W")).width
+        let scroller = NSScroller.scrollerWidth(for: .regular, scrollerStyle: .legacy)
+        return ceil(cell * CGFloat(columns) + scroller) + 1
+    }
+
     @MainActor
     final class Coordinator: NSObject, @preconcurrency TerminalViewDelegate {
-        var fontSize: Double?
+        var scale: Double?
         var colorScheme: ColorScheme?
         private var feed = TerminalFeed()
 
@@ -78,9 +90,19 @@ struct TerminalScreenView: NSViewRepresentable {
 }
 
 /// A `TerminalView` that says when its width in columns changes, which happens first when SwiftUI lays it out: a screen
-/// fed before then was clipped to the few columns of an empty frame.
+/// fed before then was clipped to the few columns of an empty frame. A sideways scroll passes through it to the scroll
+/// view around it: SwiftTerm drops those, and its `scrollWheel` cannot be overridden from outside its module.
 final class SnapshotTerminalView: TerminalView {
     var onResize: (() -> Void)?
+
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        if let event = NSApp.currentEvent, event.type == .scrollWheel,
+            abs(event.scrollingDeltaX) > abs(event.scrollingDeltaY)
+        {
+            return nil
+        }
+        return super.hitTest(point)
+    }
 
     override func setFrameSize(_ newSize: NSSize) {
         let columns = getTerminal().cols

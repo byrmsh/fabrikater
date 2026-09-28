@@ -21,7 +21,7 @@ Herdr has no stream of a pane's raw output that fabrikater uses, so the view sho
 ## Consequences
 
 - SwiftTerm's licence is in THIRD_PARTY_NOTICES.md.
-- The terminal is as wide as the view, not the pane: a pane wider than the view is clipped at the right edge. Sizing the view to the pane's columns needs the pane's width, which the snapshot does not report.
+- Superseded after M4: the terminal is now as wide as the pane, whose width in cells the snapshot's layouts do report (`rect.width`), and scrolls sideways inside a SwiftUI `ScrollView` when the window is narrower. SwiftTerm drops sideways scroll events, so its view lets them pass through to the scroll view.
 - A visible terminal costs one ssh round trip per 1.2 s over the shared ControlMaster connection. A minimised window keeps polling until the view disappears.
 - SwiftTerm's transitive dependencies (swift-argument-parser, swift-docc-plugin, package-benchmark, resolved but not built) float within their declared ranges, since `Package.resolved` is not committed.
 - Removing it: delete `AppUI/Terminal/`, `TerminalStore.swift`, `TerminalScreen.swift`, the `TerminalReader` protocol and the command, and the package line.

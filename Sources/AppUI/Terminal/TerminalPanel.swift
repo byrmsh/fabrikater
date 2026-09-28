@@ -16,7 +16,7 @@ struct TerminalPanel: View {
 
     @ViewBuilder private var content: some View {
         if let screen = terminal.screen {
-            TerminalScreenView(screen: screen)
+            PaneWideTerminal(screen: screen, columns: terminal.columns)
                 .overlay(alignment: .bottom) {
                     if let failure = terminal.failure {
                         StaleBanner(message: failure)

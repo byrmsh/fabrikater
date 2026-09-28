@@ -15,6 +15,7 @@ struct HerdTests {
         #expect(herd.panes[0].cwd == "/home/user/project-1")
         #expect(herd.panes[0].foregroundCwd == "/home/user/project-1")
         #expect(herd.panes.map(\.revision) == [17, 3, 9, 2])
+        #expect(herd.panes.map(\.columns) == [120, 140, 182, 182])
     }
 
     @Test func decodesTheCapturedSnapshot() throws {
@@ -25,6 +26,7 @@ struct HerdTests {
             #expect(herd.tab(pane.tabID)?.workspaceID == pane.workspaceID)
         }
         #expect(herd.panes.contains { $0.sessionID != nil })
+        #expect(herd.panes.allSatisfy { $0.columns != nil })
     }
 
     @Test func ignoresUnknownFieldsAndSkipsBrokenRecords() throws {
@@ -40,6 +42,7 @@ struct HerdTests {
         #expect(herd.workspaces == [Herd.Workspace(id: "w1", label: "A", number: 2, agentStatus: .unknown)])
         #expect(herd.panes.map(\.id.rawValue) == ["w1:p1"])
         #expect(herd.panes[0].agent == .other("aider"))
+        #expect(herd.panes[0].columns == nil)
     }
 
     @Test func reportsAnErrorReply() {
