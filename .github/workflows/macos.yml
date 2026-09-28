@@ -33,7 +33,7 @@ jobs:
   app:
     # Xcode 27 image (macOS 27, arm64); it also ships Command Line Tools 27.0, the user's toolchain.
     runs-on: xcode-27
-    timeout-minutes: 20
+    timeout-minutes: 30
     env:
       DEVELOPER_DIR: ${{ inputs.toolchain == 'xcode' && '/Applications/Xcode.app/Contents/Developer' || '/Library/Developer/CommandLineTools' }}
     steps:
