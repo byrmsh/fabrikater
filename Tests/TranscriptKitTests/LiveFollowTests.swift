@@ -65,7 +65,8 @@ struct LiveFollowTests {
         for line in appended { feed.yield(line) }
         let service = HostTranscriptService(runner: FollowRunner(reads: [log], follows: [follow]))
 
-        let transcripts = try await first(3, of: service.followClaudeTranscript(session: session))
+        let transcripts = try await first(
+            3, of: service.followClaudeTranscript(session: session, bytes: TranscriptWindow.full))
         #expect(transcripts[0].entries.count == 9)
         #expect(transcripts[1].entries.last?.id == "u20")
         #expect(transcripts[2].entries.count == 11)
@@ -80,7 +81,8 @@ struct LiveFollowTests {
         let runner = FollowRunner(reads: [log, grown], follows: [dropped])
         let service = HostTranscriptService(runner: runner, reconnectDelays: [.zero])
 
-        let transcripts = try await first(2, of: service.followClaudeTranscript(session: session))
+        let transcripts = try await first(
+            2, of: service.followClaudeTranscript(session: session, bytes: TranscriptWindow.full))
         #expect(transcripts[0].entries.count == 9)
         #expect(transcripts[1].entries.count == 11)
         #expect(runner.readCount == 2)
@@ -89,7 +91,7 @@ struct LiveFollowTests {
     @Test func aMissingLogEndsTheFollow() async {
         let service = HostTranscriptService(runner: MissingLogRunner())
         await #expect(throws: TranscriptError.noLog) {
-            _ = try await first(1, of: service.followClaudeTranscript(session: session))
+            _ = try await first(1, of: service.followClaudeTranscript(session: session, bytes: TranscriptWindow.full))
         }
     }
 
@@ -125,7 +127,7 @@ struct LiveFollowTests {
             }
         }
         var transcripts: [Transcript] = []
-        for try await transcript in OneRead().followClaudeTranscript(session: session) {
+        for try await transcript in OneRead().followClaudeTranscript(session: session, bytes: TranscriptWindow.full) {
             transcripts.append(transcript)
         }
         #expect(transcripts == [Transcript(isClipped: true)])

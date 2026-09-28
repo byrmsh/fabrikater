@@ -23,10 +23,7 @@ struct TranscriptView: View {
             ScrollView {
                 LazyVStack(alignment: .leading, spacing: 12) {
                     if conversation.transcript.isClipped {
-                        Text("Older messages are not loaded.")
-                            .scaledFont(.callout)
-                            .foregroundStyle(.secondary)
-                            .frame(maxWidth: .infinity)
+                        EarlierMessagesRow(conversation: conversation, perform: perform)
                     }
                     ForEach(conversation.transcript.entries) { entry in
                         let toggle = conversation.expansion.toggle(for: entry)

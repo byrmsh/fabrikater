@@ -32,6 +32,7 @@ public struct PaneCommands: Commands {
             .disabled(!store.isEnabled(.openInNewWindow(nil)))
             Divider()
             button(.reloadConversation)
+            button(.loadEarlier)
             button(.copyConversation)
             button(.toggleSessionFacts)
             Divider()
