@@ -20,6 +20,9 @@ public struct RootView: View {
                 .navigationSplitViewColumnWidth(min: 220, ideal: 280)
         } detail: {
             DetailView(store: store)
+                .sheet(isPresented: isBrowsingSessions) {
+                    PastSessionsView(store: store)
+                }
         }
         .sheet(isPresented: isSwitching) {
             QuickSwitcherView(store: store)
@@ -43,6 +46,15 @@ public struct RootView: View {
         } set: { visibility in
             store.perform(.setSidebarVisible(visibility != .detailOnly))
         }
+    }
+
+    private var isBrowsingSessions: Binding<Bool> {
+        Binding(
+            get: { store.pastSessions.sheet != nil },
+            set: { isPresented in
+                if !isPresented { store.perform(.closePastSessions) }
+            }
+        )
     }
 
     private var isSwitching: Binding<Bool> {

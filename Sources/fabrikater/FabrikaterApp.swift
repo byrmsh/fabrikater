@@ -44,6 +44,7 @@ struct FabrikaterApp: App {
         store = AppStore(
             herdUpdates: HerdFeed(service: client).updates(),
             transcripts: HostTranscriptService(runner: runner),
+            history: HostTranscriptService(runner: runner),
             control: PolicedControl(SendGuard(client, reader: client), policy: policy) { try await client.snapshot() },
             screens: client,
             answers: PolicedControl(client, policy: policy) { try await client.snapshot() },
@@ -74,6 +75,13 @@ struct FabrikaterApp: App {
         WindowGroup("Pane", for: PaneID.self) { $id in
             if let id {
                 PaneWindowView(store: store, paneID: id)
+            }
+        }
+        .defaultSize(width: 720, height: 720)
+        .windowToolbarStyle(.unified)
+        WindowGroup("Session", for: SessionWindowID.self) { $id in
+            if let id {
+                SessionWindowView(store: store, id: id)
             }
         }
         .defaultSize(width: 720, height: 720)
