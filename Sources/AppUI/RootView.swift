@@ -1,3 +1,4 @@
+import AppKit
 import AppModel
 import SwiftUI
 
@@ -31,6 +32,7 @@ public struct RootView: View {
         .onChange(of: store.textScale) { _, scale in savedTextScaleStep = scale.step }
         .onChange(of: store.isSidebarVisible) { _, visible in savedSidebarVisible = visible }
         .onChange(of: store.layout.detail) { _, panel in savedDetailPanel = panel.rawValue }
+        .onChange(of: store.needsYou.badge, initial: true) { _, badge in NSApp.dockTile.badgeLabel = badge }
         .task { await store.run() }
     }
 

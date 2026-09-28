@@ -48,7 +48,7 @@ public enum Keymap {
         .toggleSessionFacts: KeyChord(.character("i")),
         .toggleChanges: KeyChord(.character("0"), [.command, .option]),
         .toggleTerminal: KeyChord(.character("t")),
-    ]
+    ].merging(NeedsYou.numbers.map { (.selectNeedsYou($0), KeyChord(.character(Character(String($0))))) }) { $1 }
 
     public static func chord(for command: AppCommand) -> KeyChord? {
         bindings[command]

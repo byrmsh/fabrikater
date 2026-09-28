@@ -31,7 +31,7 @@ public struct MenuTarget {
         case .toggleHidden(nil): return .app(.toggleHidden(pane))
         case .openInVSCode(nil): return .app(.openInVSCode(pane))
         case .openInNewWindow(nil): return .app(.openInNewWindow(pane))
-        case .renamePane(nil), .toggleHiddenWorkspace(nil): return .unavailable
+        case .renamePane(nil), .toggleHiddenWorkspace(nil), .toggleNotifications(nil): return .unavailable
         default: return .app(command)
         }
     }
