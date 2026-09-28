@@ -11,6 +11,7 @@ E2E_FIXTURES="Tests/Fixtures"
 
 e2e_pid=""
 e2e_fixture_dir=""
+e2e_restore_light=""
 
 # e2e_launch [fixture...]: starts the app replaying only the named files from Tests/Fixtures, and waits for its window.
 # The default is the synthetic herd and conversation. With no files at all (`e2e_launch --none`) every read fails.
@@ -31,6 +32,11 @@ e2e_launch() {
     # Fixture runs keep pane notes in their own defaults domain; clearing it keeps one flow's renames out of the next.
     if [ -z "${E2E_KEEP_NOTES:-}" ]; then
         defaults delete sh.bayram.fabrikater.fixtures >/dev/null 2>&1 || true
+    fi
+    # E2E_DARK=1 turns the system to dark mode for this launch; e2e_quit turns it back.
+    if [ -n "${E2E_DARK:-}" ] && [ "$(_e2e_dark_mode)" = "false" ]; then
+        _e2e_dark_mode true
+        e2e_restore_light=1
     fi
     # `open` does not pass the environment on, so run the bundled binary directly. Ignoring saved window state keeps
     # one flow's hidden sidebar or text size out of the next.
@@ -65,6 +71,15 @@ e2e_append_fixture() {
 }
 
 # e2e_quit: stops the app and removes its fixture copy.
+# _e2e_dark_mode [true|false]: prints whether the system is in dark mode, or sets it.
+_e2e_dark_mode() {
+    if [ "$#" -eq 0 ]; then
+        osascript -e 'tell application "System Events" to tell appearance preferences to get dark mode'
+    else
+        osascript -e "tell application \"System Events\" to tell appearance preferences to set dark mode to $1" >/dev/null
+    fi
+}
+
 e2e_quit() {
     if [ -n "${e2e_pid}" ]; then
         kill "${e2e_pid}" 2>/dev/null || true
@@ -74,6 +89,10 @@ e2e_quit() {
     if [ -n "${e2e_fixture_dir}" ]; then
         rm -rf "${e2e_fixture_dir}"
         e2e_fixture_dir=""
+    fi
+    if [ -n "${e2e_restore_light}" ]; then
+        _e2e_dark_mode false
+        e2e_restore_light=""
     fi
 }
 
