@@ -23,7 +23,7 @@ public final class ConversationStore {
 
     private let transcripts: any TranscriptService
     private let log = Log(category: "AppModel")
-    private var session: SessionID?
+    private var sessionLog: SessionLog?
     private var status: AgentStatus?
     private var cache = TranscriptCache()
     @ObservationIgnored private(set) var loadTask: Task<Void, Never>?
@@ -34,11 +34,11 @@ public final class ConversationStore {
     public var factRows: [FactRow] { transcript.facts.rows(isClipped: transcript.isClipped) }
 
     /// False when the pane has no conversation this version can read.
-    public var canReload: Bool { session != nil }
+    public var canReload: Bool { sessionLog != nil }
 
     /// True when older messages exist and a larger window can still show them.
     public var canLoadEarlier: Bool {
-        session != nil && transcript.isClipped && !isLoading && TranscriptWindow.earlier(than: window) != nil
+        sessionLog != nil && transcript.isClipped && !isLoading && TranscriptWindow.earlier(than: window) != nil
     }
 
     /// What the top of a clipped conversation says, or nil when the whole log is shown.
@@ -56,17 +56,17 @@ public final class ConversationStore {
     /// the log is not followed (the follow ended or failed), a status change re-reads it, since a turn starting or
     /// ending changes the log.
     func show(_ pane: Herd.Pane?) {
-        let session = pane?.sessionID
+        let sessionLog = pane?.sessionLog
         let previousStatus = status
         status = pane?.agentStatus
-        guard pane?.id != paneID || session != self.session else {
+        guard pane?.id != paneID || sessionLog != self.sessionLog else {
             if previousStatus != status, !isFollowing, Self.unavailableReason(for: pane) == nil { reload() }
             return
         }
         loadTask?.cancel()
         paneID = pane?.id
-        self.session = session
-        let cached = session.flatMap { cache[$0] }
+        self.sessionLog = sessionLog
+        let cached = sessionLog.flatMap { cache[$0] }
         transcript = cached ?? Transcript()
         expansion = EntryExpansion()
         window = TranscriptWindow.full
@@ -119,7 +119,7 @@ public final class ConversationStore {
     }
 
     private func load(quickFirst: Bool) {
-        guard let paneID, let session else { return }
+        guard let paneID, let sessionLog else { return }
         loadTask?.cancel()
         isLoading = true
         isFollowing = false
@@ -127,16 +127,16 @@ public final class ConversationStore {
         loadTask = Task {
             do {
                 if quickFirst {
-                    let quick = try await transcripts.claudeTranscript(session: session, bytes: TranscriptWindow.quick)
+                    let quick = try await transcripts.transcript(of: sessionLog, bytes: TranscriptWindow.quick)
                     guard !Task.isCancelled, self.paneID == paneID else { return }
                     transcript = quick
                     message = nil
                     isLoading = quick.isClipped
                 }
-                for try await transcript in transcripts.followClaudeTranscript(session: session, bytes: window) {
+                for try await transcript in transcripts.followTranscript(of: sessionLog, bytes: window) {
                     guard !Task.isCancelled, self.paneID == paneID else { return }
                     self.transcript = transcript
-                    cache.store(transcript, for: session)
+                    cache.store(transcript, for: sessionLog)
                     message = nil
                     isLoading = false
                     isFollowing = true
@@ -152,14 +152,18 @@ public final class ConversationStore {
         }
     }
 
+    /// True when the pane runs an agent whose log this version can read; the detail shows the terminal otherwise.
+    static func hasParser(_ pane: Herd.Pane?) -> Bool {
+        pane?.agent.flatMap(SessionLog.Format.init(agent:)) != nil
+    }
+
     /// Nil when the pane has a conversation this version can read.
     static func unavailableReason(for pane: Herd.Pane?) -> String? {
         guard let pane else { return nil }
         guard let agent = pane.agent else {
             return "This pane runs a shell, not an agent."
         }
-        guard agent == .claude else {
-            // TODO(M7): parsers for the other agents.
+        guard hasParser(pane) else {
             return "Conversations from \(agent.title) cannot be shown yet."
         }
         guard pane.sessionID != nil else {

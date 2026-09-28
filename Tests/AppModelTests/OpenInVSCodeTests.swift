@@ -9,7 +9,7 @@ import TranscriptKit
 @MainActor
 struct OpenInVSCodeTests {
     private struct FakeTranscripts: TranscriptService {
-        func claudeTranscript(session: SessionID, bytes: Int) async throws -> Transcript { Transcript(entries: []) }
+        func transcript(of log: SessionLog, bytes: Int) async throws -> Transcript { Transcript(entries: []) }
     }
 
     private let pane = Herd.Pane(id: PaneID("w1:p1")!, tabID: "w1:t1", workspaceID: "w1")

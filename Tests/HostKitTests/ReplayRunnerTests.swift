@@ -14,7 +14,7 @@ struct ReplayRunnerTests {
 
     @Test func servesTheTailOfTheSyntheticClaudeLog() async throws {
         let session = try #require(SessionID("00000000-0000-4000-8000-000000000001"))
-        let data = try await runner.run(.claudeLogTail(session: session, bytes: 100))
+        let data = try await runner.run(.logTail(SessionLog(format: .claude, session: session), bytes: 100))
         #expect(data == (try Fixture.data(named: "claude.synthetic.jsonl")).suffix(100))
     }
 
@@ -64,7 +64,9 @@ struct ReplayRunnerTests {
         let session = try #require(SessionID("00000000-0000-4000-8000-000000000001"))
 
         var lines: [String] = []
-        for try await line in runner.lines(.claudeLogFollow(session: session, bytes: 8), input: nil) {
+        for try await line in runner.lines(
+            .logFollow(SessionLog(format: .claude, session: session), bytes: 8), input: nil)
+        {
             lines.append(line)
             if lines == ["o", "three"] {
                 let handle = try FileHandle(forWritingTo: file)

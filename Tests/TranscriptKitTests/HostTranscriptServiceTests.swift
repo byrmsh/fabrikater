@@ -26,11 +26,11 @@ struct HostTranscriptServiceTests {
         }
     }
 
-    private let session = SessionID("00000000-0000-4000-8000-000000000001")!
+    private let claudeLog = SessionLog(format: .claude, session: SessionID("00000000-0000-4000-8000-000000000001")!)
 
     @Test func loadsTheLogThroughTheRunner() async throws {
         let service = HostTranscriptService(runner: ReplayRunner(directory: Fixture.directory))
-        let transcript = try await service.claudeTranscript(session: session, bytes: TranscriptWindow.full)
+        let transcript = try await service.transcript(of: claudeLog, bytes: TranscriptWindow.full)
         #expect(transcript.entries.count == 9)
         #expect(!transcript.isClipped)
         #expect(transcript.facts.firstSeen == SessionFacts.parseTimestamp("2026-09-26T10:00:00.000Z"))
@@ -40,28 +40,28 @@ struct HostTranscriptServiceTests {
     @Test func attachesTheLatestPlan() async throws {
         let log = try Fixture.data(named: "claude-todos.synthetic.jsonl")
         let transcript = try await HostTranscriptService(runner: FixedLogRunner(data: log))
-            .claudeTranscript(session: session, bytes: TranscriptWindow.full)
+            .transcript(of: claudeLog, bytes: TranscriptWindow.full)
         #expect(transcript.todos.count == 4)
     }
 
     @Test func attachesTheChangedFiles() async throws {
         let log = try Fixture.data(named: "claude-changes.synthetic.jsonl")
         let transcript = try await HostTranscriptService(runner: FixedLogRunner(data: log))
-            .claudeTranscript(session: session, bytes: TranscriptWindow.full)
+            .transcript(of: claudeLog, bytes: TranscriptWindow.full)
         #expect(transcript.changes.map(\.name) == ["Uploader.swift", "RetryTests.swift"])
     }
 
     @Test func marksATranscriptLongerThanTheWindowAsClipped() async throws {
         let service = HostTranscriptService(runner: ReplayRunner(directory: Fixture.directory))
-        let transcript = try await service.claudeTranscript(session: session, bytes: 1000)
+        let transcript = try await service.transcript(of: claudeLog, bytes: 1000)
         #expect(transcript.isClipped)
         #expect(transcript.entries.last?.id == "a7")
     }
 
     @Test func reportsAMissingLog() async {
         await #expect(throws: TranscriptError.noLog) {
-            try await HostTranscriptService(runner: MissingLogRunner()).claudeTranscript(
-                session: session, bytes: TranscriptWindow.full)
+            try await HostTranscriptService(runner: MissingLogRunner()).transcript(
+                of: claudeLog, bytes: TranscriptWindow.full)
         }
     }
 }

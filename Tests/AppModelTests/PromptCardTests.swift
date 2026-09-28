@@ -27,7 +27,7 @@ struct PromptCardTests {
     }
 
     private struct NoTranscripts: TranscriptService {
-        func claudeTranscript(session: SessionID, bytes: Int) async throws -> Transcript { Transcript() }
+        func transcript(of log: SessionLog, bytes: Int) async throws -> Transcript { Transcript() }
     }
 
     private let permission = Self.screen("claude--permission-bash")

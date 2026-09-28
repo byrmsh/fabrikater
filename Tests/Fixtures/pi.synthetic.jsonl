@@ -1,0 +1,9 @@
+{"type":"session","version":3,"id":"00000000-0000-4000-8000-000000000004","timestamp":"2026-09-27T10:00:00.000Z","cwd":"/home/user/project-3"}
+{"type":"model_change","id":"m0","timestamp":"2026-09-27T10:00:00.000Z","provider":"synthetic","modelId":"synthetic-model"}
+{"type":"message","id":"p1","parentId":null,"timestamp":"2026-09-27T10:00:01.000Z","message":{"role":"user","content":[{"type":"text","text":"Why does the upload retry forever?"}],"timestamp":1}}
+{"type":"message","id":"p2","parentId":null,"timestamp":"2026-09-27T10:00:02.000Z","message":{"role":"assistant","content":[{"type":"thinking","thinking":"**Reading the retry loop**"},{"type":"text","text":"Let me read the retry loop."},{"type":"toolCall","id":"tc1","name":"read","arguments":{"path":"src/upload.ts"}}]}}
+{"type":"message","id":"p3","parentId":null,"timestamp":"2026-09-27T10:00:03.000Z","message":{"role":"toolResult","toolCallId":"tc1","toolName":"read","content":[{"type":"text","text":"while (true) {\n  await send()\n}"}],"isError":false}}
+{"type":"message","id":"p4","parentId":null,"timestamp":"2026-09-27T10:00:04.000Z","message":{"role":"assistant","content":[{"type":"toolCall","id":"tc2","name":"bash","arguments":{"command":"npm test -- upload"}}]}}
+{"type":"message","id":"p5","parentId":null,"timestamp":"2026-09-27T10:00:05.000Z","message":{"role":"toolResult","toolCallId":"tc2","toolName":"bash","content":[{"type":"text","text":"1 failing: gives up after 5 tries"}],"isError":true}}
+{"type":"custom_message","id":"c1","timestamp":"2026-09-27T10:00:05.000Z","customType":"synthetic","content":"ignored"}
+{"type":"message","id":"p6","parentId":null,"timestamp":"2026-09-27T10:00:06.000Z","message":{"role":"assistant","content":[{"type":"text","text":"The loop never counts attempts. I'll cap it at 5 tries."}]}}

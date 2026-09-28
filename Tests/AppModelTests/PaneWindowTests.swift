@@ -11,9 +11,9 @@ struct PaneWindowTests {
     private final class SessionTranscripts: TranscriptService, @unchecked Sendable {
         private(set) var loads = 0
 
-        func claudeTranscript(session: SessionID, bytes: Int) async throws -> Transcript {
+        func transcript(of log: SessionLog, bytes: Int) async throws -> Transcript {
             loads += 1
-            return Transcript(entries: [TranscriptEntry(id: "e1", role: .user, parts: [.text(session.rawValue)])])
+            return Transcript(entries: [TranscriptEntry(id: "e1", role: .user, parts: [.text(log.session.rawValue)])])
         }
     }
 
@@ -171,7 +171,7 @@ struct PaneWindowTests {
 @MainActor
 struct PaneWindowPanelsTests {
     private struct EmptyTranscripts: TranscriptService {
-        func claudeTranscript(session: SessionID, bytes: Int) async throws -> Transcript { Transcript() }
+        func transcript(of log: SessionLog, bytes: Int) async throws -> Transcript { Transcript() }
     }
 
     private let clipboard = InMemoryClipboard()

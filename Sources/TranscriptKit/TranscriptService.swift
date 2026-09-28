@@ -5,11 +5,11 @@ import HostKit
 /// Loads conversations. `HostTranscriptService` is the real one; tests use a fake.
 public protocol TranscriptService: Sendable {
     /// The conversation in the last `bytes` bytes of the session's log.
-    func claudeTranscript(session: SessionID, bytes: Int) async throws -> Transcript
+    func transcript(of log: SessionLog, bytes: Int) async throws -> Transcript
 
     /// The conversation in the log's last `bytes` bytes, then again each time the log grows, until cancelled. The
     /// default reads once and ends; `HostTranscriptService` follows the log live (`LiveFollow.swift`).
-    func followClaudeTranscript(session: SessionID, bytes: Int) -> AsyncThrowingStream<Transcript, any Error>
+    func followTranscript(of log: SessionLog, bytes: Int) -> AsyncThrowingStream<Transcript, any Error>
 }
 
 /// How much of a log to read.
@@ -54,14 +54,14 @@ public struct HostTranscriptService: TranscriptService {
         self.reconnectDelays = reconnectDelays.isEmpty ? [.seconds(1)] : reconnectDelays
     }
 
-    public func claudeTranscript(session: SessionID, bytes: Int) async throws -> Transcript {
-        Transcript(claudeLog: try await claudeLog(session: session, bytes: bytes), window: bytes)
+    public func transcript(of log: SessionLog, bytes: Int) async throws -> Transcript {
+        Transcript(log.format, data: try await tail(of: log, bytes: bytes), window: bytes)
     }
 
     /// The last `bytes` bytes of the session's log.
-    func claudeLog(session: SessionID, bytes: Int) async throws -> Data {
+    func tail(of log: SessionLog, bytes: Int) async throws -> Data {
         do {
-            return try await runner.run(.claudeLogTail(session: session, bytes: bytes))
+            return try await runner.run(.logTail(log, bytes: bytes))
         } catch HostError.exited(HostCommand.notFoundStatus, _) {
             throw TranscriptError.noLog
         }
