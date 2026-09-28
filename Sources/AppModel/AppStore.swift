@@ -217,7 +217,7 @@ public final class AppStore {
         case .toggleChanges, .setChangesShown, .toggleSessionFacts, .setSessionFactsShown:
             PanePanels.isEnabled(command, hasPane: header != nil) ?? false
         case .copyPath, .setTerminalVisible: true
-        case .toggleTerminal, .showPanel: WorkspaceLayout.isEnabled(command, hasPane: header != nil) ?? false
+        case .toggleTerminal, .showPanel: layout.isEnabled(command, hasPane: header != nil) ?? false
         case .openInNewWindow(let id): windowPane(id) != nil
         case .reloadConversation, .loadEarlier, .copyMessage, .copyConversation, .expandEntry, .collapseEntry:
             conversation.isEnabled(command) ?? false
@@ -353,6 +353,7 @@ public final class AppStore {
             panels.losePane()
         }
         conversation.show(selected)
+        layout.show(hasConversation: selected == nil || ConversationStore.hasParser(selected))
         terminal.show(selected?.id, columns: selected?.columns)
         refreshComposer()
     }

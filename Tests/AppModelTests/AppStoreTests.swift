@@ -81,9 +81,23 @@ struct AppStoreTests {
         store.perform(.selectPane(codex))
         #expect(store.conversation.message == "Herdr has not reported a session for this pane yet.")
         #expect(!store.isEnabled(.reloadConversation))
+        #expect(store.layout.detail == .conversation)
         store.perform(.selectPane(PaneID("w1:pA")!))
         #expect(store.conversation.message == "This pane runs a shell, not an agent.")
         #expect(transcripts.loads == 0)
+    }
+
+    @Test func aPaneWithoutAConversationOpensInTheTerminalAndKeepsTheChoice() throws {
+        let (store, _) = try makeStore()
+        store.perform(.selectPane(scratch))
+        #expect(store.layout.detail == .conversation)
+        store.perform(.selectPane(PaneID("w1:pA")!))
+        #expect(store.layout.detail == .terminal)
+        #expect(!store.isEnabled(.toggleTerminal))
+        #expect(store.isChecked(.toggleTerminal) == true)
+        store.perform(.selectPane(scratch))
+        #expect(store.layout.detail == .conversation)
+        #expect(store.isEnabled(.toggleTerminal))
     }
 
     @Test func aFailedReloadKeepsTheTranscriptAndShowsTheError() async throws {

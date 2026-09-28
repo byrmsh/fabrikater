@@ -50,6 +50,7 @@ public final class PaneWindowStore {
         notice = nil
         header = pane.header
         conversation.show(pane.pane)
+        layout.show(hasConversation: ConversationStore.hasParser(pane.pane))
         terminal.show(pane.pane.id, columns: pane.pane.columns)
     }
 
@@ -76,7 +77,7 @@ public final class PaneWindowStore {
         case .copyPath, .setTerminalVisible: true
         default:
             PanePanels.isEnabled(command, hasPane: header != nil)
-                ?? WorkspaceLayout.isEnabled(command, hasPane: header != nil)
+                ?? layout.isEnabled(command, hasPane: header != nil)
                 ?? conversation.isEnabled(command) ?? false
         }
     }
