@@ -26,7 +26,7 @@ public struct Dialog: Equatable, Sendable {
 
     /// Lowercased key hints that only a dialog prints. The input box's own hints (`esc to interrupt`,
     /// `? for shortcuts`) are not among them.
-    static let hints = [
+    public static let hints = [
         // Claude Code: AskUserQuestion, permission, plan approval, pickers and menus, and the answers review.
         "enter to select", "tab to amend", "ctrl+g to edit", ".claude/plans/", "esc to cancel",
         "enter to confirm", "type to filter", "ready to submit your answers?",
