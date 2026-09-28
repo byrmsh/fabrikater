@@ -6,13 +6,13 @@ Research for a native SwiftUI macOS app built with only Apple's Command Line Too
 
 Toolchain: Command Line Tools for Xcode 27.0 (Swift 6.4, macOS 27.0 SDK), built with `swift build`, packaged into a `.app` by a shell script, ad-hoc signed with `codesign --force --sign - fabrikater.app`. The most important finding: under CLT 27, SwiftUI's `@State` no longer compiles (see section 1). The fix is to declare `typealias ViewState = SwiftUI.State` and write `@ViewState` everywhere. Also avoid `#Preview`, SwiftData `@Model` and `@Entry`.
 
-Deployment target: `.macOS(.v15)`. Textual needs macOS 15, and CLT 27 itself only installs on macOS 26.6 or later, so the build Mac is already newer than that.
+Deployment target: `.macOS(.v15)`. CLT 27 itself only installs on macOS 26.6 or later, so the build Mac is already newer than that.
 
 SSH: spawn `/usr/bin/ssh` through `Process`. One long-lived `ssh -T arch <remote helper or tail command>` carries events and streams. A ControlMaster/ControlPersist master connection makes the one-off commands cheap. Do not use a Swift SSH library. Build without the App Sandbox and distribute outside the App Store.
 
 Terminal view: SwiftTerm (MIT). Pin it to v1.20.0 or a tested commit on main, and feed it bytes with `TerminalView.feed(byteArray:)`. No PTY (pseudo-terminal) is needed.
 
-Markdown: Textual 0.5.0 (MIT) renders each message, inside a SwiftUI `List` or an AppKit `NSTableView`. If a single transcript can grow to thousands of messages, render it in one `WKWebView` instead (details in section 4).
+Markdown: our own block parser (`AppModel/MarkdownBlocks.swift`) and view, not Textual, which does not build under the Command Line Tools ([decisions/0011](decisions/0011-own-markdown-blocks.md), section 4).
 
 Extras: `UNUserNotificationCenter` works once the app is a real bundle with a `CFBundleIdentifier`. The Keychain isn't needed. A `MenuBarExtra` is cheap to add.
 
@@ -37,7 +37,7 @@ To package a `.app`, lay it out as `fabrikater.app/Contents/{MacOS/fabrikater, I
 - `LSMinimumSystemVersion=15.0`, `NSHighResolutionCapable=true`, `CFBundleIconFile`
 - `LSApplicationCategoryType` (optional); `LSUIElement=true` only if the app should run from the menu bar with no Dock icon
 
-The SwiftUI `App` lifecycle does not need `NSPrincipalClass`. Also copy every `*.bundle` from the build directory into `Contents/Resources`, or `Bundle.module` crashes at launch (VitalyArt/Aula-F75-Max-Driver#9). Textual (Prism highlighter files) and SwiftTerm both ship resource bundles. Run `codesign --force --deep --sign - fabrikater.app` last. The linker already ad-hoc signs the arm64 binary, but after you add Info.plist and resources the whole bundle has to be re-signed.
+The SwiftUI `App` lifecycle does not need `NSPrincipalClass`. Also copy every `*.bundle` from the build directory into `Contents/Resources`, or `Bundle.module` crashes at launch (VitalyArt/Aula-F75-Max-Driver#9). SwiftTerm ships a resource bundle. Run `codesign --force --deep --sign - fabrikater.app` last. The linker already ad-hoc signs the arm64 binary, but after you add Info.plist and resources the whole bundle has to be re-signed.
 
 Gatekeeper only checks files carrying the `com.apple.quarantine` attribute, which browsers, AirDrop and similar tools add. An app built locally doesn't get it, so it launches without a prompt. If the `.app` ever travels by download or AirDrop, clear the attribute with `xattr -dr com.apple.quarantine` or allow it under System Settings > Privacy & Security. One side effect of ad-hoc signing is that every rebuild changes the code hash, so TCC (Transparency, Consent and Control, the macOS privacy-permission database) forgets grants such as Accessibility. That rarely matters here, because notification permission is keyed on the bundle id.
 
@@ -70,7 +70,7 @@ Alternatives: for a read-only colour snapshot, a roughly 150-line SGR parser (SG
 
 gonzalezreal/swift-markdown-ui (MIT) is officially in maintenance mode. Its README says: "New development is happening in Textual, a SwiftUI-native text rendering engine that evolved from the ideas and lessons learned in MarkdownUI." Its last release is 2.4.1 (2024-10-13).
 
-Textual (MIT) is at 0.5.0 (2026-06-15) and needs macOS 15. It parses Markdown with Foundation's `AttributedString` parser, and supports native text selection, code blocks with syntax highlighting (Prism grammars), tables (link interaction in tables was added in 0.5.0), lists, math and images. It is pre-1.0, so expect API churn.
+Textual (MIT) is at 0.5.0 (2026-06-15) and needs macOS 15. It parses Markdown with Foundation's `AttributedString` parser, and supports native text selection, code blocks with syntax highlighting (Prism grammars), tables (link interaction in tables was added in 0.5.0), lists, math and images. It is pre-1.0, so expect API churn. **It does not build under CLT 27** (verified in its sources at 0.5.0, 2026-09-28): it uses the State property wrapper by its SwiftUI name, `@Entry` and `#Preview`, whose macros ship only with Xcode (section 1).
 
 Foundation's `AttributedString(markdown:)` parses block structure only as `presentationIntent` attributes. SwiftUI `Text` renders inline styling only, so tables, code blocks and lists need your own layout. swiftlang/swift-markdown (Apache-2.0, v0.9.0, 2026-09-21) gives a full cmark-gfm syntax tree, but then you write the renderer yourself.
 
@@ -78,7 +78,7 @@ A `WKWebView` running markdown-it or marked plus highlight.js handles the whole 
 
 For performance, don't put a long transcript in a `ScrollView` with a `LazyVStack`. Lazy stacks with variable-height rows estimate heights, so scroll position jumps and memory grows. On macOS, SwiftUI `List` is backed by `NSTableView` and recycles rows. At WWDC25 Apple claimed much faster large-list loading and updates on macOS 26 **[figures unverified]**. For the most control, use an `NSTableView` with `NSHostingView` cells and cache row heights per message id. Only the last message changes while it streams, so parse and cache finished messages once.
 
-Recommendation: use a `List` of Textual `StructuredText` rows with cached parses, and move to a single `WKWebView` transcript if profiling shows stalls past a few thousand messages.
+Chosen: our own block parser in `AppModel` and a SwiftUI view per block, with Foundation's inline parser for emphasis, code and links ([decisions/0011](decisions/0011-own-markdown-blocks.md)). Move to a single `WKWebView` transcript if profiling shows stalls past a few thousand messages.
 
 ## 5. Other points
 

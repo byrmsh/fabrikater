@@ -34,7 +34,7 @@ FabrikaterCore ◄── HostKit ◄── HerdrKit ◄──┐
 - Views contain layout only. A decision, a formatted string, or anything worth a test belongs in a store or a lower target, where it is tested on Linux.
 - Everything above `AppUI` is written so that a port to another platform (Android is the likely one) rewrites only the views: user actions are `AppCommand` cases, shortcuts are `Keymap` entries, and panel placement is a `WorkspaceLayout` value, all in `AppModel`.
 - Stores never create their own services. The composition root in `fabrikater` builds the service graph once and passes it into each store's initializer. There are no singletons outside it.
-- A new third-party dependency lands in the milestone that first uses it, pinned: Textual in M2, SwiftTerm in M4 ([macos-tooling.md](macos-tooling.md)). Only `AppUI` may depend on UI packages.
+- A new third-party dependency lands in the milestone that first uses it, pinned: SwiftTerm in M4 ([macos-tooling.md](macos-tooling.md)). Only `AppUI` may depend on UI packages.
 
 ## Engineering rules
 
