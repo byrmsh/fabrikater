@@ -75,7 +75,9 @@ public struct SettingsView: View {
         }
     }
 
-    private func binding<Value: Equatable>(_ field: WritableKeyPath<Preferences, Value> & Sendable) -> Binding<Value> {
+    private func binding<Value: Equatable>(_ field: any WritableKeyPath<Preferences, Value> & Sendable) -> Binding<
+        Value
+    > {
         Binding {
             preferences.preferences[keyPath: field]
         } set: { value in
