@@ -6,6 +6,7 @@ import SwiftUI
 struct SidebarView: View {
     let store: AppStore
     @ViewState private var collapsedTabs: Set<String> = []
+    @Environment(\.openWindow) private var openWindow
 
     var body: some View {
         List(selection: selection) {
@@ -100,6 +101,10 @@ struct SidebarView: View {
                 store.perform(.openInVSCode(pane.id))
             }
             .disabled(!store.isEnabled(.openInVSCode(pane.id)))
+            Button(AppCommand.openInNewWindow(pane.id).title) {
+                openWindow(value: pane.id)
+            }
+            .disabled(!store.isEnabled(.openInNewWindow(pane.id)))
         }
     }
 }

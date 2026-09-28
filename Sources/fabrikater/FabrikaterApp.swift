@@ -59,5 +59,12 @@ struct FabrikaterApp: App {
             ViewCommands(store: store)
             PaneCommands(store: store)
         }
+        WindowGroup("Pane", for: PaneID.self) { $id in
+            if let id {
+                PaneWindowView(store: store, paneID: id)
+            }
+        }
+        .defaultSize(width: 720, height: 720)
+        .windowToolbarStyle(.unified)
     }
 }
