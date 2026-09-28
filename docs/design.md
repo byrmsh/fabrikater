@@ -27,7 +27,7 @@ The selection survives relaunch. Keyboard: ⌘1…⌘9 jump to the first nine pa
 A vertically scrolling transcript of the pane's session log, oldest at the top, pinned to the bottom while new content arrives unless the user has scrolled up (then a "Jump to latest" button appears with a count of new messages).
 
 - **User turns**: the user's prompt text, right-aligned or visually distinct, markdown rendered.
-- **Assistant text**: rendered markdown (headings, lists, tables, code blocks with syntax highlighting, inline code, links). Text is selectable and copyable across a message.
+- **Assistant text**: rendered markdown (headings, lists, tables, code blocks, inline code, links; syntax highlighting in code blocks is not built yet). Text is selectable and copyable across a message.
 - **Tool calls**: one compact row per call, `ToolName` plus a one-line summary of the input (the command for Bash, the path for Read/Edit/Write, the pattern for Grep, the description for Agent). Clicking expands the full input and the paired result. Edits show a unified diff. Long results are truncated with "Show all". Consecutive tool calls with no text between them group under one "N tool calls" disclosure.
 - **Summaries and notes** (compaction summaries, system notes such as background task completions): a muted, full-width row.
 - **Timestamps** on hover, and a divider when more than 15 minutes pass between turns.

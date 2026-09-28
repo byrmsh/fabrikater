@@ -52,20 +52,19 @@ struct EntryView: View {
             ForEach(Array(entry.parts.enumerated()), id: \.offset) { _, part in
                 switch part {
                 case .text(let text, _):
-                    Text(markdown(text))
-                        .lineLimit(isCollapsed ? Collapsing.visibleLines : nil)
-                        .textSelection(.enabled)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    if isCollapsed {
+                        Text(AttributedString(inlineMarkdown: text))
+                            .lineLimit(Collapsing.visibleLines)
+                            .textSelection(.enabled)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    } else {
+                        MarkdownView(text)
+                            .textSelection(.enabled)
+                    }
                 case .tool(let call):
                     ToolCallView(call: call)
                 }
             }
         }
-    }
-
-    // TODO(M2): full markdown (code blocks, tables) with Textual.
-    private func markdown(_ text: String) -> AttributedString {
-        let options = AttributedString.MarkdownParsingOptions(interpretedSyntax: .inlineOnlyPreservingWhitespace)
-        return (try? AttributedString(markdown: text, options: options)) ?? AttributedString(text)
     }
 }
