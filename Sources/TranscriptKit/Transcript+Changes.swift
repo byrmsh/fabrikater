@@ -118,10 +118,7 @@ extension Transcript {
             let answers =
                 !pending.isEmpty && line.range(of: resultMarker) != nil
                 && pending.keys.contains { line.range(of: Data($0.utf8)) != nil }
-            guard namesTool || answers,
-                let row = try? JSONSerialization.jsonObject(with: line) as? [String: Any],
-                row["isSidechain"] as? Bool != true,
-                let blocks = (row["message"] as? [String: Any])?["content"] as? [[String: Any]]
+            guard namesTool || answers, let row = ClaudeLog.row(line), let blocks = ClaudeLog.blocks(of: row)
             else { continue }
             for block in blocks {
                 switch block["type"] as? String {
