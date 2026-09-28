@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 
 @testable import FabrikaterCore
@@ -18,5 +19,13 @@ struct SessionIDTests {
     ])
     func rejectsInvalidIDs(_ raw: String) {
         #expect(SessionID(raw) == nil)
+    }
+
+    @Test func decodesOnlyValidIDs() throws {
+        let log = SessionLog(format: .claude, session: try #require(SessionID("00000000-0000-4000-8000-000000000019")))
+        let data = try JSONEncoder().encode(log)
+        #expect(try JSONDecoder().decode(SessionLog.self, from: data) == log)
+        let forged = Data(#"{"format":"claude","session":"../etc; rm -rf ~"}"#.utf8)
+        #expect(throws: DecodingError.self) { try JSONDecoder().decode(SessionLog.self, from: forged) }
     }
 }
