@@ -10,6 +10,14 @@ struct SidebarView: View {
 
     var body: some View {
         List(selection: selection) {
+            if !store.needsYou.panes.isEmpty {
+                Section {
+                    ForEach(store.needsYou.panes) { paneRow($0) }
+                } header: {
+                    Text(NeedsYou.title)
+                        .accessibilityValue(NeedsYou.title)
+                }
+            }
             ForEach(store.sections) { section in
                 Section {
                     ForEach(section.rows) { row in

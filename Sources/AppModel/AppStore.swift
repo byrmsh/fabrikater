@@ -21,6 +21,8 @@ public struct PaneHeader: Equatable, Sendable {
 @Observable
 public final class AppStore {
     public private(set) var sections: [SidebarSection] = []
+    /// The panes waiting on the user, above the workspaces and on the Dock badge.
+    public private(set) var needsYou = NeedsYou()
     public private(set) var connection = ConnectionState.connecting
     public private(set) var selection: PaneID?
     public private(set) var header: PaneHeader?
@@ -112,6 +114,9 @@ public final class AppStore {
             select(neighbour(offset: 1))
         case .selectPreviousPane:
             select(neighbour(offset: -1))
+        case .selectNeedsYou(let number):
+            guard let pane = needsYou.pane(number: number) else { return }
+            select(pane.id)
         case .send:
             composer.send()
         case .sendKey(let key):
@@ -186,6 +191,7 @@ public final class AppStore {
     public func isEnabled(_ command: AppCommand) -> Bool {
         switch command {
         case .selectPane, .selectNextPane, .selectPreviousPane: !sections.isEmpty
+        case .selectNeedsYou(let number): needsYou.pane(number: number) != nil
         case .send: composer.canSend
         case .sendKey(let key): composer.canSend(key)
         case .renamePane(let id), .togglePin(let id), .toggleHidden(let id): target(id) != nil
@@ -213,6 +219,7 @@ public final class AppStore {
     /// The menu title of `command` as it applies now: Pin becomes Unpin for a pinned pane.
     public func title(of command: AppCommand) -> String {
         switch command {
+        case .selectNeedsYou(let number): needsYou.pane(number: number)?.label ?? command.title
         case .togglePin(let id) where target(id).map { notes.pins.contains($0) } == true: "Unpin"
         case .toggleHidden(let id) where target(id).map { notes.hiding.panes.contains($0) } == true:
             "Unhide Pane"
@@ -305,6 +312,7 @@ public final class AppStore {
             .hiding(notes.hiding)
             .sorted(notes.order)
             .pinned(notes.pins)
+        needsYou = sections.needingYou
         switcher = switcher?.refreshing(sections.switcherItems(in: herd))
     }
 

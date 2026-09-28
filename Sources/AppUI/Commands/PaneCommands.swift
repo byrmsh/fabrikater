@@ -24,6 +24,10 @@ public struct PaneCommands: Commands {
             button(.selectPreviousPane)
             button(.selectNextPane)
             Divider()
+            ForEach(NeedsYou.numbers.filter { target.isEnabled(.selectNeedsYou($0)) }, id: \.self) { number in
+                button(.selectNeedsYou(number))
+            }
+            Divider()
             button(.renamePane(nil))
             button(.togglePin(nil))
             button(.toggleHidden(nil))
