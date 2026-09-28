@@ -5,7 +5,9 @@ import TranscriptKit
 @testable import AppModel
 
 struct TranscriptCacheTests {
-    private let sessions = (1...3).map { SessionID("00000000-0000-4000-8000-00000000000\($0)")! }
+    private let sessions = (1...3).map {
+        SessionLog(format: .claude, session: SessionID("00000000-0000-4000-8000-00000000000\($0)")!)
+    }
 
     @Test func dropsTheLeastRecentlyStoredPastTheLimit() {
         var cache = TranscriptCache(limit: 2)

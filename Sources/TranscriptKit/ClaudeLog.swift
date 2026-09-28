@@ -1,3 +1,4 @@
+import FabrikaterCore
 import Foundation
 
 /// The rows of a Claude Code session log (JSONL) that the transcript's features read.
@@ -16,6 +17,16 @@ enum ClaudeLog {
 }
 
 extension Transcript {
+    /// Everything the app shows from `data`, read as the last `window` bytes of a log in `format`. Todos, facts and
+    /// changes are read from Claude logs only so far.
+    public init(_ format: SessionLog.Format, data: Data, window: Int) {
+        switch format {
+        case .claude: self.init(claudeLog: data, window: window)
+        case .codex: self.init(entries: CodexTranscriptParser.parse(data), isClipped: data.count >= window)
+        case .pi: self.init(entries: PiTranscriptParser.parse(data), isClipped: data.count >= window)
+        }
+    }
+
     /// Everything the app shows from the Claude log `data`, read as the last `window` bytes of the log.
     public init(claudeLog data: Data, window: Int) {
         self.init(

@@ -1,9 +1,36 @@
-// Finding a Claude session's live log on the host (docs/parsing.md 1.2 and 1.3), as the shell prefix every Claude log
-// command starts with. It runs on the host so a read or follow stays one ssh round trip.
+// Finding a session's live log on the host (docs/parsing.md 1.2 and 1.3), as the shell prefix every log command starts
+// with. It runs on the host so a read or follow stays one ssh round trip.
 
 import FabrikaterCore
 
 extension HostCommand {
+    /// Sets `f` to the log's file, or exits with `notFoundStatus`.
+    static func locate(_ log: SessionLog) -> String {
+        switch log.format {
+        case .claude: claudeLog(log.session)
+        case .codex: codexLog(log.session)
+        case .pi: piLog(log.session)
+        }
+    }
+
+    /// The newest `rollout-<ts>-<uuid>.jsonl` under Codex's date directories (`YYYY/MM/DD`). Codex reports a resumed
+    /// session's new id, so there are no hand-overs to follow.
+    static func codexLog(_ session: SessionID) -> String {
+        newest(#""${CODEX_HOME:-$HOME/.codex}"/sessions/*/*/*/rollout-*-"# + shellQuoted(session.rawValue + ".jsonl"))
+    }
+
+    /// The newest `<ts>_<uuid>.jsonl` in a working-directory folder of omp's or pi's sessions; both agents write the
+    /// pi format, and their folder names are scanned rather than derived from the working directory.
+    static func piLog(_ session: SessionID) -> String {
+        let name = "*_" + shellQuoted(session.rawValue + ".jsonl")
+        return newest(#""$HOME"/.omp/agent/sessions/*/"# + name + #" "$HOME"/.pi/agent/sessions/*/"# + name)
+    }
+
+    /// Sets `f` to the most recently written file among the `globs`, or exits with `notFoundStatus`.
+    private static func newest(_ globs: String) -> String {
+        "f=$(ls -1t \(globs) 2>/dev/null | head -n 1); [ -n \"$f\" ] || exit \(notFoundStatus); "
+    }
+
     /// Sets `f` to the session's live log, or exits with `notFoundStatus`: the log found by scanning the project
     /// directories, then followed through hand-overs, then to the newest copy of the same conversation.
     static func claudeLog(_ session: SessionID) -> String {

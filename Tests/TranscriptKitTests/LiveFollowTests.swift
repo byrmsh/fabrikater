@@ -39,7 +39,7 @@ struct LiveFollowTests {
         }
     }
 
-    private let session = SessionID("00000000-0000-4000-8000-000000000001")!
+    private let claudeLog = SessionLog(format: .claude, session: SessionID("00000000-0000-4000-8000-000000000001")!)
 
     private func lines(named name: String) throws -> [String] {
         String(decoding: try Fixture.data(named: name), as: UTF8.self).split(separator: "\n").map(String.init)
@@ -66,7 +66,7 @@ struct LiveFollowTests {
         let service = HostTranscriptService(runner: FollowRunner(reads: [log], follows: [follow]))
 
         let transcripts = try await first(
-            3, of: service.followClaudeTranscript(session: session, bytes: TranscriptWindow.full))
+            3, of: service.followTranscript(of: claudeLog, bytes: TranscriptWindow.full))
         #expect(transcripts[0].entries.count == 9)
         #expect(transcripts[1].entries.last?.id == "u20")
         #expect(transcripts[2].entries.count == 11)
@@ -82,7 +82,7 @@ struct LiveFollowTests {
         let service = HostTranscriptService(runner: runner, reconnectDelays: [.zero])
 
         let transcripts = try await first(
-            2, of: service.followClaudeTranscript(session: session, bytes: TranscriptWindow.full))
+            2, of: service.followTranscript(of: claudeLog, bytes: TranscriptWindow.full))
         #expect(transcripts[0].entries.count == 9)
         #expect(transcripts[1].entries.count == 11)
         #expect(runner.readCount == 2)
@@ -91,12 +91,12 @@ struct LiveFollowTests {
     @Test func aMissingLogEndsTheFollow() async {
         let service = HostTranscriptService(runner: MissingLogRunner())
         await #expect(throws: TranscriptError.noLog) {
-            _ = try await first(1, of: service.followClaudeTranscript(session: session, bytes: TranscriptWindow.full))
+            _ = try await first(1, of: service.followTranscript(of: claudeLog, bytes: TranscriptWindow.full))
         }
     }
 
     @Test func theWindowHoldsBackAHalfWrittenLastLine() {
-        var window = ClaudeLogWindow(Data("{\"a\":1}\n{\"b\":".utf8), limit: 1024)
+        var window = LogWindow(.claude, read: Data("{\"a\":1}\n{\"b\":".utf8), limit: 1024)
         #expect(window.data == Data("{\"a\":1}\n".utf8))
         let added = window.append("{\"b\":2}")
         #expect(added)
@@ -104,14 +104,14 @@ struct LiveFollowTests {
     }
 
     @Test func theWindowAddsEachLineOnce() {
-        var window = ClaudeLogWindow(Data("{\"a\":1}\n".utf8), limit: 1024)
+        var window = LogWindow(.claude, read: Data("{\"a\":1}\n".utf8), limit: 1024)
         let added = ["{\"a\":1}", "", "{\"b\":2}", "{\"b\":2}"].map { window.append($0) }
         #expect(added == [false, false, true, false])
         #expect(window.data == Data("{\"a\":1}\n{\"b\":2}\n".utf8))
     }
 
     @Test func aWindowGrownPastTwiceItsLimitDropsItsOldestBytesAndSaysSo() {
-        var window = ClaudeLogWindow(Data("{\"a\":1}\n".utf8), limit: 16)
+        var window = LogWindow(.claude, read: Data("{\"a\":1}\n".utf8), limit: 16)
         #expect(!window.isClipped)
         _ = window.append("{\"b\":2222222222}")
         _ = window.append("{\"c\":3333333333}")
@@ -122,12 +122,12 @@ struct LiveFollowTests {
 
     @Test func aServiceWithoutLiveFollowReadsOnceAndEnds() async throws {
         struct OneRead: TranscriptService {
-            func claudeTranscript(session: SessionID, bytes: Int) async throws -> Transcript {
+            func transcript(of log: SessionLog, bytes: Int) async throws -> Transcript {
                 Transcript(isClipped: bytes == TranscriptWindow.full)
             }
         }
         var transcripts: [Transcript] = []
-        for try await transcript in OneRead().followClaudeTranscript(session: session, bytes: TranscriptWindow.full) {
+        for try await transcript in OneRead().followTranscript(of: claudeLog, bytes: TranscriptWindow.full) {
             transcripts.append(transcript)
         }
         #expect(transcripts == [Transcript(isClipped: true)])

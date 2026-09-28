@@ -23,7 +23,7 @@ public struct ReplayRunner: HostCommandRunner {
     public func run(_ command: HostCommand, input: Data?) async throws(HostError) -> Data {
         let data = try fixture(for: command)
         switch command {
-        case .claudeLogTail(_, let bytes):
+        case .logTail(_, let bytes):
             return data.suffix(bytes)
         case .herdrRequests:
             typed.record(input ?? Data())
@@ -36,7 +36,7 @@ public struct ReplayRunner: HostCommandRunner {
     }
 
     public func lines(_ command: HostCommand, input: Data?) -> AsyncThrowingStream<String, any Error> {
-        if case .claudeLogFollow(_, let bytes) = command {
+        if case .logFollow(_, let bytes) = command {
             return follow(command, bytes: bytes)
         }
         return AsyncThrowingStream { continuation in

@@ -41,6 +41,8 @@ Host observations. pi names cwd dirs `--home-user--`, omp names them relative to
 
 Over SSH the Claude lookup is one command: `ssh arch "ls -1 ~/.claude/projects/*/'<uuid>.jsonl' 2>/dev/null"`.
 
+What fabrikater does for the others (`HostKit/HostCommand+SessionLogs.swift`, since M7): Codex is the newest `"${CODEX_HOME:-$HOME/.codex}"/sessions/*/*/*/rollout-*-'<uuid>.jsonl'`; pi and omp are the newest `*_'<uuid>.jsonl'` one folder deep under `~/.omp/agent/sessions` and `~/.pi/agent/sessions` (`PI_CODING_AGENT_DIR` is not read). A `kind:"path"` ref is never sent to the host: `Herd.Pane.sessionID` takes the UUID that ends its file name and the log is found by that id, so the path cannot point outside the roots.
+
 ### 1.3 Claude: the conversation moves to a new file
 
 Claude Code does not keep one file per conversation. Resuming, `/fork`, and promotion to a background job copy the whole thread into a fresh `<new-uuid>.jsonl` and carry on there, while Herdr may keep reporting the old id. Collie runs two follow steps on every resolve, never cached, because the move happens while the app is running (`bridge/journal/claude.ts:244-526`):
@@ -118,9 +120,13 @@ Rows are `{timestamp, type, payload}`. Codex writes every turn twice, as `respon
 
 Rows carry no id, so the cursor is synthesised from a djb2 hash of the line plus an occurrence counter, `cx-<base36>[-n]` (`:73-81`). Any stable scheme works for the Swift port, since the cursor never leaves the app.
 
+What fabrikater does (`TranscriptKit/CodexTranscriptParser.swift`, since M7): the same, with the djb2 id over the line's bytes (`JSONLines.RowIDs`), and three deliberate differences: reasoning is dropped like Claude's thinking; a call and an orphan output join the assistant entry before them, so a reply and the calls it makes read as one message; and `custom_tool_call` / `custom_tool_call_output` rows (Codex's `apply_patch`, not in Collie at the pinned commit, **UNVERIFIED** against a live 0.156 log) read like function calls, an `apply_patch` summarised as the files its `*** Add/Update/Delete File:` lines name.
+
 ### 2.3 pi and omp — `bridge/journal/pi.ts:145-241`
 
 Keep `type == "message"` rows (skipping `session`, `model_change`, `thinking_level_change`, and omp's `custom`, `custom_message`, `title_change`, `ttsr_injection`). `uuid` = row `id`. `message.role` is `user`, `assistant` or `toolResult`. User and assistant content blocks are `text`, `thinking` (real text in pi), `image` (`data` plus `mimeType`) and `toolCall` (`arguments` is an object; remember its `id`). A `toolResult` row folds onto `toolCallId`, taking `isError` and the first renderable image as `result.imageUrl`; an unmatched one becomes an orphan named `toolName`. Image URLs (`resolveImageUrl`, `:93-109`) accept only `blob:sha256:<64hex>` (served by Collie from pi's blob store; fabrikater would fetch the blob over SSH, and its location is **UNVERIFIED**), a `data:image/…` URL, or bare base64 with an `image/*` mimeType. Everything else, `http(s)` above all, is dropped.
+
+What fabrikater does (`TranscriptKit/PiTranscriptParser.swift`, since M7): the same for text and tool calls, with thinking and images dropped (the transcript model has no image part yet), and an entry without an `id` keyed by its line number.
 
 ### 2.4 OpenCode — `bridge/journal/opencode.ts`
 

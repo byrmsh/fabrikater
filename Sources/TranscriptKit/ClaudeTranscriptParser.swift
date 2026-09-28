@@ -47,7 +47,7 @@ public enum ClaudeTranscriptParser {
                 for block in blocks {
                     switch block["type"] as? String {
                     case "text":
-                        if let text = block["text"] as? String, !isBlank(text) {
+                        if let text = block["text"] as? String, !TextRules.isBlank(text) {
                             let (clamped, truncated) = TextRules.clamp(
                                 TextRules.stripANSI(text), to: TextRules.textLimit)
                             parts.append(.text(clamped, truncated: truncated))
@@ -114,7 +114,7 @@ public enum ClaudeTranscriptParser {
                 entries[entry].parts[part] = .tool(call)
                 return nil
             }
-            return isBlank(text) ? nil : ToolCall(name: "result", summary: "", result: result)
+            return TextRules.isBlank(text) ? nil : ToolCall(name: "result", summary: "", result: result)
         }
     }
 
@@ -144,12 +144,8 @@ public enum ClaudeTranscriptParser {
             guard let summary = inner("summary"), !summary.isEmpty else { return nil }
             return (.note, summary)
         }
-        guard !isBlank(text) else { return nil }
+        guard !TextRules.isBlank(text) else { return nil }
         let (clamped, _) = TextRules.clamp(text, to: TextRules.textLimit)
         return (.user, clamped)
-    }
-
-    private static func isBlank(_ text: String) -> Bool {
-        text.allSatisfy(\.isWhitespace)
     }
 }

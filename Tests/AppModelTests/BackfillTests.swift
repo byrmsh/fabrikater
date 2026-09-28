@@ -17,7 +17,7 @@ struct BackfillTests {
             self.size = size
         }
 
-        func claudeTranscript(session: SessionID, bytes: Int) async throws -> Transcript {
+        func transcript(of log: SessionLog, bytes: Int) async throws -> Transcript {
             windows.withLock { $0.append(bytes) }
             let read = min(bytes, size)
             return Transcript(

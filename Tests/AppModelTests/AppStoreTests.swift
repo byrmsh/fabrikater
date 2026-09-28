@@ -16,7 +16,7 @@ struct AppStoreTests {
         private(set) var windows: [Int] = []
         var loads: Int { windows.count }
 
-        func claudeTranscript(session: SessionID, bytes: Int) async throws -> Transcript {
+        func transcript(of log: SessionLog, bytes: Int) async throws -> Transcript {
             windows.append(bytes)
             if let error { throw error }
             return bytes == TranscriptWindow.quick && quickIsClipped ? Transcript(isClipped: true) : transcript
@@ -79,7 +79,7 @@ struct AppStoreTests {
     @Test func aPaneWithoutAReadableLogExplainsWhy() throws {
         let (store, _) = try makeStore()
         store.perform(.selectPane(codex))
-        #expect(store.conversation.message == "Conversations from Codex cannot be shown yet.")
+        #expect(store.conversation.message == "Herdr has not reported a session for this pane yet.")
         #expect(!store.isEnabled(.reloadConversation))
         store.perform(.selectPane(PaneID("w1:pA")!))
         #expect(store.conversation.message == "This pane runs a shell, not an agent.")

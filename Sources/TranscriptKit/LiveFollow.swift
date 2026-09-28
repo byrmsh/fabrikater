@@ -4,11 +4,11 @@ import HostKit
 
 extension TranscriptService {
     /// No live follow: one read of the window, then the stream ends.
-    public func followClaudeTranscript(session: SessionID, bytes: Int) -> AsyncThrowingStream<Transcript, any Error> {
+    public func followTranscript(of log: SessionLog, bytes: Int) -> AsyncThrowingStream<Transcript, any Error> {
         AsyncThrowingStream { continuation in
             let task = Task {
                 do {
-                    continuation.yield(try await claudeTranscript(session: session, bytes: bytes))
+                    continuation.yield(try await transcript(of: log, bytes: bytes))
                     continuation.finish()
                 } catch {
                     continuation.finish(throwing: error)
@@ -23,20 +23,19 @@ extension HostTranscriptService {
     /// Reads the last `bytes` bytes, then follows the log with `tail -F` and yields the conversation again for each new line
     /// (docs/architecture.md, "Transcript tail"). A dropped follow starts over with a fresh read after a backoff; only a
     /// failure before the first read throws.
-    public func followClaudeTranscript(session: SessionID, bytes: Int) -> AsyncThrowingStream<Transcript, any Error> {
+    public func followTranscript(of log: SessionLog, bytes: Int) -> AsyncThrowingStream<Transcript, any Error> {
         AsyncThrowingStream { continuation in
             let task = Task {
                 var failures = 0
                 var hasRead = false
                 while !Task.isCancelled {
                     do {
-                        var window = ClaudeLogWindow(
-                            try await claudeLog(session: session, bytes: bytes), limit: bytes)
+                        var window = LogWindow(log.format, read: try await tail(of: log, bytes: bytes), limit: bytes)
                         continuation.yield(window.transcript)
                         hasRead = true
                         failures = 0
                         let follow = runner.lines(
-                            .claudeLogFollow(session: session, bytes: TranscriptWindow.overlap), input: nil)
+                            .logFollow(log, bytes: TranscriptWindow.overlap), input: nil)
                         // The overlap starts mid-line, and that line was read in full already.
                         for try await line in follow.dropFirst() where window.append(line) {
                             continuation.yield(window.transcript)
@@ -55,18 +54,20 @@ extension HostTranscriptService {
     }
 }
 
-/// The part of a Claude log read so far, grown line by line as the log is followed.
-struct ClaudeLogWindow {
+/// The part of a log read so far, grown line by line as the log is followed.
+struct LogWindow {
+    let format: SessionLog.Format
     private(set) var data: Data
     /// True when older history exists before `data`.
     private(set) var isClipped: Bool
     /// Beyond twice this many bytes, the window drops its oldest lines back to this many.
     let limit: Int
     /// Hashes of the lines in the window, so a line the follow delivers again is added once. Log rows carry a unique
-    /// `uuid`, so equal lines are the same row.
+    /// id or a timestamp, so equal lines are the same row.
     private var seen: Set<Int>
 
-    init(_ read: Data, limit: Int) {
+    init(_ format: SessionLog.Format, read: Data, limit: Int) {
+        self.format = format
         // A last line without its newline is still being written; the follow delivers it whole.
         let end = read.lastIndex(of: 0x0A).map { read.index(after: $0) } ?? read.startIndex
         data = Data(read[read.startIndex..<end])
@@ -88,7 +89,7 @@ struct ClaudeLogWindow {
     }
 
     var transcript: Transcript {
-        var transcript = Transcript(claudeLog: data, window: limit)
+        var transcript = Transcript(format, data: data, window: limit)
         transcript.isClipped = isClipped
         return transcript
     }
