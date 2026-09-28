@@ -14,6 +14,7 @@
 | `composer` | typing a prompt and pressing Return sends it to the selected pane and clears the draft (the replay host shows the typed text in the input box, so the send guard sees it arrive) | `composer-draft.png`, `composer-sent.png` |
 | `send-guard` | with a permission prompt on the pane's screen (`screen-w1-p1.synthetic.txt`), Return sends nothing and the draft stays with the reason | `send-guard.png` |
 | `drafts` | a draft typed for a pane is still in its composer after the app is quit and relaunched | `drafts.png` |
+| `key-bar` | the key bar's Escape sends to the pane and leaves the draft in the field | `key-bar.png` |
 | `send-draft` | with text already in the agent's input box (`screen-draft.synthetic.txt`), Return sends nothing and the composer says the box holds text | `send-draft.png` |
 | `copy` | Copy Conversation as Markdown (⌘⇧C) puts the conversation on the pasteboard as markdown, saved as `copy.md` | `copy.png` |
 | `collapse` | a long prompt and a compaction summary (`claude-long.synthetic.jsonl`) start collapsed with Show All, and Show All expands one and offers Show Less | `collapse.png`, `collapse-expanded.png` |

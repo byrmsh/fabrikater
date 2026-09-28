@@ -114,6 +114,8 @@ public final class AppStore {
             select(neighbour(offset: -1))
         case .send:
             composer.send()
+        case .sendKey(let key):
+            composer.send(key)
         case .renamePane(let id):
             renaming = target(id)
         case .commitRename(let id, let text):
@@ -185,6 +187,7 @@ public final class AppStore {
         switch command {
         case .selectPane, .selectNextPane, .selectPreviousPane: !sections.isEmpty
         case .send: composer.canSend
+        case .sendKey(let key): composer.canSend(key)
         case .renamePane(let id), .togglePin(let id), .toggleHidden(let id): target(id) != nil
         case .commitRename, .cancelRename: renaming != nil
         case .toggleHiddenWorkspace(let id): workspace(id) != nil

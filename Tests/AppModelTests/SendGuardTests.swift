@@ -127,6 +127,18 @@ struct SendGuardTests {
         #expect(control.performed.isEmpty)
     }
 
+    @Test func escapeAndControlCGoThroughADialogToCancelIt() async throws {
+        let control = FakeControl()
+        let reader = FakeReader(permission)
+        try await guarded(control, reader).perform([.sendKeys(pane, [.escape])])
+        try await guarded(control, reader).perform([.sendKeys(pane, [.ctrlC])])
+        #expect(control.performed == [[.sendKeys(pane, [.escape])], [.sendKeys(pane, [.ctrlC])]])
+        #expect(reader.reads == 0)
+        await #expect(throws: SendGuard.Refusal.dialog(question: "Do you want to proceed?", typed: false)) {
+            try await guarded(control, reader).perform([.sendKeys(pane, [.tab])])
+        }
+    }
+
     @Test func focusNeedsNoScreenRead() async throws {
         let control = FakeControl()
         let reader = FakeReader(permission)

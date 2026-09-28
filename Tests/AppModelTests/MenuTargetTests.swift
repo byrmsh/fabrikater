@@ -84,5 +84,6 @@ struct MenuTargetTests {
         window.composer.draft = "for refactor"
         #expect(target.isEnabled(.send))
         #expect(target.route(.reloadConversation) == .window(.reloadConversation))
+        #expect(target.route(.sendKey(.escape)) == .window(.sendKey(.escape)))
     }
 }
