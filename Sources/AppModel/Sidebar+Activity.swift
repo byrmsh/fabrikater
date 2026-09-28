@@ -36,28 +36,10 @@ extension [SidebarSection] {
     /// The sections with each pane's last activity; a tab row takes its most recent pane's.
     func active(_ times: [PaneID: Date]) -> [SidebarSection] {
         guard !times.isEmpty else { return self }
-        return map { section in
-            var section = section
-            section.rows = section.rows.map { $0.active(times) }
-            return section
-        }
-    }
-}
-
-extension SidebarRow {
-    func active(_ times: [PaneID: Date]) -> SidebarRow {
-        switch self {
-        case .pane(var pane):
+        return mappingPanes { pane in
+            var pane = pane
             pane.lastActivity = times[pane.id]
-            return .pane(pane)
-        case .tab(var tab):
-            tab.panes = tab.panes.map { pane in
-                var pane = pane
-                pane.lastActivity = times[pane.id]
-                return pane
-            }
-            tab.lastActivity = tab.panes.compactMap(\.lastActivity).max()
-            return .tab(tab)
+            return pane
         }
     }
 }

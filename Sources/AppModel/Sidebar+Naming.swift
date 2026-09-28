@@ -7,23 +7,7 @@ extension [SidebarSection] {
     /// The sections with every named pane's label replaced by its name.
     func named(_ names: [PaneID: String]) -> [SidebarSection] {
         guard !names.isEmpty else { return self }
-        return map { section in
-            var section = section
-            section.rows = section.rows.map { $0.named(names) }
-            return section
-        }
-    }
-}
-
-extension SidebarRow {
-    func named(_ names: [PaneID: String]) -> SidebarRow {
-        switch self {
-        case .pane(let pane):
-            return .pane(pane.named(names))
-        case .tab(var tab):
-            tab.panes = tab.panes.map { $0.named(names) }
-            return .tab(tab)
-        }
+        return mappingPanes { $0.named(names) }
     }
 }
 
