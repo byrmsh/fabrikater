@@ -16,5 +16,5 @@ M5 answers an agent's dialog from the app. [0009](0009-send-guard.md) says the a
 ## Consequences
 
 - A second path types into panes. It sends only digits and Enter, only while the host sees the exact prompt that was parsed.
-- The fallback card's Terminal view button waits for M4; until then it says to answer in Herdr or press Esc.
+- The card without options offers Show Terminal, where the prompt is answered by hand.
 - Grammars for the other dialogs are added in `PromptKit` one at a time, each with its own keys; the store and card need no change for a new numbered shape.
