@@ -13,7 +13,7 @@ scripts/bundle.sh          # release build, assembles and ad-hoc signs build/fab
 open build/fabrikater.app
 ```
 
-**Against your host.** The app runs `/usr/bin/ssh <alias>` with `BatchMode=yes`, so `ssh <alias> true` must work from a terminal without a password prompt, using a host, key and any jump host from `~/.ssh/config`. The host needs `herdr` and `socat` on its non-interactive `PATH`, with the Herdr server running. The alias defaults to `arch`; for another one, start the binary directly, because `open` does not pass environment variables on:
+**Against your host.** The app runs `/usr/bin/ssh <alias>` with `BatchMode=yes`, so `ssh <alias> true` must work from a terminal without a password prompt, using a host, key and any jump host from `~/.ssh/config`. The host needs `herdr` and `socat` on its non-interactive `PATH`, with the Herdr server running. The alias defaults to `arch`; set another in fabrikater › Settings… (⌘,), which applies at the next launch, or for one run start the binary directly with `FABRIKATER_HOST`, because `open` does not pass environment variables on:
 
 ```sh
 FABRIKATER_HOST=myhost build/fabrikater.app/Contents/MacOS/fabrikater

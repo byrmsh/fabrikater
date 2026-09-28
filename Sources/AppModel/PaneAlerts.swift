@@ -13,6 +13,8 @@ public struct PaneAlert: Equatable, Sendable {
     public var subtitle: String
     /// What happened: "Needs input" or "Finished its turn".
     public var body: String
+    /// Whether the notification plays the system sound (Settings).
+    public var playsSound = true
 }
 
 /// Shows alerts to the user. The composition root passes the system's notification centre.

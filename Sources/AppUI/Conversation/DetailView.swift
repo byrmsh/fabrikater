@@ -8,7 +8,7 @@ struct DetailView: View {
     var body: some View {
         if let header = store.header {
             PaneDetail(model: store, header: header)
-                .environment(\.textScale, store.textScale.factor)
+                .preferred(store.preferences.preferences, scale: store.textScale)
         } else {
             ContentUnavailableView(
                 "No Pane Selected",

@@ -2,7 +2,7 @@
 
 fabrikater is a native macOS app for watching and driving coding agents that run on a remote Linux host. The agents (mostly Claude Code, also Codex, pi/omp, OpenCode and Grok) run as interactive TUIs inside [Herdr](https://herdr.dev), a terminal multiplexer built for coding agents that organises terminals into workspaces, tabs and panes and recognises the agent running in each pane. The app replaces "SSH in and scroll a remote TUI" with a local window: the conversation is rendered on the Mac from the agent's own session log, typing happens in a local text field, and scrolling never waits on the network.
 
-Nothing runs on the host for fabrikater. The app reaches the host only through `/usr/bin/ssh` to the alias in `FABRIKATER_HOST` (default `arch`), and everything it does there is a plain command: the `herdr` CLI, `socat` onto Herdr's API socket, and `tail`/`dd`/`stat` on session logs. Herdr stays the source of truth for layout and agent state; the agent's session log is the source of truth for the conversation.
+Nothing runs on the host for fabrikater. The app reaches the host only through `/usr/bin/ssh` to the alias in `FABRIKATER_HOST`, else the one saved in Settings (default `arch`), and everything it does there is a plain command: the `herdr` CLI, `socat` onto Herdr's API socket, and `tail`/`dd`/`stat` on session logs. Herdr stays the source of truth for layout and agent state; the agent's session log is the source of truth for the conversation.
 
 Facts below marked **verified** were checked on the host on 2026-09-24 against herdr 0.9.1 (server 0.9.0, API protocol 22).
 

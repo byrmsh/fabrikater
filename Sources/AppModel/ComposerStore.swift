@@ -51,10 +51,6 @@ public final class ComposerStore {
     /// The line above the field: the last send's error, else what the agent is waiting for.
     public var notice: String? { error ?? waitingNotice }
 
-    public var placeholder: String {
-        "Message the agent. Return sends, Option-Return adds a line."
-    }
-
     public var canSend: Bool {
         disabledReason == nil && !isSending && !draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }

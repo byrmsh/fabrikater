@@ -36,6 +36,8 @@ public final class AppStore {
     /// The main window's conversation, composer, prompt card, terminal and panels; each pane window has its own
     /// (`paneWindow(_:)`).
     public let detail: PaneDetailStores
+    /// The Settings window's values, which notifications, the composer and text sizes follow.
+    public let preferences: PreferencesStore
     /// Builds a window's pane detail stores, all sharing one set of drafts.
     private let makeDetail: () -> PaneDetailStores
     /// The Past Sessions sheet (M8).
@@ -66,6 +68,7 @@ public final class AppStore {
     ///   - now: the clock that stamps each pane's last activity.
     ///   - notifier: shows an alert when a pane becomes blocked or finishes a turn.
     ///   - isAppActive: whether the app is frontmost, when the selected pane needs no alert.
+    ///   - preferences: the Settings window's values.
     public init(
         herdUpdates: AsyncStream<HerdUpdate>,
         transcripts: any TranscriptService,
@@ -81,8 +84,10 @@ public final class AppStore {
         host: String = "arch",
         now: @escaping @Sendable () -> Date = { Date() },
         notifier: any Notifier = RecordingNotifier(),
-        isAppActive: @escaping @MainActor () -> Bool = { true }
+        isAppActive: @escaping @MainActor () -> Bool = { true },
+        preferences: PreferencesStore = PreferencesStore()
     ) {
+        self.preferences = preferences
         self.herdUpdates = herdUpdates
         notesStore = notes
         self.opener = opener
@@ -333,11 +338,14 @@ public final class AppStore {
 
     private func notify(since old: Herd) {
         let watched = isAppActive() ? selection : nil
-        for pane in herd.alerting(since: old, watched: watched, muted: notes.mutedWorkspaces) {
+        let chosen = preferences.preferences
+        for pane in herd.alerting(since: old, watched: watched, muted: notes.mutedWorkspaces)
+        where chosen.notifies(pane.agentStatus) {
             let header = header(for: pane)
             notifier.post(
                 PaneAlert(
-                    paneID: pane.id, title: header.title, subtitle: header.location, body: pane.agentStatus.alertBody))
+                    paneID: pane.id, title: header.title, subtitle: header.location, body: pane.agentStatus.alertBody,
+                    playsSound: chosen.playsSound))
         }
     }
 

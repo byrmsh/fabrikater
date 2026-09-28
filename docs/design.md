@@ -47,7 +47,7 @@ A read-only rendering of the pane's recent screen text with ANSI colours, in a t
 
 ## Composer
 
-A multi-line text field at the bottom of the detail area, always local. Return sends, Option-Return inserts a newline (Shift-Return and making it configurable wait for the Settings scene). ⌘Return sends from anywhere in the window. A key bar above it sends single keys to the pane: Esc, Ctrl-C, Tab, Shift-Tab, ↑, ↓, Enter; Pane ▸ Send Key has the same keys. While the agent shows a dialog only Esc and Ctrl-C are on, since the others would answer it. While the agent is `working`, sending is still allowed (Claude queues typed input), and the Send button says "Queue". After sending, the text is cleared only once the send command succeeded; on failure it stays with an inline error. Sending is refused while the agent shows a dialog, since typed text would answer it: a `blocked` pane disables sending with a notice, and every send re-reads the screen first ([decisions/0009](decisions/0009-send-guard.md)). Enter follows only once the agent's input box shows the text; if it never does, or the box already held other text, the composer says so and keeps the draft ([decisions/0012](decisions/0012-verified-sends.md)).
+A multi-line text field at the bottom of the detail area, always local. Return sends, Option-Return inserts a newline; with Settings › Send with ⌘Return, Return inserts a newline instead. ⌘Return sends from anywhere in the window either way. A key bar above it sends single keys to the pane: Esc, Ctrl-C, Tab, Shift-Tab, ↑, ↓, Enter; Pane ▸ Send Key has the same keys. While the agent shows a dialog only Esc and Ctrl-C are on, since the others would answer it. While the agent is `working`, sending is still allowed (Claude queues typed input), and the Send button says "Queue". After sending, the text is cleared only once the send command succeeded; on failure it stays with an inline error. Sending is refused while the agent shows a dialog, since typed text would answer it: a `blocked` pane disables sending with a notice, and every send re-reads the screen first ([decisions/0009](decisions/0009-send-guard.md)). Enter follows only once the agent's input box shows the text; if it never does, or the box already held other text, the composer says so and keeps the draft ([decisions/0012](decisions/0012-verified-sends.md)).
 
 Drafts are kept per pane, in memory and on disk, so switching panes or relaunching never loses text. A pane's draft is the same in the main window and in its pane window.
 
@@ -67,7 +67,14 @@ A small indicator in the sidebar footer: connected, reconnecting (with the last 
 
 ## Settings
 
-Host alias (default `arch`), notification preferences, Return-to-send behaviour, font sizes for conversation and terminal. Settings live in `UserDefaults`. The Settings scene is not scheduled yet (milestones.md, "Later"); until it lands, the host alias comes from the `FABRIKATER_HOST` environment variable.
+Host alias (default `arch`), notification preferences, Return-to-send behaviour, font sizes for conversation and terminal. Settings live in `UserDefaults`.
+
+As built: fabrikater › Settings… (⌘,) is one grouped form, saved as each value changes (`Preferences` behind `PreferencesStorage`, one JSON value under the `preferences` key; fixture runs keep theirs in the fixtures domain).
+
+- Connection: the host alias, with `arch` as the placeholder. A new alias applies the next time fabrikater opens, and the note under the field says so; text ssh could read as an option is refused and not saved. `FABRIKATER_HOST`, when set, still wins, and the note says that too.
+- Composer: Send with Return or ⌘Return, with what the other key does underneath.
+- Notifications: when a pane needs input, when an agent finishes its turn, and whether they play a sound. Per-workspace muting stays in the workspace's context menu.
+- Text Size: the conversation's body text (13 pt by default, the system size) and the terminal's (12 pt), 9 to 24 pt; View › Bigger and Smaller scale both in the front window.
 
 ## Visual style
 
