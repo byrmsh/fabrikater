@@ -41,6 +41,7 @@ public struct PaneCommands: Commands {
                 }
             }
             .disabled(!target.isEnabled(.openInNewWindow(nil)))
+            button(.showPastSessions(nil))
             Divider()
             button(.reloadConversation)
             button(.loadEarlier)

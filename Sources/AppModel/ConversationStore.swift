@@ -63,15 +63,25 @@ public final class ConversationStore {
             if previousStatus != status, !isFollowing, Self.unavailableReason(for: pane) == nil { reload() }
             return
         }
+        start(pane?.id, sessionLog, unavailable: Self.unavailableReason(for: pane))
+    }
+
+    /// Shows a session's conversation by its log alone, with no pane behind it: a past session's window (M8).
+    func show(_ log: SessionLog) {
+        guard log != sessionLog else { return }
+        start(nil, log, unavailable: nil)
+    }
+
+    private func start(_ paneID: PaneID?, _ sessionLog: SessionLog?, unavailable: String?) {
         loadTask?.cancel()
-        paneID = pane?.id
+        self.paneID = paneID
         self.sessionLog = sessionLog
         let cached = sessionLog.flatMap { cache[$0] }
         transcript = cached ?? Transcript()
         expansion = EntryExpansion()
         window = TranscriptWindow.full
         isLoading = false
-        message = Self.unavailableReason(for: pane)
+        message = unavailable
         if message == nil {
             load(quickFirst: cached == nil)
         }
@@ -119,7 +129,8 @@ public final class ConversationStore {
     }
 
     private func load(quickFirst: Bool) {
-        guard let paneID, let sessionLog else { return }
+        guard let sessionLog else { return }
+        let paneID = paneID
         loadTask?.cancel()
         isLoading = true
         isFollowing = false
@@ -128,13 +139,13 @@ public final class ConversationStore {
             do {
                 if quickFirst {
                     let quick = try await transcripts.transcript(of: sessionLog, bytes: TranscriptWindow.quick)
-                    guard !Task.isCancelled, self.paneID == paneID else { return }
+                    guard !Task.isCancelled, self.paneID == paneID, self.sessionLog == sessionLog else { return }
                     transcript = quick
                     message = nil
                     isLoading = quick.isClipped
                 }
                 for try await transcript in transcripts.followTranscript(of: sessionLog, bytes: window) {
-                    guard !Task.isCancelled, self.paneID == paneID else { return }
+                    guard !Task.isCancelled, self.paneID == paneID, self.sessionLog == sessionLog else { return }
                     self.transcript = transcript
                     cache.store(transcript, for: sessionLog)
                     message = nil
@@ -142,9 +153,9 @@ public final class ConversationStore {
                     isFollowing = true
                 }
             } catch {
-                guard !Task.isCancelled, self.paneID == paneID else { return }
+                guard !Task.isCancelled, self.paneID == paneID, self.sessionLog == sessionLog else { return }
                 message = String(describing: error)
-                log.error("transcript load failed for \(paneID)")
+                log.error("transcript load failed for \(sessionLog)")
             }
             guard !Task.isCancelled else { return }
             isLoading = false

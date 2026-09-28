@@ -98,6 +98,16 @@ CI-verifiable: parser tests for Codex, pi/omp and OpenCode against scrubbed host
 
 Manual on the Mac: a Codex pane's conversation renders its user turns, assistant text and tool calls; so do an omp or pi pane and an OpenCode pane when one runs; a shell pane opens in the terminal.
 
+## M8: Past sessions
+
+The one gap left from comparing fabrikater with Cursor's Agents window (the backlog below): browsing a pane's earlier sessions.
+
+**Done** (this PR). Pane ▸ Past Sessions… (⌘Y) and the row's context menu open a sheet listing the Claude sessions in the selected pane's project folder, newest first with their first prompt, age and size, the live one marked Current (design.md, "Past sessions"). One host command lists them (`HostCommand.claudeSessions`, architecture.md "Past sessions"); `PastSession.parse(listing:)` reads the listing, `PastSessionsStore` holds the sheet and `SessionWindowStore` a past session's window, whose `ConversationStore` shows a log with no pane behind it. Opening a session is `WindowGroup(for: SessionWindowID.self)`, a `Codable` value whose `SessionID` is checked again when a window is restored. Carried forward: sessions of Codex, pi and OpenCode (their logs are not kept per folder, so each needs its own listing), menu bar commands reaching a past session's window (⌘R and ⇧⌘C act on the main window while one is in front; its toolbar has Reload and Copy Conversation), a search field in the sheet, and resuming a past session in a pane.
+
+CI-verifiable: the listing script over a fake home directory (order, the prompt rows it picks, the cut), the listing parser (cut rows, escapes, logs without a prompt), the sheet's rows and messages, the session window's conversation, the e2e flow `past-sessions`.
+
+Manual on the Mac: ⌘Y on a Claude pane lists its folder's sessions quickly and in the right order; opening one shows its conversation; a second ⌘Y and Open on the same session brings its window to the front.
+
 ## Settings window
 
 **Done** (this PR). fabrikater › Settings… (⌘,) from design.md, "Settings": the host alias (applied at the next launch; `FABRIKATER_HOST` still wins), Send with Return or ⌘Return, notifications per kind (needs input, finished turn) and their sound, and the conversation's and terminal's text sizes. `Preferences` in `AppModel` is the value, kept as JSON in `UserDefaults` through `PreferencesStorage`; `PreferencesStore` edits it and says what the host field's text means; `AppStore` filters notifications by it; the views get the send key and text sizes through the environment. Carried forward: reconnecting to a new host without a relaunch.

@@ -1,0 +1,6 @@
+00000000-0000-4000-8000-000000000001.jsonl
+1790500000	48213	00000000-0000-4000-8000-000000000001.jsonl	{"type":"user","uuid":"u1","message":{"role":"user","content":"Rename the helper and run the tests"}}
+1790410000	1245184	00000000-0000-4000-8000-0000000000a1.jsonl	{"type":"user","uuid":"p1","message":{"role":"user","content":"Add a retry with backoff to the sync client"}}
+1790300000	731	00000000-0000-4000-8000-0000000000a9.jsonl
+1790100000	88011	00000000-0000-4000-8000-0000000000a2.jsonl	{"type":"user","uuid":"q1","message":{"role":"user","content":[{"type":"text","text":"Why does the settings screen flicker\non launch?"}]}}
+1789000000	5202	00000000-0000-4000-8000-0000000000a3.jsonl	{"type":"user","uuid":"r1","message":{"role":"user","content":"Write a README section on running locally"}}
