@@ -46,15 +46,8 @@ struct MarkdownView: View {
                     .padding(.leading, CGFloat(item.level) * 18)
                 }
             }
-        case .code(_, let text):
-            ScrollView(.horizontal) {
-                Text(text)
-                    .scaledFont(.callout, design: .monospaced)
-                    .fixedSize()
-                    .padding(8)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(.quinary, in: .rect(cornerRadius: 6))
+        case .code(let language, let text):
+            CodeBlockView(language: language, text: text)
         case .quote(let inner):
             MarkdownView(blocks: inner)
                 .foregroundStyle(.secondary)
