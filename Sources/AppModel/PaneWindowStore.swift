@@ -46,7 +46,7 @@ public final class PaneWindowStore {
         notice = nil
         header = pane.header
         conversation.show(pane.pane)
-        terminal.show(pane.pane.id)
+        terminal.show(pane.pane.id, columns: pane.pane.columns)
     }
 
     /// Handles the conversation's commands, its panels and Send for this window; ignores every other.

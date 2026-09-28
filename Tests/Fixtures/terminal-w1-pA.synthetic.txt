@@ -7,4 +7,6 @@
 [1;32muser@host[0m:[1;34m~/project-1[0m$ swift test
 [1mBuilding for debugging...[0m
 [32m✔[0m Test run with 42 tests passed after 0.318 seconds.
+[1;32muser@host[0m:[1;34m~/project-1[0m$ swift build 2>&1 | grep warning
+[33mwarning:[0m Sources/App/Terminal.swift:42:17: the terminal keeps the pane's own width, so a line this long scrolls sideways | end of line
 [1;32muser@host[0m:[1;34m~/project-1[0m$ 

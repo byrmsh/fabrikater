@@ -338,7 +338,7 @@ public final class AppStore {
             panels.losePane()
         }
         conversation.show(selected)
-        terminal.show(selected?.id)
+        terminal.show(selected?.id, columns: selected?.columns)
         refreshComposer()
     }
 

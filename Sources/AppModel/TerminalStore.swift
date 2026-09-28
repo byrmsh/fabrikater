@@ -11,6 +11,8 @@ public final class TerminalStore {
     public static let lines = 400
 
     public private(set) var paneID: PaneID?
+    /// The pane's width in cells, which the view is sized to; nil when Herdr's layout does not say.
+    public private(set) var columns: Int?
     /// The last screen read; kept when a later read fails, and dropped when another pane is shown.
     public private(set) var screen: TerminalScreen?
     /// Why the last read failed; the screen shown is then stale.
@@ -44,8 +46,9 @@ public final class TerminalStore {
         return paneID == nil ? "This pane is no longer in Herdr." : "Reading the terminal…"
     }
 
-    /// Shows `pane`'s terminal, or none.
-    func show(_ pane: PaneID?) {
+    /// Shows `pane`'s terminal, or none, `columns` cells wide.
+    func show(_ pane: PaneID?, columns: Int? = nil) {
+        if columns != self.columns { self.columns = columns }
         guard pane != paneID else { return }
         paneID = pane
         screen = nil
