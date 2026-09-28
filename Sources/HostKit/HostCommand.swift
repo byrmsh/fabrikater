@@ -21,6 +21,10 @@ public enum HostCommand: Hashable, Sendable {
     /// The last `bytes` bytes of the same log, then every byte appended to it until cancelled (`tail -F`,
     /// docs/architecture.md, "Transcript tail"). Exits with `notFoundStatus` when no log exists.
     case logFollow(SessionLog, bytes: Int)
+    /// The Claude session logs in the same project folder as this session's live log, newest first, each with its size,
+    /// modification time and first prompts (`HostCommand+PastSessions.swift`). Exits with `notFoundStatus` when the
+    /// session has no log.
+    case claudeSessions(SessionID)
     /// The pane's current screen as ANSI text, for checking what typed text would land in (docs/parsing.md 4.1).
     /// `visible` never scrolls the operator's terminal, unlike a long `recent` read.
     case herdrPaneScreen(PaneID)
@@ -83,6 +87,8 @@ public enum HostCommand: Hashable, Sendable {
             Self.tail(of: log, bytes: max(bytes, 1))
         case .logFollow(let log, let bytes):
             Self.follow(log, bytes: max(bytes, 1))
+        case .claudeSessions(let session):
+            Self.pastSessions(besides: session)
         case .herdrPaneScreen(let pane):
             Self.paneScreen(shellQuoted(pane.rawValue))
         case .herdrPaneRecent(let pane, let lines):
@@ -94,7 +100,7 @@ public enum HostCommand: Hashable, Sendable {
     public var isStreaming: Bool {
         switch self {
         case .herdrEvents, .logFollow: true
-        case .herdrSnapshot, .herdrRequests, .logTail, .herdrPaneScreen, .herdrPaneRecent: false
+        case .herdrSnapshot, .herdrRequests, .logTail, .claudeSessions, .herdrPaneScreen, .herdrPaneRecent: false
         }
     }
 
@@ -104,7 +110,7 @@ public enum HostCommand: Hashable, Sendable {
         case .herdrSnapshot: .seconds(10)
         case .herdrEvents, .logFollow: .seconds(0)
         case .herdrRequests: .seconds(15)
-        case .logTail: .seconds(20)
+        case .logTail, .claudeSessions: .seconds(20)
         case .herdrPaneScreen, .herdrPaneRecent: .seconds(5)
         }
     }
@@ -116,7 +122,13 @@ public enum HostCommand: Hashable, Sendable {
         case .herdrEvents: ["events.synthetic.jsonl"]
         case .herdrRequests: ["requests.synthetic.jsonl"]
         case .logTail(let log, _), .logFollow(let log, _):
-            ["\(log.format.rawValue)-\(log.session.rawValue).jsonl", "\(log.format.rawValue).synthetic.jsonl"]
+            [
+                "\(log.format.rawValue)-\(log.session.rawValue).jsonl",
+                "\(log.format.rawValue)-\(log.session.rawValue).synthetic.jsonl",
+                "\(log.format.rawValue).synthetic.jsonl",
+            ]
+        case .claudeSessions(let session):
+            ["claude-sessions-\(session.rawValue).txt", "claude-sessions.synthetic.txt"]
         case .herdrPaneScreen(let pane):
             ["screen-\(pane.fileName).txt", "screen-\(pane.fileName).synthetic.txt", "screen.synthetic.txt"]
         case .herdrPaneRecent(let pane, _):
