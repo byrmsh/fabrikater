@@ -12,7 +12,7 @@ struct DetailView: View {
             VStack(spacing: 0) {
                 ConversationColumn(conversation: store.conversation, perform: store.perform)
                 Divider()
-                ComposerView(store: store)
+                ComposerView(composer: store.composer, perform: store.perform)
             }
             .environment(\.textScale, store.textScale.factor)
             .inspector(isPresented: isShowingChanges) {

@@ -1,12 +1,13 @@
 import AppModel
 import SwiftUI
 
-/// The text field under the conversation. Return sends; Option-Return inserts a newline (docs/design.md, "Composer").
+/// The text field under the conversation, in the main window and each pane window. Return sends; Option-Return inserts
+/// a newline (docs/design.md, "Composer").
 struct ComposerView: View {
-    let store: AppStore
+    @Bindable var composer: ComposerStore
+    let perform: @MainActor (AppCommand) -> Void
 
     var body: some View {
-        @Bindable var composer = store.composer
         VStack(alignment: .leading, spacing: 6) {
             if let notice = composer.notice {
                 Label(notice, systemImage: "exclamationmark.triangle.fill")
@@ -21,9 +22,9 @@ struct ComposerView: View {
                     .lineLimit(1...8)
                     .padding(8)
                     .background(.quinary, in: .rect(cornerRadius: 8))
-                    .onSubmit { store.perform(.send) }
+                    .onSubmit { perform(.send) }
                 Button {
-                    store.perform(.send)
+                    perform(.send)
                 } label: {
                     if composer.isSending {
                         ProgressView()
@@ -32,7 +33,9 @@ struct ComposerView: View {
                         Text(composer.sendTitle)
                     }
                 }
-                .disabled(!store.isEnabled(.send))
+                // The window's own shortcut, so ⌘Return in a pane window sends that window's draft, not the Pane menu's.
+                .keyboardShortcut(Keymap.chord(for: .send)?.shortcut)
+                .disabled(!composer.canSend)
                 .help(composer.disabledReason ?? "\(composer.sendTitle) (⌘Return)")
             }
         }

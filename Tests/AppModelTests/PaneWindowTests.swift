@@ -18,6 +18,7 @@ struct PaneWindowTests {
     }
 
     private let transcripts = SessionTranscripts()
+    private let control = FakeControl()
     private let clipboard = InMemoryClipboard()
     private let refactor = PaneID("w1:p1")!
     private let scratch = PaneID("w2:p1")!
@@ -25,7 +26,7 @@ struct PaneWindowTests {
     private func makeStore() throws -> (AppStore, Herd) {
         let herd = try Herd(snapshotReply: Fixture.data(named: "snapshot.synthetic.json"))
         let store = AppStore(
-            herdUpdates: AsyncStream { $0.finish() }, transcripts: transcripts, control: FakeControl(),
+            herdUpdates: AsyncStream { $0.finish() }, transcripts: transcripts, control: control,
             clipboard: clipboard)
         store.apply(.herd(herd))
         return (store, herd)
@@ -122,10 +123,42 @@ struct PaneWindowTests {
         #expect(!window.isEnabled(.send))
     }
 
+    @Test func aWindowSendsItsOwnDraftToItsOwnPane() async throws {
+        let (store, _) = try makeStore()
+        store.perform(.selectPane(scratch))
+        store.composer.draft = "for scratch"
+        let window = store.paneWindow(refactor)
+        #expect(!window.isEnabled(.send))
+        window.composer.draft = "for refactor"
+        #expect(window.isEnabled(.send))
+        #expect(window.composer.sendTitle == "Queue")
+
+        window.perform(.send)
+        await window.composer.sendTask?.value
+        #expect(control.performed.last == HerdrRequest.prompt("for refactor", to: refactor))
+        #expect(window.composer.draft.isEmpty)
+        #expect(store.composer.draft == "for scratch")
+    }
+
+    @Test func aWindowCannotSendOfflineOrOnceItsPaneIsGone() throws {
+        let (store, initial) = try makeStore()
+        let window = store.paneWindow(refactor)
+        window.composer.draft = "hello"
+        store.apply(.failed("ssh exited"))
+        #expect(!window.isEnabled(.send))
+        store.apply(.herd(initial))
+        #expect(window.isEnabled(.send))
+
+        var herd = initial
+        herd.panes.removeAll { $0.id == refactor }
+        store.apply(.herd(herd))
+        #expect(!window.isEnabled(.send))
+    }
+
     @Test func aClosedWindowIsLetGo() async throws {
         var list = PaneWindowList()
         var window: PaneWindowStore? = PaneWindowStore(
-            paneID: refactor, transcripts: transcripts, clipboard: clipboard)
+            paneID: refactor, transcripts: transcripts, control: control, clipboard: clipboard)
         list.add(try #require(window))
         #expect(list.stores.count == 1)
         window = nil
