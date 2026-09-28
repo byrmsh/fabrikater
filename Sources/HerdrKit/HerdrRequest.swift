@@ -16,6 +16,14 @@ public enum HerdrRequest: Equatable, Sendable {
         case enter = "Enter"
         case escape = "Escape"
         case ctrlC = "ctrl+c"
+        case tab = "Tab"
+        case shiftTab = "shift+tab"
+        case up = "Up"
+        case down = "Down"
+
+        /// Keys that back out of what is on screen rather than answer it: Escape closes a dialog, Control-C
+        /// interrupts.
+        public var cancels: Bool { self == .escape || self == .ctrlC }
     }
 
     public var pane: PaneID {
