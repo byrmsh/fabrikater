@@ -11,15 +11,26 @@ public enum HerdrRequest: Equatable, Sendable {
     /// The request, sent only if the pane's screen, read on the host right before it, passes the check.
     indirect case checked(ScreenCheck, HerdrRequest)
 
-    /// Key names from Herdr's `pane.send_keys` grammar.
-    public enum Key: String, Equatable, Sendable {
-        case enter = "Enter"
-        case escape = "Escape"
-        case ctrlC = "ctrl+c"
-        case tab = "Tab"
-        case shiftTab = "shift+tab"
-        case up = "Up"
-        case down = "Down"
+    /// Key names from Herdr's `pane.send_keys` grammar. A single character stands for itself.
+    public struct Key: Hashable, Sendable {
+        public let rawValue: String
+
+        private init(_ rawValue: String) {
+            self.rawValue = rawValue
+        }
+
+        public static let enter = Key("Enter")
+        public static let escape = Key("Escape")
+        public static let ctrlC = Key("ctrl+c")
+        public static let tab = Key("Tab")
+        public static let shiftTab = Key("shift+tab")
+        public static let up = Key("Up")
+        public static let down = Key("Down")
+
+        /// The digit key `1` to `9`, which picks a dialog's numbered option.
+        public static func digit(_ number: Int) -> Key? {
+            (1...9).contains(number) ? Key(String(number)) : nil
+        }
 
         /// Keys that back out of what is on screen rather than answer it: Escape closes a dialog, Control-C
         /// interrupts.
