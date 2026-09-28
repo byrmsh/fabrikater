@@ -49,7 +49,7 @@ Changes go through Herdr's API socket rather than the CLI (`HostCommand.herdrReq
 
 - `pane.focus {pane_id}`: brings the pane to the front of Herdr's screen; its tab and workspace follow.
 - `pane.send_text {pane_id, text}`: types raw bytes, unsubmitted, with no bracketed paste, so a `\n` is an Enter keypress.
-- `pane.send_keys {pane_id, keys}`: key names such as `Enter`, `Escape`, `ctrl+c` (Collie's key grammar; `PageUp`, `Home`, `End` and `Delete` are refused).
+- `pane.send_keys {pane_id, keys}`: key names such as `Enter`, `Escape`, `ctrl+c`, `Tab`, `shift+tab`, `Up`, `Down` (Collie's key grammar; `PageUp`, `Home`, `End` and `Delete` are refused). The key bar sends one of these per press.
 
 `HerdrRequest` builds these lines with `JSONSerialization`, so user text is escaped JSON on stdin and never reaches a command line.
 
