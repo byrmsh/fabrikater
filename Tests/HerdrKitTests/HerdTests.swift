@@ -84,6 +84,7 @@ struct HerdTests {
         #expect(log(.codex, uuid.rawValue) == SessionLog(format: .codex, session: uuid))
         #expect(log(.omp, uuid.rawValue) == SessionLog(format: .pi, session: uuid))
         #expect(log(.grok, uuid.rawValue) == nil)
-        #expect(log(.opencode, "ses_0123456789abcdef") == nil)
+        let openCode = try #require(SessionID("ses_0123456789abcdef"))
+        #expect(log(.opencode, openCode.rawValue) == SessionLog(format: .opencode, session: openCode))
     }
 }

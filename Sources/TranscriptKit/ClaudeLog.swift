@@ -24,6 +24,7 @@ extension Transcript {
         case .claude: self.init(claudeLog: data, window: window)
         case .codex: self.init(entries: CodexTranscriptParser.parse(data), isClipped: data.count >= window)
         case .pi: self.init(entries: PiTranscriptParser.parse(data), isClipped: data.count >= window)
+        case .opencode: self.init(entries: OpenCodeTranscriptParser.parse(data), isClipped: data.count >= window)
         }
     }
 

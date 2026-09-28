@@ -80,9 +80,9 @@ public enum HostCommand: Hashable, Sendable {
         case .herdrRequests:
             Self.requestsScript
         case .logTail(let log, let bytes):
-            Self.locate(log) + "tail -c \(max(bytes, 1)) \"$f\""
+            Self.tail(of: log, bytes: max(bytes, 1))
         case .logFollow(let log, let bytes):
-            Self.locate(log) + "exec tail -c \(max(bytes, 1)) -F \"$f\""
+            Self.follow(log, bytes: max(bytes, 1))
         case .herdrPaneScreen(let pane):
             Self.paneScreen(shellQuoted(pane.rawValue))
         case .herdrPaneRecent(let pane, let lines):
