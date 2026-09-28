@@ -80,7 +80,7 @@ Manual on the Mac: capture the screen fixtures from the scratch pane; make Claud
 
 The "Needs you" group, Dock badge, and notifications on `blocked` and `working` to `done`.
 
-**Done** (this PR). As built: `NeedsYou` in `AppModel` is derived from the finished sidebar rows (blocked panes, then unread panes that are `done` or `idle`, each in sidebar order) and kept apart from `sections`, so next and previous pane, the switcher and the pinned section are untouched; the sidebar draws it as the first section. `AppCommand.selectNeedsYou(1…9)` (⌘1…⌘9, listed by pane label in the Pane menu) only selects. The Dock badge is `NeedsYou.badge`, set on `NSApp.dockTile` (no notification permission needed). `Herd.alerting(since:watched:muted:)` picks the panes to notify about; `AppStore` posts them through a `Notifier` (a recording one in tests and fixture runs, `SystemNotifier` over `UNUserNotificationCenter` in the app, whose click selects the pane). Per-workspace muting is `PaneNotes.mutedWorkspaces`, toggled by Turn Off / Turn On Notifications. The rest of the notification preferences wait for the Settings scene.
+**Done** (this PR). As built: `NeedsYou` in `AppModel` is derived from the finished sidebar rows (blocked panes, then unread panes that are `done` or `idle`, each in sidebar order) and kept apart from `sections`, so next and previous pane, the switcher and the pinned section are untouched; the sidebar draws it as the first section. `AppCommand.selectNeedsYou(1…9)` (⌘1…⌘9, listed by pane label in the Pane menu) only selects. The Dock badge is `NeedsYou.badge`, set on `NSApp.dockTile` (no notification permission needed). `Herd.alerting(since:watched:muted:)` picks the panes to notify about; `AppStore` posts them through a `Notifier` (a recording one in tests and fixture runs, `SystemNotifier` over `UNUserNotificationCenter` in the app, whose click selects the pane). Per-workspace muting is `PaneNotes.mutedWorkspaces`, toggled by Turn Off / Turn On Notifications. Per-kind choices and the sound are in Settings since the Settings window landed.
 
 CI-verifiable: the "Needs you" store: which panes it lists, in which order, how they leave it when opened, and the badge count; which status transitions notify, and when the pane is selected and the app frontmost, that none do.
 
@@ -98,9 +98,17 @@ CI-verifiable: parser tests for Codex, pi/omp and OpenCode against scrubbed host
 
 Manual on the Mac: a Codex pane's conversation renders its user turns, assistant text and tool calls; so do an omp or pi pane and an OpenCode pane when one runs; a shell pane opens in the terminal.
 
+## Settings window
+
+**Done** (this PR). fabrikater › Settings… (⌘,) from design.md, "Settings": the host alias (applied at the next launch; `FABRIKATER_HOST` still wins), Send with Return or ⌘Return, notifications per kind (needs input, finished turn) and their sound, and the conversation's and terminal's text sizes. `Preferences` in `AppModel` is the value, kept as JSON in `UserDefaults` through `PreferencesStorage`; `PreferencesStore` edits it and says what the host field's text means; `AppStore` filters notifications by it; the views get the send key and text sizes through the environment. Carried forward: reconnecting to a new host without a relaunch.
+
+CI-verifiable: the defaults, clamping and decoding of old or unknown values; a valid host saved and an invalid one refused, with the note under the field; notifications following their kinds and sound; the `settings` e2e flow (the window's contents, an invalid host, Return starting a new line under Send with ⌘Return).
+
+Manual on the Mac: set the host to another alias, quit and reopen, and the sidebar shows that host's herd; turn off "When an agent finishes its turn" and a scratch pane finishing its turn posts nothing; turn off the sound and a notification is silent; the Text Size steppers change the conversation and terminal text in open windows.
+
 ## Later
 
-Movable, dockable panels (IDE-style) on the layout model from `.claude/skills/macos-design`; the Settings scene from design.md (host alias, notifications, Return-to-send, font sizes); creating and closing tabs and panes; starting agents; search across all conversations; a `MenuBarExtra` with the "Needs you" list; image attachments in the composer.
+Movable, dockable panels (IDE-style) on the layout model from `.claude/skills/macos-design`; creating and closing tabs and panes; starting agents; search across all conversations; a `MenuBarExtra` with the "Needs you" list; image attachments in the composer.
 
 ## Backlog: UX features
 
