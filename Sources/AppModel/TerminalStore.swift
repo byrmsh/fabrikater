@@ -22,14 +22,14 @@ public final class TerminalStore {
 
     private let reader: any TerminalReader
     private let interval: Duration
-    private let pause: @Sendable (Duration) async throws -> Void
+    private let pause: Pause
     @ObservationIgnored private(set) var pollTask: Task<Void, Never>?
 
     /// - Parameter pause: waits between reads; tests pass one they release by hand.
     public init(
         reader: any TerminalReader,
         interval: Duration = .milliseconds(1200),
-        pause: @escaping @Sendable (Duration) async throws -> Void = { try await Task.sleep(for: $0) }
+        pause: @escaping Pause = taskSleep
     ) {
         self.reader = reader
         self.interval = interval

@@ -50,7 +50,7 @@ public final class PromptCardStore {
     private var isOnline = false
     private let reader: any PaneReader
     private let control: any HerdrControl
-    private let sleep: @Sendable (Duration) async throws -> Void
+    private let sleep: Pause
     @ObservationIgnored private(set) var task: Task<Void, Never>?
 
     private struct Seen: Equatable {
@@ -63,7 +63,7 @@ public final class PromptCardStore {
     ///   - sleep: waits between the reads that look for the prompt to go after an answer.
     public init(
         reader: any PaneReader, control: any HerdrControl,
-        sleep: @escaping @Sendable (Duration) async throws -> Void = { try await Task.sleep(for: $0) }
+        sleep: @escaping Pause = taskSleep
     ) {
         self.reader = reader
         self.control = control
@@ -169,8 +169,8 @@ public final class PromptCardStore {
                 notice = "Could not send the answer: \(error)"
                 return
             }
-            for _ in 0..<Self.goneReads {
-                try? await sleep(Self.goneInterval)
+            for _ in 0..<ScreenWait.reads {
+                try? await sleep(ScreenWait.interval)
                 guard !Task.isCancelled, self.paneID == paneID else { return }
                 let now = await read(paneID)
                 if now != .prompt(prompt) {
@@ -184,9 +184,6 @@ public final class PromptCardStore {
 
     static let changedNotice =
         "The prompt changed before the answer went, so nothing was sent. Check it and choose again."
-    /// Reads looking for the answered prompt to go, and the wait between them: Collie's 8 × 350 ms.
-    static let goneReads = 8
-    static let goneInterval = Duration.milliseconds(350)
 
     /// The host sends the keys only while the prompt's rows, question through footer, are still at the bottom.
     static func check(_ prompt: Prompt) -> ScreenCheck {
