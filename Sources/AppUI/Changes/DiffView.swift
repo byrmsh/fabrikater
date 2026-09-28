@@ -7,20 +7,12 @@ struct DiffView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
-            ScrollView(.horizontal) {
-                VStack(alignment: .leading, spacing: 0) {
-                    ForEach(Array(edit.lines.enumerated()), id: \.offset) { _, line in
-                        Text(line.kind.marker + " " + line.text)
-                            .font(.callout.monospaced())
-                            .foregroundStyle(line.kind == .unchanged ? .secondary : .primary)
-                            .lineLimit(1)
-                            .fixedSize()
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(tint(line.kind))
-                    }
+            // Lines that fit are tinted across the whole panel; longer ones scroll sideways.
+            ViewThatFits(in: .horizontal) {
+                lines
+                ScrollView(.horizontal) {
+                    lines
                 }
-                .textSelection(.enabled)
-                .padding(.vertical, 4)
             }
             if let omitted = edit.omittedSummary {
                 Text(omitted)
@@ -30,6 +22,22 @@ struct DiffView: View {
         }
         .background(.quinary, in: .rect(cornerRadius: 6))
         .padding(.vertical, 2)
+    }
+
+    private var lines: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            ForEach(Array(edit.lines.enumerated()), id: \.offset) { _, line in
+                Text(line.kind.marker + " " + line.text)
+                    .font(.callout.monospaced())
+                    .foregroundStyle(line.kind == .unchanged ? .secondary : .primary)
+                    .lineLimit(1)
+                    .fixedSize()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(tint(line.kind))
+            }
+        }
+        .textSelection(.enabled)
+        .padding(.vertical, 4)
     }
 
     private func tint(_ kind: DiffLine.Kind) -> Color {
