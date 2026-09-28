@@ -22,9 +22,10 @@ struct PaneRowView: View {
                     .lineLimit(1)
                     .truncationMode(.tail)
                     .accessibilityLabel(pane.spokenLabel)
+                Spacer(minLength: 4)
+                ActivityTime(activity: pane.activity(now:))
             }
             if pane.isUnread {
-                Spacer(minLength: 4)
                 UnreadDot()
             }
         }
@@ -42,8 +43,9 @@ struct TabRowView: View {
             HStack(spacing: 4) {
                 Text(tab.label)
                     .lineLimit(1)
+                Spacer(minLength: 4)
+                ActivityTime(activity: tab.activity(now:))
                 if tab.isUnread {
-                    Spacer(minLength: 4)
                     UnreadDot()
                 }
             }
