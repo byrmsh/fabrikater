@@ -6,7 +6,8 @@ import TranscriptKit
 /// One pane's conversation, read from its session log: the main window's selected pane, or a pane window's pane.
 ///
 /// A pane seen recently shows its cached conversation at once and re-reads in the background. A pane seen for the
-/// first time reads a small window first, so something shows quickly, then the full window.
+/// first time reads a small window first, so something shows quickly, then the full window. After that the log is
+/// followed, so new rows appear as the agent writes them.
 @MainActor
 @Observable
 public final class ConversationStore {
@@ -24,6 +25,8 @@ public final class ConversationStore {
     private var status: AgentStatus?
     private var cache = TranscriptCache()
     @ObservationIgnored private(set) var loadTask: Task<Void, Never>?
+    /// True while the log is followed live, which already shows what a status change would re-read.
+    @ObservationIgnored private var isFollowing = false
 
     /// The session facts popover's rows (B11).
     public var factRows: [FactRow] { transcript.facts.rows(isClipped: transcript.isClipped) }
@@ -35,14 +38,15 @@ public final class ConversationStore {
         self.transcripts = transcripts
     }
 
-    /// Shows `pane`'s conversation. Loads when the pane or its session changed, and re-reads when its status changed,
-    /// since a turn starting or ending changes the log.
+    /// Shows `pane`'s conversation. Loads when the pane or its session changed, then follows the log as it grows. When
+    /// the log is not followed (the follow ended or failed), a status change re-reads it, since a turn starting or
+    /// ending changes the log.
     func show(_ pane: Herd.Pane?) {
         let session = pane?.sessionID
         let previousStatus = status
         status = pane?.agentStatus
         guard pane?.id != paneID || session != self.session else {
-            if previousStatus != status, Self.unavailableReason(for: pane) == nil { reload() }
+            if previousStatus != status, !isFollowing, Self.unavailableReason(for: pane) == nil { reload() }
             return
         }
         loadTask?.cancel()
@@ -98,6 +102,7 @@ public final class ConversationStore {
         guard let paneID, let session else { return }
         loadTask?.cancel()
         isLoading = true
+        isFollowing = false
         loadTask = Task {
             do {
                 if quickFirst {
@@ -105,24 +110,24 @@ public final class ConversationStore {
                     guard !Task.isCancelled, self.paneID == paneID else { return }
                     transcript = quick
                     message = nil
-                    if !quick.isClipped {
-                        cache.store(quick, for: session)
-                        isLoading = false
-                        return
-                    }
+                    isLoading = quick.isClipped
                 }
-                let transcript = try await transcripts.claudeTranscript(session: session, bytes: TranscriptWindow.full)
-                guard !Task.isCancelled, self.paneID == paneID else { return }
-                self.transcript = transcript
-                cache.store(transcript, for: session)
-                message = nil
-                log.debug("loaded \(transcript.entries.count) entries for \(paneID)")
+                for try await transcript in transcripts.followClaudeTranscript(session: session) {
+                    guard !Task.isCancelled, self.paneID == paneID else { return }
+                    self.transcript = transcript
+                    cache.store(transcript, for: session)
+                    message = nil
+                    isLoading = false
+                    isFollowing = true
+                }
             } catch {
                 guard !Task.isCancelled, self.paneID == paneID else { return }
                 message = String(describing: error)
                 log.error("transcript load failed for \(paneID)")
             }
+            guard !Task.isCancelled else { return }
             isLoading = false
+            isFollowing = false
         }
     }
 

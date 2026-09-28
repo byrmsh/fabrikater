@@ -30,13 +30,15 @@ Resolved after M1: the user approved moving Herdr's focus to the pane selected i
 
 Also after M1: conversations load faster. A pane seen before shows its cached conversation at once (the last 16 sessions) and re-reads behind it; a new one reads the last 64 KB first, then the full 512 KB.
 
+Live follow landed early too: after the full read, the open conversation (the main window's and each pane window's) follows its log with `tail -F`, so new rows appear as the agent writes them; while it follows, a status change no longer re-reads the log ([architecture.md](architecture.md), "Transcript tail").
+
 Manual on the Mac for these (after `scripts/bundle.sh`): selecting a pane in the app switches Herdr's screen to it within about half a second, and ⌘↓ held down focuses only the pane it stops on; going back to a pane shows its conversation without the loading spinner.
 
 ## M2: Claude conversation, read-only
 
-Session log resolution and the Claude JSONL parser from [parsing.md](parsing.md), with the tail window, backfill on scroll-up, and the live `tail -F` follow. M1 already landed the parser (with `isMeta` dropped and rows of one response grouped), the 512 KB tail read, and a plain conversation view with inline markdown; M2 adds hand-over and conversation-root resolution, backfill, the live follow, real JSONL fixtures, and full markdown with Textual. The conversation view renders user turns, markdown assistant text, tool rows with expandable input and result, summaries and notes.
+Session log resolution and the Claude JSONL parser from [parsing.md](parsing.md), with the tail window, backfill on scroll-up, and the live `tail -F` follow. M1 already landed the parser (with `isMeta` dropped and rows of one response grouped), the 512 KB tail read, and a plain conversation view with inline markdown, and the live follow is **done** (see M1 above); M2 adds hand-over and conversation-root resolution, backfill, real JSONL fixtures, and full markdown with Textual. The conversation view renders user turns, markdown assistant text, tool rows with expandable input and result, summaries and notes.
 
-CI-verifiable: parser tests against real JSONL fixtures copied from the host (two or three sessions, trimmed and scrubbed; add their capture to `scripts/capture-fixtures.sh`) and against Collie's test cases: role classification, tool-result folding, `isMeta` handling, `message.id` grouping, a clipped first line and a partial last line; the byte-offset tailer's carry handling; log resolution, including the conversation-root heuristic; the conversation store's paging and live append.
+CI-verifiable: parser tests against real JSONL fixtures copied from the host (two or three sessions, trimmed and scrubbed; add their capture to `scripts/capture-fixtures.sh`) and against Collie's test cases: role classification, tool-result folding, `isMeta` handling, `message.id` grouping, a clipped first line and a partial last line; the follow's partial-line carry, overlap and skipping of lines already read (done); log resolution, including the conversation-root heuristic; the conversation store's paging and live append.
 
 Manual on the Mac: open a Claude pane that is `working`; new assistant messages and tool rows appear within about 2 s of Claude writing them, without the scroll position jumping when the user has scrolled up; scrolling to the top loads older history.
 

@@ -34,6 +34,30 @@ struct ReplayRunnerTests {
         #expect(lines.first == #"{"id":"sub1","result":{"type":"subscription_started"}}"#)
     }
 
+    @Test func followsTheLogsTailThenWhatIsAppended() async throws {
+        let directory = FileManager.default.temporaryDirectory.appending(component: UUID().uuidString)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let file = directory.appending(component: "claude.synthetic.jsonl")
+        try Data("one\ntwo\nthree\n".utf8).write(to: file)
+        let runner = ReplayRunner(directory: directory, pollInterval: .milliseconds(10))
+        let session = try #require(SessionID("00000000-0000-4000-8000-000000000001"))
+
+        var lines: [String] = []
+        for try await line in runner.lines(.claudeLogFollow(session: session, bytes: 8), input: nil) {
+            lines.append(line)
+            if lines == ["o", "three"] {
+                let handle = try FileHandle(forWritingTo: file)
+                try handle.seekToEnd()
+                try handle.write(contentsOf: Data("fo".utf8))
+                try handle.write(contentsOf: Data("ur\n".utf8))
+                try handle.close()
+            }
+            if lines.count == 3 { break }
+        }
+        #expect(lines == ["o", "three", "four"])
+    }
+
     @Test func failsWithoutAFixture() async {
         let empty = ReplayRunner(directory: URL(filePath: "/nonexistent"))
         await #expect(throws: HostError.noFixture("snapshot.json or snapshot.synthetic.json")) {

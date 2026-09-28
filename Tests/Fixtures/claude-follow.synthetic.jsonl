@@ -1,0 +1,2 @@
+{"type":"user","uuid":"u20","timestamp":"2026-09-26T10:05:00.000Z","message":{"role":"user","content":"Fix the failing test too"}}
+{"type":"assistant","uuid":"a20","timestamp":"2026-09-26T10:05:02.000Z","message":{"id":"msg_20","role":"assistant","content":[{"type":"text","text":"The failing test expected the old name; it passes now."}]}}

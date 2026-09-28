@@ -24,6 +24,13 @@ struct AppStoreTests {
     }
 
     private let transcripts = FakeTranscripts()
+
+    /// Lets the load task run until `condition` holds.
+    private func settle(until condition: () -> Bool) async {
+        for _ in 0..<1000 where !condition() {
+            await Task.yield()
+        }
+    }
     private let control = FakeControl()
     private let scratch = PaneID("w2:p1")!
     private let codex = PaneID("w1:pB")!
@@ -90,19 +97,19 @@ struct AppStoreTests {
         #expect(store.conversation.message == TranscriptError.noLog.description)
     }
 
-    @Test func aStatusChangeOfTheSelectedPaneReloadsItsConversation() async throws {
+    @Test func aStatusChangeOfAPaneWhoseLogIsNotFollowedReloadsItsConversation() async throws {
         let (store, initial) = try makeStore()
         var herd = initial
         store.perform(.selectPane(scratch))
         await store.conversation.loadTask?.value
         store.apply(.herd(herd))
-        #expect(transcripts.loads == 1)
+        #expect(transcripts.windows == [TranscriptWindow.quick, TranscriptWindow.full])
 
         let index = try #require(herd.panes.firstIndex { $0.id == scratch })
         herd.panes[index].agentStatus = .working
         store.apply(.herd(herd))
         await store.conversation.loadTask?.value
-        #expect(transcripts.loads == 2)
+        #expect(transcripts.loads == 3)
     }
 
     @Test func nextAndPreviousWalkTheSidebarAndWrap() throws {
@@ -126,11 +133,13 @@ struct AppStoreTests {
         #expect(store.conversation.transcript == transcripts.transcript)
     }
 
-    @Test func aShortLogNeedsOnlyTheQuickWindow() async throws {
+    @Test func aShortLogShowsTheQuickWindowWithoutASpinnerWhileTheFollowStarts() async throws {
         let (store, _) = try makeStore()
         store.perform(.selectPane(scratch))
+        await settle { store.conversation.transcript == transcripts.transcript }
+        #expect(!store.conversation.isLoading)
         await store.conversation.loadTask?.value
-        #expect(transcripts.windows == [TranscriptWindow.quick])
+        #expect(transcripts.windows == [TranscriptWindow.quick, TranscriptWindow.full])
     }
 
     @Test func goingBackToAPaneShowsItsCachedConversationAtOnce() async throws {
@@ -142,7 +151,7 @@ struct AppStoreTests {
         #expect(store.conversation.transcript == transcripts.transcript)
         #expect(store.conversation.isLoading)
         await store.conversation.loadTask?.value
-        #expect(transcripts.windows == [TranscriptWindow.quick, TranscriptWindow.full])
+        #expect(transcripts.windows == [TranscriptWindow.quick, TranscriptWindow.full, TranscriptWindow.full])
     }
 
     @Test func herdrFocusFollowsOnlyTheSettledSelection() async throws {

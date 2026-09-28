@@ -12,6 +12,9 @@ public enum HostCommand: Hashable, Sendable {
     /// The last `bytes` bytes of the Claude session log for `session`, found by scanning the project directories
     /// (docs/parsing.md 1.2). Exits with `notFoundStatus` when no log exists.
     case claudeLogTail(session: SessionID, bytes: Int)
+    /// The last `bytes` bytes of the same log, then every byte appended to it until cancelled (`tail -F`,
+    /// docs/architecture.md, "Transcript tail"). Exits with `notFoundStatus` when no log exists.
+    case claudeLogFollow(session: SessionID, bytes: Int)
     /// The pane's current screen as ANSI text, for checking what typed text would land in (docs/parsing.md 4.1).
     /// `visible` never scrolls the operator's terminal, unlike a long `recent` read.
     case herdrPaneScreen(PaneID)
@@ -33,9 +36,9 @@ public enum HostCommand: Hashable, Sendable {
                 + #"r=$(printf '%s\n' "$l" | socat -t 5 - UNIX-CONNECT:"$HOME/.config/herdr/herdr.sock") || exit 1; "#
                 + #"printf '%s\n' "$r"; case "$r" in *'"error":{'*) exit 0;; esac; done"#
         case .claudeLogTail(let session, let bytes):
-            // TODO(M2): follow hand-overs and the conversation root to the live file (docs/parsing.md 1.3).
-            "f=$(ls -1t ~/.claude/projects/*/\(shellQuoted(session.rawValue + ".jsonl")) 2>/dev/null | head -n 1); "
-                + "[ -n \"$f\" ] || exit \(Self.notFoundStatus); tail -c \(max(bytes, 1)) \"$f\""
+            Self.claudeLog(session) + "tail -c \(max(bytes, 1)) \"$f\""
+        case .claudeLogFollow(let session, let bytes):
+            Self.claudeLog(session) + "exec tail -c \(max(bytes, 1)) -F \"$f\""
         case .herdrPaneScreen(let pane):
             "herdr pane read \(shellQuoted(pane.rawValue)) --source visible --format ansi"
         }
@@ -44,7 +47,7 @@ public enum HostCommand: Hashable, Sendable {
     /// Long-lived commands stream until cancelled and have no timeout.
     public var isStreaming: Bool {
         switch self {
-        case .herdrEvents: true
+        case .herdrEvents, .claudeLogFollow: true
         case .herdrSnapshot, .herdrRequests, .claudeLogTail, .herdrPaneScreen: false
         }
     }
@@ -53,7 +56,7 @@ public enum HostCommand: Hashable, Sendable {
     public var timeout: Duration {
         switch self {
         case .herdrSnapshot: .seconds(10)
-        case .herdrEvents: .seconds(0)
+        case .herdrEvents, .claudeLogFollow: .seconds(0)
         case .herdrRequests: .seconds(15)
         case .claudeLogTail: .seconds(20)
         case .herdrPaneScreen: .seconds(5)
@@ -66,10 +69,21 @@ public enum HostCommand: Hashable, Sendable {
         case .herdrSnapshot: ["snapshot.json", "snapshot.synthetic.json"]
         case .herdrEvents: ["events.synthetic.jsonl"]
         case .herdrRequests: ["requests.synthetic.jsonl"]
-        case .claudeLogTail(let session, _): ["claude-\(session.rawValue).jsonl", "claude.synthetic.jsonl"]
+        case .claudeLogTail(let session, _), .claudeLogFollow(let session, _):
+            ["claude-\(session.rawValue).jsonl", "claude.synthetic.jsonl"]
         case .herdrPaneScreen(let pane):
             ["screen-\(pane.fileName).txt", "screen-\(pane.fileName).synthetic.txt", "screen.synthetic.txt"]
         }
+    }
+}
+
+extension HostCommand {
+    /// Sets `f` to the session's log, found by scanning the project directories (docs/parsing.md 1.2), or exits with
+    /// `notFoundStatus`.
+    // TODO(M2): follow hand-overs and the conversation root to the live file (docs/parsing.md 1.3).
+    private static func claudeLog(_ session: SessionID) -> String {
+        "f=$(ls -1t ~/.claude/projects/*/\(shellQuoted(session.rawValue + ".jsonl")) 2>/dev/null | head -n 1); "
+            + "[ -n \"$f\" ] || exit \(notFoundStatus); "
     }
 }
 
