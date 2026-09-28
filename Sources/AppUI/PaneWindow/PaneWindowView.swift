@@ -1,6 +1,7 @@
 import AppModel
 import FabrikaterCore
 import SwiftUI
+import TranscriptKit
 
 /// A window showing one pane's conversation, opened with Open in New Window (docs/design.md, "Pane windows"). It holds
 /// its own store, so closing the window frees it.
