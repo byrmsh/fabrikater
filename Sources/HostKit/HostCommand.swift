@@ -18,6 +18,9 @@ public enum HostCommand: Hashable, Sendable {
     /// The pane's current screen as ANSI text, for checking what typed text would land in (docs/parsing.md 4.1).
     /// `visible` never scrolls the operator's terminal, unlike a long `recent` read.
     case herdrPaneScreen(PaneID)
+    /// The pane's last `lines` lines of screen and scrollback as ANSI text, for the terminal view (docs/architecture.md,
+    /// "Terminal read").
+    case herdrPaneRecent(PaneID, lines: Int)
 
     /// The exit status a command's script uses for "the file does not exist".
     public static let notFoundStatus: Int32 = 44
@@ -41,6 +44,8 @@ public enum HostCommand: Hashable, Sendable {
             Self.claudeLog(session) + "exec tail -c \(max(bytes, 1)) -F \"$f\""
         case .herdrPaneScreen(let pane):
             "herdr pane read \(shellQuoted(pane.rawValue)) --source visible --format ansi"
+        case .herdrPaneRecent(let pane, let lines):
+            "herdr pane read \(shellQuoted(pane.rawValue)) --source recent --format ansi --lines \(min(max(lines, 1), 1000))"
         }
     }
 
@@ -48,7 +53,7 @@ public enum HostCommand: Hashable, Sendable {
     public var isStreaming: Bool {
         switch self {
         case .herdrEvents, .claudeLogFollow: true
-        case .herdrSnapshot, .herdrRequests, .claudeLogTail, .herdrPaneScreen: false
+        case .herdrSnapshot, .herdrRequests, .claudeLogTail, .herdrPaneScreen, .herdrPaneRecent: false
         }
     }
 
@@ -59,7 +64,7 @@ public enum HostCommand: Hashable, Sendable {
         case .herdrEvents, .claudeLogFollow: .seconds(0)
         case .herdrRequests: .seconds(15)
         case .claudeLogTail: .seconds(20)
-        case .herdrPaneScreen: .seconds(5)
+        case .herdrPaneScreen, .herdrPaneRecent: .seconds(5)
         }
     }
 
@@ -73,6 +78,9 @@ public enum HostCommand: Hashable, Sendable {
             ["claude-\(session.rawValue).jsonl", "claude.synthetic.jsonl"]
         case .herdrPaneScreen(let pane):
             ["screen-\(pane.fileName).txt", "screen-\(pane.fileName).synthetic.txt", "screen.synthetic.txt"]
+        case .herdrPaneRecent(let pane, _):
+            ["terminal-\(pane.fileName).txt", "terminal-\(pane.fileName).synthetic.txt"]
+                + HostCommand.herdrPaneScreen(pane).fixtureNames
         }
     }
 }

@@ -48,6 +48,16 @@ struct SSHArgumentsTests {
             HostCommand.herdrPaneScreen(pane).remoteScript == "herdr pane read 'w3:pQ' --source visible --format ansi")
     }
 
+    @Test func terminalReadAsksForRecentLinesClamped() throws {
+        let pane = try #require(PaneID("w3:pQ"))
+        let script = HostCommand.herdrPaneRecent(pane, lines: 400).remoteScript
+        #expect(script == "herdr pane read 'w3:pQ' --source recent --format ansi --lines 400")
+        #expect(HostCommand.herdrPaneRecent(pane, lines: 5000).remoteScript.hasSuffix("--lines 1000"))
+        #expect(HostCommand.herdrPaneRecent(pane, lines: 0).remoteScript.hasSuffix("--lines 1"))
+        let arguments = SSHArguments.arguments(for: .herdrPaneRecent(pane, lines: 400), host: host)
+        #expect(arguments.last == script)
+    }
+
     @Test func shellQuotingSurvivesSingleQuotes() {
         #expect(shellQuoted("a'b") == #"'a'\''b'"#)
     }

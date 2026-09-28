@@ -1,0 +1,10 @@
+[1;32muser@host[0m:[1;34m~/project-1[0m$ git status --short
+ [31mM[0m Sources/App/Main.swift
+[32mA[0m  Sources/App/Terminal.swift
+[31m??[0m notes.txt
+[1;32muser@host[0m:[1;34m~/project-1[0m$ ls
+[1;34mSources[0m  [1;34mTests[0m  [1;34mdocs[0m  Package.swift  README.md  [1;32mbuild.sh[0m
+[1;32muser@host[0m:[1;34m~/project-1[0m$ swift test
+[1mBuilding for debugging...[0m
+[32m✔[0m Test run with 42 tests passed after 0.318 seconds.
+[1;32muser@host[0m:[1;34m~/project-1[0m$ 
