@@ -91,8 +91,6 @@ public final class AppStore {
             select(neighbour(offset: 1))
         case .selectPreviousPane:
             select(neighbour(offset: -1))
-        case .reloadConversation:
-            conversation.reload()
         case .send:
             composer.send()
         case .renamePane(let id):
@@ -149,26 +147,17 @@ public final class AppStore {
             guard let chosen = id ?? switcher?.highlighted else { return }
             switcher = nil
             select(chosen)
-        case .copyMessage(let id):
-            guard let entry = conversation.transcript.entries.first(where: { $0.id == id }) else { return }
-            clipboard.copy(Transcript.markdownBody(of: entry))
-        case .copyConversation:
-            guard !conversation.transcript.entries.isEmpty else { return }
-            clipboard.copy(Transcript.markdown(of: conversation.transcript.entries))
-        case .expandEntry(let id):
-            conversation.expand(id)
-        case .collapseEntry(let id):
-            conversation.collapse(id)
         case .openInVSCode(let id):
             guard let url = vscodeLink(id) else { return }
             opener.open(url)
+        case .reloadConversation, .copyMessage, .copyConversation, .expandEntry, .collapseEntry:
+            conversation.perform(command, clipboard: clipboard)
         }
     }
 
     public func isEnabled(_ command: AppCommand) -> Bool {
         switch command {
         case .selectPane, .selectNextPane, .selectPreviousPane: !sections.isEmpty
-        case .reloadConversation: conversation.canReload
         case .send: composer.canSend
         case .renamePane(let id): (id ?? selection) != nil
         case .commitRename, .cancelRename: renaming != nil
@@ -182,10 +171,9 @@ public final class AppStore {
         case .openQuickSwitcher: !sections.isEmpty && switcher == nil
         case .closeQuickSwitcher, .searchQuickSwitcher, .moveQuickSwitcherHighlight: switcher != nil
         case .chooseQuickSwitcherResult(let id): (id ?? switcher?.highlighted) != nil
-        case .copyMessage(let id): conversation.transcript.entries.contains { $0.id == id }
-        case .copyConversation: !conversation.transcript.entries.isEmpty
-        case .expandEntry, .collapseEntry: true
         case .openInVSCode(let id): vscodeLink(id) != nil
+        case .reloadConversation, .copyMessage, .copyConversation, .expandEntry, .collapseEntry:
+            conversation.isEnabled(command) ?? false
         }
     }
 
@@ -226,7 +214,6 @@ public final class AppStore {
         switch update {
         case .herd(let herd):
             let old = self.herd
-            let previous = selection.flatMap { old.pane($0) }
             self.herd = herd
             activity = activity.seeing(herd, at: now())
             updateNotes(notes.markingFinishedTurns(from: old, to: herd, except: selection))
@@ -239,12 +226,6 @@ public final class AppStore {
                 self.renaming = nil
             }
             refreshSelection()
-            // A turn starting or ending changes the log; re-read it so the conversation keeps up.
-            if let previous, let current = selection.flatMap({ herd.pane($0) }),
-                previous.sessionID == current.sessionID, previous.agentStatus != current.agentStatus
-            {
-                conversation.reload()
-            }
         case .failed(let reason):
             connection = sections.isEmpty ? .offline(reason) : .stale(reason)
             refreshComposer()
