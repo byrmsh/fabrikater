@@ -5,9 +5,10 @@ e2e_key down command
 e2e_expect_text "Rename the helper and run the tests"
 e2e_focus_field "Message the agent"
 e2e_key "Not yet"
-e2e_expect_label "Escape"
-e2e_expect_label "Shift-Tab"
-e2e_click "Escape"
+# The small bordered buttons show their names only through their help tags in the accessibility tree.
+e2e_expect_text "Send Escape to the pane"
+e2e_expect_text "Send Shift-Tab to the pane"
+e2e_click "Send Escape to the pane"
 e2e_expect_text "Not yet"
 e2e_expect_no_text "Herdr refused"
 e2e_shot key-bar
