@@ -48,6 +48,13 @@ public struct PaneCommands: Commands {
                     button(.sendKey(key))
                 }
             }
+            Menu(PromptCardStore.menuTitle) {
+                ForEach(target.prompt.options) { option in
+                    Button(option.title) { target.perform(.answerPrompt(option.number)) }
+                        .disabled(!target.isEnabled(.answerPrompt(option.number)))
+                }
+            }
+            .disabled(target.prompt.options.isEmpty)
         }
     }
 

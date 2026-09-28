@@ -20,6 +20,9 @@ struct PaneDetail: View {
                     }
                 }
             Divider()
+            if model.prompt.isShown {
+                PromptCardView(prompt: model.prompt, perform: perform)
+            }
             ComposerView(composer: model.composer, perform: perform)
         }
         .inspector(isPresented: isShowingChanges) {
