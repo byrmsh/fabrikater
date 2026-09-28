@@ -31,6 +31,8 @@ public final class AppStore {
     public private(set) var textScale = TextScale.actual
     /// The ⌘K switcher while it is open.
     public private(set) var switcher: QuickSwitcher?
+    /// Whether the changes inspector is open.
+    public private(set) var isShowingChanges = false
     /// The session facts popover on the toolbar's status item is open.
     public private(set) var isShowingSessionFacts = false
     /// The main window's conversation; each pane window has its own (`paneWindow(_:)`).
@@ -156,6 +158,12 @@ public final class AppStore {
         case .openInVSCode(let id):
             guard let url = vscodeLink(id) else { return }
             opener.open(url)
+        case .toggleChanges:
+            isShowingChanges.toggle()
+        case .setChangesShown(let shown):
+            isShowingChanges = shown
+        case .copyPath(let path):
+            clipboard.copy(path)
         case .toggleSessionFacts:
             isShowingSessionFacts = header != nil && !isShowingSessionFacts
         case .setSessionFactsShown(let shown):
@@ -185,6 +193,8 @@ public final class AppStore {
         case .closeQuickSwitcher, .searchQuickSwitcher, .moveQuickSwitcherHighlight: switcher != nil
         case .chooseQuickSwitcherResult(let id): (id ?? switcher?.highlighted) != nil
         case .openInVSCode(let id): vscodeLink(id) != nil
+        case .toggleChanges: header != nil
+        case .setChangesShown, .copyPath: true
         case .toggleSessionFacts: header != nil
         case .setSessionFactsShown: true
         case .openInNewWindow(let id): windowPane(id) != nil
@@ -210,6 +220,7 @@ public final class AppStore {
         switch command {
         case .toggleShowHidden: notes.hiding.showHidden
         case .toggleShowShells: notes.hiding.showShells
+        case .toggleChanges: isShowingChanges
         case .sortPanes(let order): notes.order == order
         default: nil
         }

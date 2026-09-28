@@ -56,6 +56,12 @@ public enum AppCommand: Hashable, Sendable {
     case setSessionFactsShown(Bool)
     /// Opens a pane's conversation in a window of its own; nil means the selected pane.
     case openInNewWindow(PaneID?)
+    /// Shows or hides the inspector listing the files the selected pane's session changed.
+    case toggleChanges
+    /// The inspector was shown or hidden by the window itself.
+    case setChangesShown(Bool)
+    /// Copies a changed file's path.
+    case copyPath(String)
 
     /// The menu title.
     public var title: String {
@@ -93,6 +99,9 @@ public enum AppCommand: Hashable, Sendable {
         case .toggleSessionFacts: "Session Info"
         case .setSessionFactsShown(let shown): shown ? "Show Session Info" : "Hide Session Info"
         case .openInNewWindow: "Open in New Window"
+        case .toggleChanges: "Show Changes"
+        case .setChangesShown(let shown): shown ? "Show Changes" : "Hide Changes"
+        case .copyPath: "Copy Path"
         }
     }
 }

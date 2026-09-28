@@ -19,6 +19,11 @@ struct DetailView: View {
                 ComposerView(store: store)
             }
             .environment(\.textScale, store.textScale.factor)
+            .inspector(isPresented: isShowingChanges) {
+                ChangesView(panel: store.conversation.changesPanel, perform: store.perform)
+                    .id(store.selection)
+                    .inspectorColumnWidth(min: 240, ideal: 320, max: 560)
+            }
             .navigationTitle(header.title)
             .navigationSubtitle(header.location)
             .toolbar {
@@ -34,6 +39,15 @@ struct DetailView: View {
                     .disabled(!store.isEnabled(.reloadConversation))
                     .help(AppCommand.reloadConversation.title)
                 }
+                ToolbarItem {
+                    Button {
+                        store.perform(.toggleChanges)
+                    } label: {
+                        Label(AppCommand.toggleChanges.title, systemImage: "sidebar.trailing")
+                    }
+                    .disabled(!store.isEnabled(.toggleChanges))
+                    .help(AppCommand.toggleChanges.title)
+                }
             }
         } else {
             ContentUnavailableView(
@@ -42,5 +56,9 @@ struct DetailView: View {
                 description: Text("Choose a pane in the sidebar to read its conversation.")
             )
         }
+    }
+
+    private var isShowingChanges: Binding<Bool> {
+        Binding(get: { store.isShowingChanges }, set: { store.perform(.setChangesShown($0)) })
     }
 }

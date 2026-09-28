@@ -104,6 +104,14 @@ e2e_expect_no_text() {
     fi
 }
 
+# e2e_expect_no_label TEXT: fails if some element reads as exactly TEXT now, for text that also appears inside longer text.
+e2e_expect_no_label() {
+    if _e2e_has_label "$1"; then
+        echo "e2e: an element reads \"$1\" but should not" >&2
+        return 1
+    fi
+}
+
 # e2e_expect_gone TEXT: waits until no element in the main window shows TEXT, as after closing a sheet.
 e2e_expect_gone() {
     e2e_wait "\"$1\" to leave the screen" _e2e_lacks_text "$1"
@@ -222,6 +230,38 @@ end tell
 return "missing"
 APPLESCRIPT
 )" = "pressed" ]
+}
+
+# e2e_disclose TEXT: expands the first disclosure triangle whose label holds a text reading exactly TEXT, as clicking it
+# does. A DisclosureGroup outside a List exposes its label's texts as the triangle's children.
+e2e_disclose() {
+    e2e_wait "a disclosure triangle labelled \"$1\"" _e2e_disclose "$1"
+    sleep 0.5
+}
+
+_e2e_disclose() {
+    [ "$(osascript 2>>"${E2E_OUT}/${E2E_FLOW:-app}.osascript.log" <<APPLESCRIPT
+tell application "System Events"
+    tell window 1 of process "${E2E_PROCESS}"
+        repeat with uiItem in (entire contents as list)
+            try
+                if role of uiItem is "AXDisclosureTriangle" then
+                    repeat with inner in (UI elements of uiItem)
+                        try
+                            if value of inner is "$1" then
+                                perform action "AXPress" of uiItem
+                                return "expanded"
+                            end if
+                        end try
+                    end repeat
+                end if
+            end try
+        end repeat
+    end tell
+end tell
+return "missing"
+APPLESCRIPT
+)" = "expanded" ]
 }
 
 # e2e_shot NAME: saves the main window as build/e2e/NAME.png (the whole screen if the window cannot be found).

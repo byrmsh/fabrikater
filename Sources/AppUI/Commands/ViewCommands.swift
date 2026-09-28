@@ -1,7 +1,8 @@
 import AppModel
 import SwiftUI
 
-/// The View menu's additions: the conversation's text size, the sidebar, and what the sidebar leaves out and how it orders rows.
+/// The View menu's additions: the conversation's text size, the sidebar, what the sidebar leaves out and how it
+/// orders rows, and the changes inspector.
 @MainActor
 public struct ViewCommands: Commands {
     let store: AppStore
@@ -26,6 +27,7 @@ public struct ViewCommands: Commands {
                     CommandButton(store: store, command: .sortPanes(order))
                 }
             }
+            CommandButton(store: store, command: .toggleChanges)
             Divider()
         }
     }
