@@ -31,6 +31,8 @@ public final class AppStore {
     public private(set) var textScale = TextScale.actual
     /// The ⌘K switcher while it is open.
     public private(set) var switcher: QuickSwitcher?
+    /// Whether the changes inspector is open.
+    public private(set) var isShowingChanges = false
     public let conversation: ConversationStore
     public let composer: ComposerStore
 
@@ -158,6 +160,10 @@ public final class AppStore {
         case .openInVSCode(let id):
             guard let url = vscodeLink(id) else { return }
             opener.open(url)
+        case .toggleChanges:
+            isShowingChanges.toggle()
+        case .setChangesShown(let shown):
+            isShowingChanges = shown
         }
     }
 
@@ -182,6 +188,8 @@ public final class AppStore {
         case .copyConversation: !conversation.transcript.entries.isEmpty
         case .expandEntry, .collapseEntry: true
         case .openInVSCode(let id): vscodeLink(id) != nil
+        case .toggleChanges: header != nil
+        case .setChangesShown: true
         }
     }
 
@@ -202,6 +210,7 @@ public final class AppStore {
         switch command {
         case .toggleShowHidden: notes.hiding.showHidden
         case .toggleShowShells: notes.hiding.showShells
+        case .toggleChanges: isShowingChanges
         default: nil
         }
     }
