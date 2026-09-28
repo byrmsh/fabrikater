@@ -58,6 +58,12 @@ e2e_swap_fixture() {
     mv "${e2e_fixture_dir}/.swap" "${e2e_fixture_dir}/$2"
 }
 
+# e2e_append_fixture FROM TO: appends Tests/Fixtures/FROM to the running app's fixture TO, as an agent writing to its
+# session log does. A followed log shows the new lines within a second.
+e2e_append_fixture() {
+    cat "${E2E_FIXTURES}/$1" >>"${e2e_fixture_dir}/$2"
+}
+
 # e2e_quit: stops the app and removes its fixture copy.
 e2e_quit() {
     if [ -n "${e2e_pid}" ]; then
