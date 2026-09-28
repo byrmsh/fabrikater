@@ -40,7 +40,7 @@ public struct TabRow: Equatable, Sendable, Identifiable {
     public var status: AgentStatus
     public var panes: [PaneRow]
     /// When fabrikater last saw one of its panes change (B6).
-    public var lastActivity: Date?
+    public var lastActivity: Date? { panes.compactMap(\.lastActivity).max() }
     /// Whether one of its panes is unread (B7).
     public var isUnread: Bool { panes.contains(where: \.isUnread) }
 }
@@ -84,10 +84,32 @@ extension SidebarSection {
 }
 
 extension [SidebarSection] {
+    /// The sections with `transform` applied to every pane row, in tabs too. Sidebar features that set a per-pane
+    /// value build on this.
+    func mappingPanes(_ transform: (PaneRow) -> PaneRow) -> [SidebarSection] {
+        map { section in
+            var section = section
+            section.rows = section.rows.map { $0.mappingPanes(transform) }
+            return section
+        }
+    }
+
     /// Every pane once, in sidebar order. A pane shown twice (pinned, B4) counts where it first appears.
     var panes: [PaneRow] {
         var seen = Set<PaneID>()
         return flatMap { $0.rows.flatMap(\.panes) }.filter { seen.insert($0.id).inserted }
+    }
+}
+
+extension SidebarRow {
+    func mappingPanes(_ transform: (PaneRow) -> PaneRow) -> SidebarRow {
+        switch self {
+        case .pane(let pane):
+            return .pane(transform(pane))
+        case .tab(var tab):
+            tab.panes = tab.panes.map(transform)
+            return .tab(tab)
+        }
     }
 }
 
@@ -120,7 +142,7 @@ extension Herd {
 extension PaneRow {
     /// What VoiceOver reads for the row: the label (a rename when set), the agent, the status and whether it is unread.
     public var spokenLabel: String {
-        "\(label), \(agent?.title ?? "Shell"), \(status.title)\(isUnread ? ", Unread" : "")\(isHidden ? ", Hidden" : "")"
+        "\(label), \(agent.title), \(status.title)\(isUnread ? ", Unread" : "")\(isHidden ? ", Hidden" : "")"
     }
 }
 
@@ -142,6 +164,11 @@ extension AgentStatus {
         case .unknown: "Unknown"
         }
     }
+}
+
+extension AgentKind? {
+    /// The agent's name, or "Shell" for a pane without one.
+    public var title: String { self?.title ?? "Shell" }
 }
 
 extension AgentKind {

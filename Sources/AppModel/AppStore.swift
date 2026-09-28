@@ -104,7 +104,7 @@ public final class AppStore {
         case .send:
             composer.send()
         case .renamePane(let id):
-            renaming = id ?? selection
+            renaming = target(id)
         case .commitRename(let id, let text):
             guard renaming == id else { return }
             renaming = nil
@@ -113,26 +113,20 @@ public final class AppStore {
         case .cancelRename:
             renaming = nil
         case .togglePin(let id):
-            guard let id = id ?? selection else { return }
+            guard let id = target(id) else { return }
             updateNotes(notes.togglingPin(id))
         case .toggleHidden(let id):
-            guard let id = id ?? selection else { return }
+            guard let id = target(id) else { return }
             updateNotes(notes.togglingHidden(id))
         case .toggleHiddenWorkspace(let id):
             guard let id = workspace(id) else { return }
             updateNotes(notes.togglingHiddenWorkspace(id))
         case .toggleShowHidden:
-            var notes = notes
-            notes.hiding.showHidden.toggle()
-            updateNotes(notes)
+            changeNotes { $0.hiding.showHidden.toggle() }
         case .toggleShowShells:
-            var notes = notes
-            notes.hiding.showShells.toggle()
-            updateNotes(notes)
+            changeNotes { $0.hiding.showShells.toggle() }
         case .sortPanes(let order):
-            var notes = notes
-            notes.order = order
-            updateNotes(notes)
+            changeNotes { $0.order = order }
         case .toggleSidebar:
             isSidebarVisible.toggle()
         case .setSidebarVisible(let visible):
@@ -182,9 +176,8 @@ public final class AppStore {
         switch command {
         case .selectPane, .selectNextPane, .selectPreviousPane: !sections.isEmpty
         case .send: composer.canSend
-        case .renamePane(let id): (id ?? selection) != nil
+        case .renamePane(let id), .togglePin(let id), .toggleHidden(let id): target(id) != nil
         case .commitRename, .cancelRename: renaming != nil
-        case .togglePin(let id), .toggleHidden(let id): (id ?? selection) != nil
         case .toggleHiddenWorkspace(let id): workspace(id) != nil
         case .toggleShowHidden, .toggleShowShells, .sortPanes: true
         case .toggleSidebar, .setSidebarVisible, .setTextScale: true
@@ -208,8 +201,8 @@ public final class AppStore {
     /// The menu title of `command` as it applies now: Pin becomes Unpin for a pinned pane.
     public func title(of command: AppCommand) -> String {
         switch command {
-        case .togglePin(let id) where (id ?? selection).map { notes.pins.contains($0) } == true: "Unpin"
-        case .toggleHidden(let id) where (id ?? selection).map { notes.hiding.panes.contains($0) } == true:
+        case .togglePin(let id) where target(id).map { notes.pins.contains($0) } == true: "Unpin"
+        case .toggleHidden(let id) where target(id).map { notes.hiding.panes.contains($0) } == true:
             "Unhide Pane"
         case .toggleHiddenWorkspace(let id) where workspace(id).map { notes.hiding.workspaces.contains($0) } == true:
             "Unhide Workspace"
@@ -237,7 +230,7 @@ public final class AppStore {
 
     /// The pane `id` (nil: the selection) if Herdr has it, to open in its own window.
     public func windowPane(_ id: PaneID?) -> PaneID? {
-        (id ?? selection).flatMap { herd.pane($0) }?.id
+        pane(id)?.id
     }
 
     /// A new pane window's store, with its own conversation, kept up to date with the herd until the window lets go of it.
@@ -259,7 +252,7 @@ public final class AppStore {
     }
 
     private func vscodeLink(_ id: PaneID?) -> URL? {
-        (id ?? selection).flatMap { herd.pane($0) }.flatMap { VSCodeLink.url(host: host, pane: $0) }
+        pane(id).flatMap { VSCodeLink.url(host: host, pane: $0) }
     }
 
     func apply(_ update: HerdUpdate) {
@@ -305,8 +298,14 @@ public final class AppStore {
         self.notes = notes
         notesStore.save(notes)
         refreshSections()
-        header = selection.flatMap { herd.pane($0) }.map(header(for:))
+        header = pane(nil).map(header(for:))
         refreshPaneWindows()
+    }
+
+    private func changeNotes(_ change: (inout PaneNotes) -> Void) {
+        var notes = notes
+        change(&notes)
+        updateNotes(notes)
     }
 
     private func select(_ id: PaneID?) {
@@ -318,32 +317,42 @@ public final class AppStore {
     }
 
     private func refreshSelection() {
-        let pane = selection.flatMap { herd.pane($0) }
-        header = pane.map(header(for:))
+        let selected = pane(nil)
+        header = selected.map(header(for:))
         if header == nil {
             isShowingSessionFacts = false
         }
-        conversation.show(pane)
+        conversation.show(selected)
         refreshComposer()
     }
 
     private func refreshComposer() {
-        composer.show(selection.flatMap { herd.pane($0) }, isOnline: connection == .connected)
+        composer.show(pane(nil), isOnline: connection == .connected)
     }
 
     private func header(for pane: Herd.Pane) -> PaneHeader {
         PaneHeader(
             title: PaneRow.label(for: pane, tab: herd.tab(pane.tabID)),
             location: herd.location(of: pane),
-            agent: pane.agent?.title ?? "Shell",
+            agent: pane.agent.title,
             status: pane.agentStatus
         )
         .named(notes.names, id: pane.id)
     }
 
+    /// The pane a command names, or the selection when it names none.
+    private func target(_ id: PaneID?) -> PaneID? {
+        id ?? selection
+    }
+
+    /// The pane `id` (nil: the selection) as Herdr has it.
+    private func pane(_ id: PaneID?) -> Herd.Pane? {
+        target(id).flatMap { herd.pane($0) }
+    }
+
     /// The workspace `id` if Herdr has it; for nil, the selected pane's workspace.
     private func workspace(_ id: String?) -> String? {
-        guard let id else { return selection.flatMap { herd.pane($0) }?.workspaceID }
+        guard let id else { return pane(nil)?.workspaceID }
         return herd.workspace(id)?.id
     }
 

@@ -39,23 +39,17 @@ extension SessionFacts {
         let lines = data.split(separator: 0x0A)
         var facts = SessionFacts()
         for line in lines.reversed() {
-            guard let row = row(line) else { continue }
+            guard let row = ClaudeLog.row(line) else { continue }
             facts.takeLatest(from: row)
             if facts.hasEveryLatestValue { break }
         }
         for line in lines {
-            if let stamp = row(line)?["timestamp"] as? String, let date = parseTimestamp(stamp) {
+            if let stamp = ClaudeLog.row(line)?["timestamp"] as? String, let date = parseTimestamp(stamp) {
                 facts.firstSeen = date
                 break
             }
         }
         return facts
-    }
-
-    private static func row(_ line: Data.SubSequence) -> [String: Any]? {
-        guard let row = try? JSONSerialization.jsonObject(with: line) as? [String: Any] else { return nil }
-        // A subagent's rows carry its own model and context, not the session's.
-        return row["isSidechain"] as? Bool == true ? nil : row
     }
 
     private var hasEveryLatestValue: Bool {

@@ -10,11 +10,7 @@ struct DetailView: View {
     var body: some View {
         if let header = store.header {
             VStack(spacing: 0) {
-                if !store.conversation.transcript.todos.isEmpty {
-                    TodoPlanView(todos: store.conversation.transcript.todos)
-                    Divider()
-                }
-                TranscriptView(conversation: store.conversation, perform: store.perform)
+                ConversationColumn(conversation: store.conversation, perform: store.perform)
                 Divider()
                 ComposerView(composer: store.composer, perform: store.perform)
             }
@@ -31,22 +27,10 @@ struct DetailView: View {
                     SessionFactsButton(store: store, header: header)
                 }
                 ToolbarItem {
-                    Button {
-                        store.perform(.reloadConversation)
-                    } label: {
-                        Label(AppCommand.reloadConversation.title, systemImage: "arrow.clockwise")
-                    }
-                    .disabled(!store.isEnabled(.reloadConversation))
-                    .help(AppCommand.reloadConversation.title)
+                    toolbarButton(.reloadConversation, systemImage: "arrow.clockwise")
                 }
                 ToolbarItem {
-                    Button {
-                        store.perform(.toggleChanges)
-                    } label: {
-                        Label(AppCommand.toggleChanges.title, systemImage: "sidebar.trailing")
-                    }
-                    .disabled(!store.isEnabled(.toggleChanges))
-                    .help(AppCommand.toggleChanges.title)
+                    toolbarButton(.toggleChanges, systemImage: "sidebar.trailing")
                 }
             }
         } else {
@@ -56,6 +40,11 @@ struct DetailView: View {
                 description: Text("Choose a pane in the sidebar to read its conversation.")
             )
         }
+    }
+
+    private func toolbarButton(_ command: AppCommand, systemImage: String) -> ToolbarCommandButton {
+        ToolbarCommandButton(
+            command: command, systemImage: systemImage, isEnabled: store.isEnabled(command), perform: store.perform)
     }
 
     private var isShowingChanges: Binding<Bool> {
