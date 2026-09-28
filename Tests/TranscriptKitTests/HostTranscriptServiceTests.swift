@@ -43,6 +43,13 @@ struct HostTranscriptServiceTests {
         #expect(transcript.todos.count == 4)
     }
 
+    @Test func attachesTheChangedFiles() async throws {
+        let log = try Fixture.data(named: "claude-changes.synthetic.jsonl")
+        let transcript = try await HostTranscriptService(runner: FixedLogRunner(data: log))
+            .claudeTranscript(session: session, bytes: TranscriptWindow.full)
+        #expect(transcript.changes.map(\.name) == ["Uploader.swift", "RetryTests.swift"])
+    }
+
     @Test func marksATranscriptLongerThanTheWindowAsClipped() async throws {
         let service = HostTranscriptService(runner: ReplayRunner(directory: Fixture.directory))
         let transcript = try await service.claudeTranscript(session: session, bytes: 1000)

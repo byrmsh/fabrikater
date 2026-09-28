@@ -38,7 +38,7 @@ public struct HostTranscriptService: TranscriptService {
             let data = try await runner.run(.claudeLogTail(session: session, bytes: bytes))
             return Transcript(
                 entries: ClaudeTranscriptParser.parse(data), isClipped: data.count >= bytes,
-                todos: Transcript.latestTodos(inClaudeLog: data))
+                todos: Transcript.latestTodos(inClaudeLog: data), changes: Transcript.changes(inClaudeLog: data))
         } catch HostError.exited(HostCommand.notFoundStatus, _) {
             throw TranscriptError.noLog
         }
