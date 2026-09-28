@@ -72,6 +72,7 @@ Every check from the merged PRs that only the Mac or the host can do, most impor
 - [ ] Opening the same pane in a new window twice brings the first window forward; selecting another pane in the main window leaves the pane window on its own pane; after a relaunch, the pane window comes back and fills in. [#26]
 - [ ] In a pane window in front, ⌥⌘0, ⌘I and Pane › Load Earlier Messages act on it; click the main window and they act there, with the Show Changes checkmark following. [#33, #45]
 - [ ] ⌘Y on a Claude pane in a folder with hundreds of logs lists them quickly, newest first; opening the same one twice brings its window forward. [#46]
+- [ ] ⌘Y on a Codex pane lists only that project's rollouts, quickly; on an omp or pi pane, its folder's sessions titled by first prompt; on an OpenCode pane, its directory's sessions with OpenCode's titles. `ssh arch "sqlite3 -readonly ~/.local/share/opencode/opencode.db '.schema session'"` shows `directory`, `title` and `parent_id`. [#50]
 - [ ] In a past-session window, ⌘R reloads and ⇧⌘C copies that session; Send and Show Terminal are disabled; ⌘↓ still moves the main window's selection. [#49]
 
 ## 9. Settings
