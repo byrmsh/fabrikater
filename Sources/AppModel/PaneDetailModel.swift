@@ -6,6 +6,7 @@ public protocol PaneDetailModel: AnyObject {
     var header: PaneHeader? { get }
     var conversation: ConversationStore { get }
     var composer: ComposerStore { get }
+    var prompt: PromptCardStore { get }
     var panels: PanePanels { get }
     func perform(_ command: AppCommand)
     func isEnabled(_ command: AppCommand) -> Bool
