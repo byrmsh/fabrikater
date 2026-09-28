@@ -58,10 +58,10 @@ struct ChangesPanelTests {
         #expect(store.isEnabled(.toggleChanges))
         #expect(store.isChecked(.toggleChanges) == false)
         store.perform(.toggleChanges)
-        #expect(store.isShowingChanges)
+        #expect(store.panels.isShowingChanges)
         #expect(store.isChecked(.toggleChanges) == true)
         store.perform(.setChangesShown(false))
-        #expect(!store.isShowingChanges)
+        #expect(!store.panels.isShowingChanges)
     }
 
     @Test func copyPathPutsThePathOnTheClipboard() async throws {

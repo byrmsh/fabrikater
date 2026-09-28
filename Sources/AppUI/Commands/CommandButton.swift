@@ -1,21 +1,21 @@
 import AppModel
 import SwiftUI
 
-/// A menu item for one command: its title, its shortcut from `Keymap`, and whether the store allows it now. A command
-/// that switches a setting shows a checkmark.
+/// A menu item for one command: its title, its shortcut from `Keymap`, and whether the front window allows it now. A
+/// command that switches a setting shows a checkmark.
 struct CommandButton: View {
-    let store: AppStore
+    let target: MenuTarget
     let command: AppCommand
 
     var body: some View {
-        if let isChecked = store.isChecked(command) {
-            Toggle(store.title(of: command), isOn: Binding(get: { isChecked }, set: { _ in store.perform(command) }))
+        if let isChecked = target.isChecked(command) {
+            Toggle(target.title(of: command), isOn: Binding(get: { isChecked }, set: { _ in target.perform(command) }))
                 .keyboardShortcut(Keymap.chord(for: command)?.shortcut)
-                .disabled(!store.isEnabled(command))
+                .disabled(!target.isEnabled(command))
         } else {
-            Button(store.title(of: command)) { store.perform(command) }
+            Button(target.title(of: command)) { target.perform(command) }
                 .keyboardShortcut(Keymap.chord(for: command)?.shortcut)
-                .disabled(!store.isEnabled(command))
+                .disabled(!target.isEnabled(command))
         }
     }
 }

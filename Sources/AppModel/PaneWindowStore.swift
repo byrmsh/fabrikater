@@ -16,6 +16,8 @@ public final class PaneWindowStore {
     public let composer: ComposerStore
     /// Set once Herdr no longer has the pane; the conversation stays as last read.
     public private(set) var notice: String?
+    /// This window's changes inspector and session facts popover.
+    public private(set) var panels = PanePanels()
 
     private let clipboard: any Clipboard
 
@@ -38,10 +40,13 @@ public final class PaneWindowStore {
         conversation.show(pane.pane)
     }
 
-    /// Handles the conversation's commands and Send for this window; ignores every other.
+    /// Handles the conversation's commands, its panels and Send for this window; ignores every other.
     public func perform(_ command: AppCommand) {
         switch command {
         case .send: composer.send()
+        case .toggleChanges, .setChangesShown, .toggleSessionFacts, .setSessionFactsShown:
+            panels.perform(command, hasPane: header != nil)
+        case .copyPath(let path): clipboard.copy(path)
         default: conversation.perform(command, clipboard: clipboard)
         }
     }
@@ -49,8 +54,15 @@ public final class PaneWindowStore {
     public func isEnabled(_ command: AppCommand) -> Bool {
         switch command {
         case .send: composer.canSend
-        default: conversation.isEnabled(command) ?? false
+        case .copyPath: true
+        default:
+            PanePanels.isEnabled(command, hasPane: header != nil) ?? conversation.isEnabled(command) ?? false
         }
+    }
+
+    /// Whether a menu item that switches one of this window's panels shows a checkmark; nil for any other command.
+    public func isChecked(_ command: AppCommand) -> Bool? {
+        panels.isChecked(command)
     }
 }
 

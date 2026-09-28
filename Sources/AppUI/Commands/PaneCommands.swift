@@ -1,14 +1,20 @@
 import AppModel
 import SwiftUI
 
-/// The Pane menu: every pane command with its shortcut from `Keymap`.
+/// The Pane menu: every pane command with its shortcut from `Keymap`, acting on the front window's pane.
 @MainActor
 public struct PaneCommands: Commands {
     let store: AppStore
+    /// The pane window in front, if one is; nil while the main window is.
+    @FocusedValue(PaneWindowStore.self) private var paneWindow
     @Environment(\.openWindow) private var openWindow
 
     public init(store: AppStore) {
         self.store = store
+    }
+
+    private var target: MenuTarget {
+        MenuTarget(app: store, window: paneWindow)
     }
 
     public var body: some Commands {
@@ -25,11 +31,11 @@ public struct PaneCommands: Commands {
             Divider()
             button(.openInVSCode(nil))
             Button(AppCommand.openInNewWindow(nil).title) {
-                if let id = store.windowPane(nil) {
+                if let id = target.windowPane {
                     openWindow(value: id)
                 }
             }
-            .disabled(!store.isEnabled(.openInNewWindow(nil)))
+            .disabled(!target.isEnabled(.openInNewWindow(nil)))
             Divider()
             button(.reloadConversation)
             button(.loadEarlier)
@@ -41,7 +47,7 @@ public struct PaneCommands: Commands {
     }
 
     private func button(_ command: AppCommand) -> some View {
-        CommandButton(store: store, command: command)
+        CommandButton(target: target, command: command)
     }
 }
 

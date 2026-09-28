@@ -165,3 +165,54 @@ struct PaneWindowTests {
         #expect(list.stores.isEmpty)
     }
 }
+
+@MainActor
+struct PaneWindowPanelsTests {
+    private struct EmptyTranscripts: TranscriptService {
+        func claudeTranscript(session: SessionID, bytes: Int) async throws -> Transcript { Transcript() }
+    }
+
+    private let clipboard = InMemoryClipboard()
+    private let refactor = PaneID("w1:p1")!
+
+    private func makeStore() throws -> AppStore {
+        let store = AppStore(
+            herdUpdates: AsyncStream { $0.finish() }, transcripts: EmptyTranscripts(), control: FakeControl(),
+            clipboard: clipboard)
+        store.apply(.herd(try Herd(snapshotReply: Fixture.data(named: "snapshot.synthetic.json"))))
+        return store
+    }
+
+    @Test func aWindowOpensItsOwnChangesAndSessionInfo() throws {
+        let store = try makeStore()
+        let window = store.paneWindow(refactor)
+        #expect(window.isEnabled(.toggleChanges))
+        #expect(window.isEnabled(.toggleSessionFacts))
+        #expect(window.isChecked(.toggleChanges) == false)
+
+        window.perform(.toggleChanges)
+        window.perform(.toggleSessionFacts)
+        #expect(window.panels.isShowingChanges)
+        #expect(window.panels.isShowingSessionFacts)
+        #expect(window.isChecked(.toggleChanges) == true)
+        #expect(!store.panels.isShowingChanges)
+
+        window.perform(.setSessionFactsShown(false))
+        #expect(!window.panels.isShowingSessionFacts)
+    }
+
+    @Test func aWindowCopiesAChangedFilesPath() throws {
+        let window = try makeStore().paneWindow(refactor)
+        window.perform(.copyPath("/home/user/project/helper.swift"))
+        #expect(clipboard.text == "/home/user/project/helper.swift")
+    }
+
+    @Test func sessionInfoNeedsThePanesHeader() throws {
+        let store = AppStore(
+            herdUpdates: AsyncStream { $0.finish() }, transcripts: EmptyTranscripts(), control: FakeControl())
+        let window = store.paneWindow(refactor)
+        #expect(!window.isEnabled(.toggleSessionFacts))
+        window.perform(.toggleSessionFacts)
+        #expect(!window.panels.isShowingSessionFacts)
+    }
+}

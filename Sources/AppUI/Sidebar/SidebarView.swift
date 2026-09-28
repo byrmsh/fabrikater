@@ -30,7 +30,8 @@ struct SidebarView: View {
                         .accessibilityValue(section.heading)
                         .contextMenu {
                             if store.isEnabled(.toggleHiddenWorkspace(section.id)) {
-                                CommandButton(store: store, command: .toggleHiddenWorkspace(section.id))
+                                CommandButton(
+                                    target: MenuTarget(app: store), command: .toggleHiddenWorkspace(section.id))
                             }
                         }
                 }
@@ -91,8 +92,8 @@ struct SidebarView: View {
             Button(AppCommand.renamePane(pane.id).title) {
                 store.perform(.renamePane(pane.id))
             }
-            CommandButton(store: store, command: .togglePin(pane.id))
-            CommandButton(store: store, command: .toggleHidden(pane.id))
+            CommandButton(target: MenuTarget(app: store), command: .togglePin(pane.id))
+            CommandButton(target: MenuTarget(app: store), command: .toggleHidden(pane.id))
             Button(AppCommand.reloadConversation.title) {
                 store.perform(.selectPane(pane.id))
                 store.perform(.reloadConversation)

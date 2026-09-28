@@ -68,29 +68,29 @@ struct SessionFactsRowsTests {
         let store = try await makeStore()
         #expect(!store.isEnabled(.toggleSessionFacts))
         store.perform(.toggleSessionFacts)
-        #expect(!store.isShowingSessionFacts)
+        #expect(!store.panels.isShowingSessionFacts)
 
         store.perform(.selectPane(PaneID("w2:p1")!))
         await store.conversation.loadTask?.value
         #expect(store.isEnabled(.toggleSessionFacts))
         store.perform(.toggleSessionFacts)
-        #expect(store.isShowingSessionFacts)
+        #expect(store.panels.isShowingSessionFacts)
         #expect(store.conversation.factRows == [FactRow("Branch", "main")])
         store.perform(.toggleSessionFacts)
-        #expect(!store.isShowingSessionFacts)
+        #expect(!store.panels.isShowingSessionFacts)
     }
 
     @Test func theWindowClosesItAndSoDoesClearingTheSelection() async throws {
         let store = try await makeStore()
         store.perform(.selectPane(PaneID("w2:p1")!))
         store.perform(.setSessionFactsShown(true))
-        #expect(store.isShowingSessionFacts)
+        #expect(store.panels.isShowingSessionFacts)
         store.perform(.setSessionFactsShown(false))
-        #expect(!store.isShowingSessionFacts)
+        #expect(!store.panels.isShowingSessionFacts)
 
         store.perform(.toggleSessionFacts)
         store.perform(.selectPane(nil))
-        #expect(!store.isShowingSessionFacts)
+        #expect(!store.panels.isShowingSessionFacts)
     }
 
     @Test func staysOpenWhileMovingBetweenPanes() async throws {
@@ -98,7 +98,7 @@ struct SessionFactsRowsTests {
         store.perform(.selectPane(PaneID("w2:p1")!))
         store.perform(.toggleSessionFacts)
         store.perform(.selectNextPane)
-        #expect(store.isShowingSessionFacts)
+        #expect(store.panels.isShowingSessionFacts)
     }
 
     @Test func hasTheGetInfoShortcut() {
