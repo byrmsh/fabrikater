@@ -31,6 +31,7 @@ A vertically scrolling transcript of the pane's session log, oldest at the top, 
 - **Timestamps** on hover, and a divider when more than 15 minutes pass between turns.
 - Thinking blocks are not shown (Claude's logs store them empty).
 - Subagent (sidechain) traffic is hidden.
+- **Current plan**: when the session has a plan (Claude's latest `TodoWrite` call), a compact checklist sits above the transcript under a "Plan · 2 of 4 done" disclosure: pending items as open circles, the item in progress in the accent colour with its present-tense wording, completed items struck through. More than six items scroll inside the panel. A session without a plan, or whose latest plan is empty or malformed, shows nothing.
 
 Older history loads when the user scrolls near the top. Search (⌘F) matches across loaded messages and offers to load everything for a full search.
 
