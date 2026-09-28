@@ -3,12 +3,12 @@ import Foundation
 import HostKit
 
 extension TranscriptService {
-    /// No live follow: one read of the full window, then the stream ends.
-    public func followClaudeTranscript(session: SessionID) -> AsyncThrowingStream<Transcript, any Error> {
+    /// No live follow: one read of the window, then the stream ends.
+    public func followClaudeTranscript(session: SessionID, bytes: Int) -> AsyncThrowingStream<Transcript, any Error> {
         AsyncThrowingStream { continuation in
             let task = Task {
                 do {
-                    continuation.yield(try await claudeTranscript(session: session, bytes: TranscriptWindow.full))
+                    continuation.yield(try await claudeTranscript(session: session, bytes: bytes))
                     continuation.finish()
                 } catch {
                     continuation.finish(throwing: error)
@@ -20,10 +20,10 @@ extension TranscriptService {
 }
 
 extension HostTranscriptService {
-    /// Reads the full window, then follows the log with `tail -F` and yields the conversation again for each new line
+    /// Reads the last `bytes` bytes, then follows the log with `tail -F` and yields the conversation again for each new line
     /// (docs/architecture.md, "Transcript tail"). A dropped follow starts over with a fresh read after a backoff; only a
     /// failure before the first read throws.
-    public func followClaudeTranscript(session: SessionID) -> AsyncThrowingStream<Transcript, any Error> {
+    public func followClaudeTranscript(session: SessionID, bytes: Int) -> AsyncThrowingStream<Transcript, any Error> {
         AsyncThrowingStream { continuation in
             let task = Task {
                 var failures = 0
@@ -31,8 +31,7 @@ extension HostTranscriptService {
                 while !Task.isCancelled {
                     do {
                         var window = ClaudeLogWindow(
-                            try await claudeLog(session: session, bytes: TranscriptWindow.full),
-                            limit: TranscriptWindow.full)
+                            try await claudeLog(session: session, bytes: bytes), limit: bytes)
                         continuation.yield(window.transcript)
                         hasRead = true
                         failures = 0

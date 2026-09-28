@@ -7,9 +7,9 @@ public protocol TranscriptService: Sendable {
     /// The conversation in the last `bytes` bytes of the session's log.
     func claudeTranscript(session: SessionID, bytes: Int) async throws -> Transcript
 
-    /// The conversation in the log's full window, then again each time the log grows, until cancelled. The default
-    /// reads once and ends; `HostTranscriptService` follows the log live (`LiveFollow.swift`).
-    func followClaudeTranscript(session: SessionID) -> AsyncThrowingStream<Transcript, any Error>
+    /// The conversation in the log's last `bytes` bytes, then again each time the log grows, until cancelled. The
+    /// default reads once and ends; `HostTranscriptService` follows the log live (`LiveFollow.swift`).
+    func followClaudeTranscript(session: SessionID, bytes: Int) -> AsyncThrowingStream<Transcript, any Error>
 }
 
 /// How much of a log to read.
@@ -21,6 +21,13 @@ public enum TranscriptWindow {
     /// How far before the log's end a follow starts, so lines written between the read and the follow are not lost.
     /// Lines already read are skipped.
     public static let overlap = 64 * 1024
+    /// The most a conversation reads when the user loads earlier messages; past the 95th percentile log (3.9 MB).
+    public static let largest = 8 * 1024 * 1024
+
+    /// The window that shows messages before those in `bytes`: twice as much, or nil once `largest` is read.
+    public static func earlier(than bytes: Int) -> Int? {
+        bytes < largest ? min(bytes * 2, largest) : nil
+    }
 }
 
 public enum TranscriptError: Error, Equatable, Sendable, CustomStringConvertible {

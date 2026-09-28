@@ -18,7 +18,7 @@ struct LiveFollowTests {
             return Transcript()
         }
 
-        func followClaudeTranscript(session: SessionID) -> AsyncThrowingStream<Transcript, any Error> {
+        func followClaudeTranscript(session: SessionID, bytes: Int) -> AsyncThrowingStream<Transcript, any Error> {
             follows += 1
             let (stream, feed) = AsyncThrowingStream<Transcript, any Error>.makeStream()
             feeds.append(feed)

@@ -6,6 +6,8 @@ public enum AppCommand: Hashable, Sendable {
     case selectNextPane
     case selectPreviousPane
     case reloadConversation
+    /// Reads further back in the conversation's log, when older messages exist.
+    case loadEarlier
     /// Sends the composer's draft to the selected pane.
     case send
     /// Opens the inline name field on a pane's row; nil means the selected pane.
@@ -70,6 +72,7 @@ public enum AppCommand: Hashable, Sendable {
         case .selectNextPane: "Next Pane"
         case .selectPreviousPane: "Previous Pane"
         case .reloadConversation: "Reload Conversation"
+        case .loadEarlier: "Load Earlier Messages"
         case .send: "Send"
         case .renamePane: "Rename…"
         case .commitRename: "Rename"

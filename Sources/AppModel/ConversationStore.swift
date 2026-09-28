@@ -18,6 +18,8 @@ public final class ConversationStore {
     public private(set) var message: String?
     /// Which long entries the user expanded; reset when another pane is shown.
     public private(set) var expansion = EntryExpansion()
+    /// How much of the log the conversation reads; grows with Load Earlier Messages, reset when another pane is shown.
+    public private(set) var window = TranscriptWindow.full
 
     private let transcripts: any TranscriptService
     private let log = Log(category: "AppModel")
@@ -33,6 +35,18 @@ public final class ConversationStore {
 
     /// False when the pane has no conversation this version can read.
     public var canReload: Bool { session != nil }
+
+    /// True when older messages exist and a larger window can still show them.
+    public var canLoadEarlier: Bool {
+        session != nil && transcript.isClipped && !isLoading && TranscriptWindow.earlier(than: window) != nil
+    }
+
+    /// What the top of a clipped conversation says, or nil when the whole log is shown.
+    public var earlierNote: String? {
+        guard transcript.isClipped else { return nil }
+        if isLoading { return "Loading earlier messages…" }
+        return canLoadEarlier ? nil : "Earlier messages are too far back to load."
+    }
 
     public init(transcripts: any TranscriptService) {
         self.transcripts = transcripts
@@ -55,6 +69,7 @@ public final class ConversationStore {
         let cached = session.flatMap { cache[$0] }
         transcript = cached ?? Transcript()
         expansion = EntryExpansion()
+        window = TranscriptWindow.full
         isLoading = false
         message = Self.unavailableReason(for: pane)
         if message == nil {
@@ -71,6 +86,10 @@ public final class ConversationStore {
     func perform(_ command: AppCommand, clipboard: any Clipboard) {
         switch command {
         case .reloadConversation:
+            reload()
+        case .loadEarlier:
+            guard canLoadEarlier, let earlier = TranscriptWindow.earlier(than: window) else { return }
+            window = earlier
             reload()
         case .copyMessage(let id):
             guard let entry = transcript.entries.first(where: { $0.id == id }) else { return }
@@ -91,6 +110,7 @@ public final class ConversationStore {
     func isEnabled(_ command: AppCommand) -> Bool? {
         switch command {
         case .reloadConversation: canReload
+        case .loadEarlier: canLoadEarlier
         case .copyMessage(let id): transcript.entries.contains { $0.id == id }
         case .copyConversation: !transcript.entries.isEmpty
         case .expandEntry, .collapseEntry: true
@@ -103,6 +123,7 @@ public final class ConversationStore {
         loadTask?.cancel()
         isLoading = true
         isFollowing = false
+        let window = window
         loadTask = Task {
             do {
                 if quickFirst {
@@ -112,7 +133,7 @@ public final class ConversationStore {
                     message = nil
                     isLoading = quick.isClipped
                 }
-                for try await transcript in transcripts.followClaudeTranscript(session: session) {
+                for try await transcript in transcripts.followClaudeTranscript(session: session, bytes: window) {
                     guard !Task.isCancelled, self.paneID == paneID else { return }
                     self.transcript = transcript
                     cache.store(transcript, for: session)

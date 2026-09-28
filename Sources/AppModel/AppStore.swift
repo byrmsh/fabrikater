@@ -167,7 +167,7 @@ public final class AppStore {
         case .openInNewWindow:
             // The view opens the window (SwiftUI's openWindow) with `windowPane(_:)`; the window asks `paneWindow(_:)`.
             break
-        case .reloadConversation, .copyMessage, .copyConversation, .expandEntry, .collapseEntry:
+        case .reloadConversation, .loadEarlier, .copyMessage, .copyConversation, .expandEntry, .collapseEntry:
             conversation.perform(command, clipboard: clipboard)
         }
     }
@@ -193,7 +193,7 @@ public final class AppStore {
         case .toggleSessionFacts: header != nil
         case .setSessionFactsShown: true
         case .openInNewWindow(let id): windowPane(id) != nil
-        case .reloadConversation, .copyMessage, .copyConversation, .expandEntry, .collapseEntry:
+        case .reloadConversation, .loadEarlier, .copyMessage, .copyConversation, .expandEntry, .collapseEntry:
             conversation.isEnabled(command) ?? false
         }
     }
