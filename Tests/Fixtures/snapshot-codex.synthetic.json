@@ -1,0 +1,34 @@
+{
+  "id": "synthetic-codex",
+  "result": {
+    "type": "session_snapshot",
+    "snapshot": {
+      "version": "0.9.1",
+      "protocol": 22,
+      "focused_workspace_id": "w1",
+      "focused_tab_id": "w1:t1",
+      "focused_pane_id": "w1:p1",
+      "workspaces": [
+        {"workspace_id": "w1", "label": "Synthetic A", "number": 1, "active_tab_id": "w1:t1", "tab_count": 2, "pane_count": 3, "agent_status": "working", "focused": true},
+        {"workspace_id": "w2", "label": "fabrikater-test", "number": 2, "active_tab_id": "w2:t1", "tab_count": 1, "pane_count": 1, "agent_status": "idle", "focused": false}
+      ],
+      "tabs": [
+        {"tab_id": "w1:t1", "workspace_id": "w1", "label": "api", "number": 1, "pane_count": 2, "agent_status": "working", "focused": true},
+        {"tab_id": "w1:t2", "workspace_id": "w1", "label": "web", "number": 2, "pane_count": 1, "agent_status": "blocked", "focused": false},
+        {"tab_id": "w2:t1", "workspace_id": "w2", "label": "scratch", "number": 1, "pane_count": 1, "agent_status": "idle", "focused": false}
+      ],
+      "panes": [
+        {"pane_id": "w1:p1", "terminal_id": "term_000000000001", "tab_id": "w1:t1", "workspace_id": "w1", "agent": "claude", "agent_status": "working", "cwd": "/home/user/project-1", "foreground_cwd": "/home/user/project-1", "revision": 17, "scroll": {"viewport_rows": 48, "offset_from_bottom": 0, "max_offset_from_bottom": 0}, "terminal_title": "✳ Synthetic refactor", "terminal_title_stripped": "Synthetic refactor", "focused": true, "agent_session": {"agent": "claude", "kind": "id", "source": "herdr:claude", "value": "00000000-0000-4000-8000-000000000001"}},
+        {"pane_id": "w1:pA", "terminal_id": "term_000000000002", "tab_id": "w1:t1", "workspace_id": "w1", "agent_status": "unknown", "cwd": "/home/user/project-1", "foreground_cwd": "/home/user/project-1", "revision": 3, "scroll": {"viewport_rows": 48, "offset_from_bottom": 0, "max_offset_from_bottom": 120}, "terminal_title": "zsh", "terminal_title_stripped": "zsh", "focused": false},
+        {"pane_id": "w1:pB", "terminal_id": "term_000000000003", "tab_id": "w1:t2", "workspace_id": "w1", "agent": "codex", "agent_status": "blocked", "cwd": "/home/user/project-2", "foreground_cwd": "/home/user/project-2", "revision": 10, "scroll": {"viewport_rows": 40, "offset_from_bottom": 0, "max_offset_from_bottom": 0}, "terminal_title": "codex", "terminal_title_stripped": "codex", "focused": false, "future_field": {"added": "in a later herdr"}},
+        {"pane_id": "w2:p1", "terminal_id": "term_000000000004", "tab_id": "w2:t1", "workspace_id": "w2", "agent": "claude", "agent_status": "done", "cwd": "/home/user/scratch", "foreground_cwd": "/home/user/scratch", "revision": 2, "scroll": {"viewport_rows": 40, "offset_from_bottom": 0, "max_offset_from_bottom": 0}, "terminal_title": "Scratch", "terminal_title_stripped": "Scratch", "focused": false, "agent_session": {"agent": "claude", "kind": "id", "source": "herdr:claude", "value": "00000000-0000-4000-8000-000000000002"}}
+      ],
+      "agents": [
+        {"pane_id": "w1:p1", "terminal_id": "term_000000000001", "tab_id": "w1:t1", "workspace_id": "w1", "agent": "claude", "agent_status": "working", "agent_session": {"agent": "claude", "kind": "id", "source": "herdr:claude", "value": "00000000-0000-4000-8000-000000000001"}, "cwd": "/home/user/project-1", "foreground_cwd": "/home/user/project-1", "terminal_title": "✳ Synthetic refactor", "terminal_title_stripped": "Synthetic refactor", "revision": 17, "focused": true, "state_change_seq": 41},
+        {"pane_id": "w1:pB", "terminal_id": "term_000000000003", "tab_id": "w1:t2", "workspace_id": "w1", "agent": "codex", "agent_status": "blocked", "cwd": "/home/user/project-2", "foreground_cwd": "/home/user/project-2", "terminal_title": "codex", "terminal_title_stripped": "codex", "revision": 10, "focused": false, "state_change_seq": 12},
+        {"pane_id": "w2:p1", "terminal_id": "term_000000000004", "tab_id": "w2:t1", "workspace_id": "w2", "agent": "claude", "agent_status": "done", "agent_session": {"agent": "claude", "kind": "id", "source": "herdr:claude", "value": "00000000-0000-4000-8000-000000000002"}, "cwd": "/home/user/scratch", "foreground_cwd": "/home/user/scratch", "terminal_title": "Scratch", "terminal_title_stripped": "Scratch", "revision": 2, "focused": false, "state_change_seq": 7}
+      ],
+      "layouts": []
+    }
+  }
+}

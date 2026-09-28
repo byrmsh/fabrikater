@@ -23,6 +23,8 @@ public enum AppCommand: Hashable, Sendable {
     case toggleShowHidden
     /// Shows panes without an agent, or leaves them out.
     case toggleShowShells
+    /// Orders each workspace's rows in the sidebar.
+    case sortPanes(PaneOrder)
     case toggleSidebar
     /// The sidebar was shown or hidden by the window itself (its toolbar button, or restoring the window).
     case setSidebarVisible(Bool)
@@ -65,6 +67,7 @@ public enum AppCommand: Hashable, Sendable {
         case .toggleHiddenWorkspace: "Hide Workspace"
         case .toggleShowHidden: "Show Hidden Panes"
         case .toggleShowShells: "Show Shell Panes"
+        case .sortPanes(let order): order.title
         case .toggleSidebar: "Toggle Sidebar"
         case .setSidebarVisible(let visible): visible ? "Show Sidebar" : "Hide Sidebar"
         case .biggerText: "Bigger"

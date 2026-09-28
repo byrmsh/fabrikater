@@ -121,6 +121,10 @@ public final class AppStore {
             var notes = notes
             notes.hiding.showShells.toggle()
             updateNotes(notes)
+        case .sortPanes(let order):
+            var notes = notes
+            notes.order = order
+            updateNotes(notes)
         case .toggleSidebar:
             isSidebarVisible.toggle()
         case .setSidebarVisible(let visible):
@@ -170,7 +174,7 @@ public final class AppStore {
         case .commitRename, .cancelRename: renaming != nil
         case .togglePin(let id), .toggleHidden(let id): (id ?? selection) != nil
         case .toggleHiddenWorkspace(let id): workspace(id) != nil
-        case .toggleShowHidden, .toggleShowShells: true
+        case .toggleShowHidden, .toggleShowShells, .sortPanes: true
         case .toggleSidebar, .setSidebarVisible, .setTextScale: true
         case .biggerText: !textScale.isLargest
         case .smallerText: !textScale.isSmallest
@@ -202,6 +206,7 @@ public final class AppStore {
         switch command {
         case .toggleShowHidden: notes.hiding.showHidden
         case .toggleShowShells: notes.hiding.showShells
+        case .sortPanes(let order): notes.order == order
         default: nil
         }
     }
@@ -253,6 +258,7 @@ public final class AppStore {
             .active(activity.times)
             .unread(notes.unread)
             .hiding(notes.hiding)
+            .sorted(notes.order)
             .pinned(notes.pins)
         switcher = switcher?.refreshing(sections.switcherItems(in: herd))
     }
