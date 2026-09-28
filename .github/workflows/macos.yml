@@ -33,8 +33,8 @@ jobs:
   app:
     # Xcode 27 image (macOS 27, arm64); it also ships Command Line Tools 27.0, the user's toolchain.
     runs-on: xcode-27
-    # The end-to-end flows alone take 25 to 30 minutes on this runner.
-    timeout-minutes: 45
+    # The whole job takes about 7 minutes, the end-to-end flows about 4 (docs/decisions/0014).
+    timeout-minutes: 20
     env:
       DEVELOPER_DIR: ${{ inputs.toolchain == 'xcode' && '/Applications/Xcode.app/Contents/Developer' || '/Library/Developer/CommandLineTools' }}
     steps:

@@ -1,6 +1,7 @@
 # Steps for scripts/e2e/flows/*.sh, sourced by scripts/e2e.sh. Each step fails the flow when it does not hold.
-# UI queries go through System Events (the Accessibility API), so the shell running this needs Accessibility and
-# Screen Recording access; GitHub's macOS runners grant both.
+# Keys, menus and windows go through System Events; reading and pressing elements goes through build/e2e-ax
+# (scripts/e2e/ax.swift), which walks the window in one process. The shell running this needs Accessibility and Screen
+# Recording access; GitHub's macOS runners grant both.
 
 E2E_APP="${E2E_APP:-build/fabrikater.app}"
 E2E_BINARY="${E2E_APP}/Contents/MacOS/fabrikater"
@@ -8,6 +9,7 @@ E2E_OUT="${E2E_OUT:-build/e2e}"
 E2E_TIMEOUT="${E2E_TIMEOUT:-20}"
 E2E_PROCESS="fabrikater"
 E2E_FIXTURES="Tests/Fixtures"
+E2E_AX="${E2E_AX:-build/e2e-ax}"
 
 e2e_pid=""
 e2e_fixture_dir=""
@@ -214,22 +216,7 @@ e2e_focus_field() {
 }
 
 _e2e_focus_field() {
-    [ "$(osascript 2>>"${E2E_OUT}/${E2E_FLOW:-app}.osascript.log" <<APPLESCRIPT
-tell application "System Events"
-    tell window 1 of process "${E2E_PROCESS}"
-        repeat with uiItem in (entire contents as list)
-            try
-                if (value of attribute "AXPlaceholderValue" of uiItem) contains "$1" then
-                    set value of attribute "AXFocused" of uiItem to true
-                    return "focused"
-                end if
-            end try
-        end repeat
-    end tell
-end tell
-return "missing"
-APPLESCRIPT
-)" = "focused" ]
+    _e2e_ax focus "$1"
 }
 
 # e2e_click TITLE: presses the first element whose title, description or help tag is TITLE (a link button has only
@@ -240,22 +227,7 @@ e2e_click() {
 }
 
 _e2e_click() {
-    [ "$(osascript 2>>"${E2E_OUT}/${E2E_FLOW:-app}.osascript.log" <<APPLESCRIPT
-tell application "System Events"
-    tell window 1 of process "${E2E_PROCESS}"
-        repeat with uiItem in (entire contents as list)
-            try
-                if title of uiItem is "$1" or description of uiItem is "$1" or help of uiItem is "$1" then
-                    perform action "AXPress" of uiItem
-                    return "pressed"
-                end if
-            end try
-        end repeat
-    end tell
-end tell
-return "missing"
-APPLESCRIPT
-)" = "pressed" ]
+    _e2e_ax press "$1"
 }
 
 # e2e_disclose TEXT: expands the first disclosure triangle whose label holds a text reading exactly TEXT, as clicking it
@@ -266,28 +238,7 @@ e2e_disclose() {
 }
 
 _e2e_disclose() {
-    [ "$(osascript 2>>"${E2E_OUT}/${E2E_FLOW:-app}.osascript.log" <<APPLESCRIPT
-tell application "System Events"
-    tell window 1 of process "${E2E_PROCESS}"
-        repeat with uiItem in (entire contents as list)
-            try
-                if role of uiItem is "AXDisclosureTriangle" then
-                    repeat with inner in (UI elements of uiItem)
-                        try
-                            if value of inner is "$1" then
-                                perform action "AXPress" of uiItem
-                                return "expanded"
-                            end if
-                        end try
-                    end repeat
-                end if
-            end try
-        end repeat
-    end tell
-end tell
-return "missing"
-APPLESCRIPT
-)" = "expanded" ]
+    _e2e_ax disclose "$1"
 }
 
 # e2e_shot NAME: saves the main window as build/e2e/NAME.png (the whole screen if the window cannot be found).
@@ -306,7 +257,7 @@ e2e_shot() {
     echo "screenshot: ${path}"
 }
 
-# e2e_wait WHAT COMMAND [ARG...]: retries COMMAND every half second until it succeeds or E2E_TIMEOUT runs out.
+# e2e_wait WHAT COMMAND [ARG...]: retries COMMAND every quarter second until it succeeds or E2E_TIMEOUT runs out.
 e2e_wait() {
     local what="$1"
     shift
@@ -321,7 +272,7 @@ e2e_wait() {
             echo "e2e: timed out after ${E2E_TIMEOUT}s waiting for ${what}" >&2
             return 1
         fi
-        sleep 0.5
+        sleep 0.25
     done
 }
 
@@ -344,75 +295,24 @@ _e2e_has_window() {
 # e2e_screen_text [ATTRIBUTE...]: prints every title, value, description and help tag in the main window's accessibility
 # tree, one per line; or only the named attributes, such as AXTitle AXValue.
 e2e_screen_text() {
-    local attributes='"AXTitle", "AXValue", "AXDescription", "AXHelp"'
-    if [ "$#" -gt 0 ]; then
-        attributes="$(printf '"%s", ' "$@")"
-        attributes="${attributes%, }"
-    fi
-    osascript 2>>"${E2E_OUT}/${E2E_FLOW:-app}.osascript.log" <<APPLESCRIPT
-set found to {}
-tell application "System Events"
-    tell window 1 of process "${E2E_PROCESS}"
-        repeat with uiItem in (entire contents as list)
-            repeat with axName in {${attributes}}
-                try
-                    set text_ to value of attribute (contents of axName) of uiItem
-                    if text_ is not missing value and text_ is not "" then set end of found to (text_ as text)
-                end try
-            end repeat
-        end repeat
-    end tell
-end tell
-set AppleScript's text item delimiters to linefeed
-return found as text
-APPLESCRIPT
+    _e2e_ax text "$@"
 }
 
-# e2e_screen_dump: prints each element in the main window with its role and every text attribute it has. Slow; for
+# e2e_screen_dump: prints each element in the main window with its role and every text attribute it has, for
 # working out what a check should look for.
 e2e_screen_dump() {
-    osascript 2>>"${E2E_OUT}/${E2E_FLOW:-app}.osascript.log" <<APPLESCRIPT
-set found to {}
-tell application "System Events"
-    tell window 1 of process "${E2E_PROCESS}"
-        repeat with uiItem in (entire contents as list)
-            set line_ to ""
-            try
-                set line_ to (role of uiItem) as text
-            end try
-            try
-                set kids_ to count of (UI elements of uiItem)
-                if kids_ > 0 then set line_ to line_ & " children=" & kids_
-            end try
-            try
-                repeat with anAttribute in (attributes of uiItem)
-                    try
-                        set value_ to value of anAttribute
-                        if class of value_ is text then
-                            if value_ is not "" then set line_ to line_ & " " & (name of anAttribute) & "=" & value_
-                        else if value_ is not missing value then
-                            set line_ to line_ & " " & (name of anAttribute) & "(" & ((class of value_) as text) & ")"
-                        end if
-                    end try
-                end repeat
-            end try
-            set end of found to line_
-        end repeat
-    end tell
-end tell
-set AppleScript's text item delimiters to linefeed
-return found as text
-APPLESCRIPT
+    _e2e_ax dump
 }
 
+# The checks read the whole text before searching it: under pipefail, grep -q quitting early could fail the pipe.
 _e2e_has_text() {
-    e2e_screen_text | grep -qF -- "$1"
+    local screen
+    screen="$(e2e_screen_text)"
+    grep -qF -- "$1" <<<"${screen}"
 }
 
 _e2e_focus_is() {
-    [ "$(osascript -e "tell application \"System Events\" to tell process \"${E2E_PROCESS}\"
-        return value of (value of attribute \"AXFocusedUIElement\")
-    end tell" 2>/dev/null)" = "$1" ]
+    [ "$(_e2e_ax focused-value)" = "$1" ]
 }
 
 _e2e_lacks_text() {
@@ -420,5 +320,12 @@ _e2e_lacks_text() {
 }
 
 _e2e_has_label() {
-    e2e_screen_text AXTitle AXValue AXDescription | grep -qxF -- "$1"
+    local screen
+    screen="$(e2e_screen_text AXTitle AXValue AXDescription)"
+    grep -qxF -- "$1" <<<"${screen}"
+}
+
+# _e2e_ax COMMAND [ARGUMENT...]: runs the accessibility helper against the app (commands in scripts/e2e/ax.swift).
+_e2e_ax() {
+    "${E2E_AX}" "${e2e_pid}" "$@" 2>>"${E2E_OUT}/${E2E_FLOW:-app}.ax.log"
 }
