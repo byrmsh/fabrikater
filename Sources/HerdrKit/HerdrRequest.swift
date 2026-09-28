@@ -8,6 +8,8 @@ public enum HerdrRequest: Equatable, Sendable {
     /// Types `text` into the pane as raw bytes, without submitting it.
     case sendText(PaneID, String)
     case sendKeys(PaneID, [Key])
+    /// The request, sent only if the pane's screen, read on the host right before it, passes the check.
+    indirect case checked(ScreenCheck, HerdrRequest)
 
     /// Key names from Herdr's `pane.send_keys` grammar.
     public enum Key: String, Equatable, Sendable {
@@ -19,6 +21,7 @@ public enum HerdrRequest: Equatable, Sendable {
     public var pane: PaneID {
         switch self {
         case .focus(let pane), .sendText(let pane, _), .sendKeys(let pane, _): pane
+        case .checked(_, let request): request.pane
         }
     }
 
@@ -27,6 +30,7 @@ public enum HerdrRequest: Equatable, Sendable {
         switch self {
         case .focus: false
         case .sendText, .sendKeys: true
+        case .checked(_, let request): request.typesIntoPane
         }
     }
 
@@ -41,10 +45,18 @@ public enum HerdrRequest: Equatable, Sendable {
         return [.sendText(pane, typed), .sendKeys(pane, [.enter])]
     }
 
-    /// The request as one line for Herdr's API socket: `{"id":…,"method":…,"params":{…}}`.
+    /// The lines the requests script reads on stdin (`HostCommand.herdrRequests`): the request as one line for
+    /// Herdr's API socket, `{"id":…,"method":…,"params":{…}}`, after its screen check's lines if it has one.
+    func lines(id: String) -> [String] {
+        guard case .checked(let check, let request) = self else { return [line(id: id)] }
+        return check.lines(for: request.pane) + request.lines(id: id)
+    }
+
     func line(id: String) -> String {
+        if case .checked(_, let request) = self { return request.line(id: id) }
         let request: [String: Any] =
             switch self {
+            case .checked: [:]
             case .focus(let pane):
                 ["id": id, "method": "pane.focus", "params": ["pane_id": pane.rawValue]]
             case .sendText(let pane, let text):

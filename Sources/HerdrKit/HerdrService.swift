@@ -41,7 +41,7 @@ public struct HerdrClient: HerdrService, HerdrControl, PaneReader {
 
     public func perform(_ requests: [HerdrRequest]) async throws {
         guard !requests.isEmpty else { return }
-        let lines = requests.enumerated().map { $1.line(id: "fabrikater\($0 + 1)") + "\n" }
+        let lines = requests.enumerated().flatMap { $1.lines(id: "fabrikater\($0 + 1)") }.map { $0 + "\n" }
         try Self.checkReplies(
             try await runner.run(.herdrRequests, input: Data(lines.joined().utf8)), count: requests.count)
     }
@@ -75,6 +75,7 @@ public struct HerdrClient: HerdrService, HerdrControl, PaneReader {
         for line in lines {
             let reply = try? JSONSerialization.jsonObject(with: line) as? [String: Any]
             if let error = reply?["error"] as? [String: Any] {
+                if error["code"] as? String == ScreenCheck.failedCode { throw .screenChanged }
                 throw HerdrError(error["message"] as? String ?? "Herdr refused the request")
             }
             guard reply?["result"] != nil else { throw HerdrError("Herdr sent a reply that is not JSON") }
