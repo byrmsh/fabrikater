@@ -46,9 +46,8 @@ extension Transcript {
         let marker = Data("\"TodoWrite\"".utf8)
         // Newest first, and only lines naming the tool are decoded, so the rest of the log costs one byte scan.
         for line in data.split(separator: 0x0A).reversed() where line.range(of: marker) != nil {
-            guard let row = try? JSONSerialization.jsonObject(with: line) as? [String: Any],
-                row["type"] as? String == "assistant", row["isSidechain"] as? Bool != true,
-                let blocks = (row["message"] as? [String: Any])?["content"] as? [[String: Any]],
+            guard let row = ClaudeLog.row(line), row["type"] as? String == "assistant",
+                let blocks = ClaudeLog.blocks(of: row),
                 let call = blocks.last(where: {
                     $0["type"] as? String == "tool_use" && $0["name"] as? String == "TodoWrite"
                 })

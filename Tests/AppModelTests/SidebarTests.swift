@@ -30,6 +30,18 @@ struct SidebarTests {
         #expect(TabRow(id: "w1:t1", label: "api", status: .working, panes: [pane]).spokenLabel == "api, Working")
     }
 
+    @Test func mappingPanesReachesPanesInsideTabs() throws {
+        let herd = try Herd(snapshotReply: Fixture.data(named: "snapshot.synthetic.json"))
+        let sections = SidebarSection.sections(for: herd).mappingPanes { pane in
+            var pane = pane
+            pane.label = pane.label.uppercased()
+            return pane
+        }
+
+        #expect(sections.panes.map(\.label) == ["SYNTHETIC REFACTOR", "ZSH", "CODEX", "SCRATCH"])
+        #expect(sections[0].rows.map(\.id) == ["w1:t1", "w1:pB"])
+    }
+
     @Test func ordersWorkspacesAndTabsByNumber() {
         let herd = Herd(
             workspaces: [.init(id: "w9", label: "second", number: 2), .init(id: "w1", label: "first", number: 1)],

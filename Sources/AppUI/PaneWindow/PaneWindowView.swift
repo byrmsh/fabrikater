@@ -43,11 +43,7 @@ struct PaneWindowContent: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            if !window.conversation.transcript.todos.isEmpty {
-                TodoPlanView(todos: window.conversation.transcript.todos)
-                Divider()
-            }
-            TranscriptView(conversation: window.conversation, perform: window.perform)
+            ConversationColumn(conversation: window.conversation, perform: window.perform)
         }
         .overlay(alignment: .bottom) {
             if let notice = window.notice {
@@ -63,13 +59,9 @@ struct PaneWindowContent: View {
                 }
             }
             ToolbarItem {
-                Button {
-                    window.perform(.reloadConversation)
-                } label: {
-                    Label(AppCommand.reloadConversation.title, systemImage: "arrow.clockwise")
-                }
-                .disabled(!window.isEnabled(.reloadConversation))
-                .help(AppCommand.reloadConversation.title)
+                ToolbarCommandButton(
+                    command: .reloadConversation, systemImage: "arrow.clockwise",
+                    isEnabled: window.isEnabled(.reloadConversation), perform: window.perform)
             }
         }
     }

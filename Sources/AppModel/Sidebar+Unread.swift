@@ -8,27 +8,10 @@ extension [SidebarSection] {
     /// The sections with every unread pane marked.
     func unread(_ ids: Set<PaneID>) -> [SidebarSection] {
         guard !ids.isEmpty else { return self }
-        return map { section in
-            var section = section
-            section.rows = section.rows.map { $0.unread(ids) }
-            return section
-        }
-    }
-}
-
-extension SidebarRow {
-    func unread(_ ids: Set<PaneID>) -> SidebarRow {
-        switch self {
-        case .pane(var pane):
+        return mappingPanes { pane in
+            var pane = pane
             pane.isUnread = ids.contains(pane.id)
-            return .pane(pane)
-        case .tab(var tab):
-            tab.panes = tab.panes.map { pane in
-                var pane = pane
-                pane.isUnread = ids.contains(pane.id)
-                return pane
-            }
-            return .tab(tab)
+            return pane
         }
     }
 }

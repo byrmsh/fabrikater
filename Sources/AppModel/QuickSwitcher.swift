@@ -115,7 +115,7 @@ extension [SidebarSection] {
         panes.map { row in
             let pane = herd.pane(row.id)
             return SwitcherItem(
-                row: row, location: pane.map(herd.location(of:)) ?? "", agent: row.agent?.title ?? "Shell")
+                row: row, location: pane.map(herd.location(of:)) ?? "", agent: row.agent.title)
         }
     }
 }
