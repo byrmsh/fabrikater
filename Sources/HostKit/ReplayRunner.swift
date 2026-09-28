@@ -1,13 +1,17 @@
 import FabrikaterCore
 import Foundation
+import Synchronization
 
 /// Serves commands from files in a fixture directory (`HostCommand.fixtureNames`) and never touches the host.
 ///
 /// Streams yield the fixture's lines and then stay open, like a quiet event channel, until cancelled. A followed log
-/// also yields the lines later appended to its fixture file, as `tail -F` does.
+/// also yields the lines later appended to its fixture file, as `tail -F` does. Text typed into a pane shows on the
+/// prompt row (`❯`) of its screen fixture until Enter, as an agent's input box would show it, so the send guard's
+/// check that the text arrived passes. Screen checks are not run.
 public struct ReplayRunner: HostCommandRunner {
     private let directory: URL
     private let pollInterval: Duration
+    private let typed = Typed()
     private let log = Log(category: "HostKit")
 
     /// - Parameter pollInterval: how often a followed fixture is checked for appended lines.
@@ -18,8 +22,15 @@ public struct ReplayRunner: HostCommandRunner {
 
     public func run(_ command: HostCommand, input: Data?) async throws(HostError) -> Data {
         let data = try fixture(for: command)
-        if case .claudeLogTail(_, let bytes) = command {
+        switch command {
+        case .claudeLogTail(_, let bytes):
             return data.suffix(bytes)
+        case .herdrRequests:
+            typed.record(input ?? Data())
+        case .herdrPaneScreen(let pane):
+            return typed.echo(into: data, pane: pane.rawValue)
+        default:
+            break
         }
         return data
     }
@@ -80,5 +91,46 @@ public struct ReplayRunner: HostCommandRunner {
             throw .noFixture(command.fixtureNames.joined(separator: " or "))
         }
         return url
+    }
+}
+
+/// What each pane was sent with `pane.send_text` since its last Enter.
+private final class Typed: Sendable {
+    private let text = Mutex<[String: String]>([:])
+
+    /// Reads the requests script's stdin (`HostCommand.herdrRequests`), skipping screen checks.
+    func record(_ input: Data) {
+        var skip = 0
+        for line in String(decoding: input, as: UTF8.self).split(separator: "\n") {
+            if skip > 0 {
+                skip -= 1
+                continue
+            }
+            if line.hasPrefix("?") {
+                skip = line.split(separator: " ").suffix(2).compactMap { Int($0) }.reduce(0, +)
+                continue
+            }
+            guard let request = try? JSONSerialization.jsonObject(with: Data(line.utf8)) as? [String: Any],
+                let params = request["params"] as? [String: Any], let pane = params["pane_id"] as? String
+            else { continue }
+            if let sent = params["text"] as? String {
+                let plain = sent.replacing("\u{1B}[200~", with: "").replacing("\u{1B}[201~", with: "")
+                text.withLock { $0[pane, default: ""] += plain }
+            } else if (params["keys"] as? [String])?.contains("Enter") == true {
+                text.withLock { $0[pane] = nil }
+            }
+        }
+    }
+
+    /// The screen with the pane's typed text on its last prompt row.
+    func echo(into screen: Data, pane: String) -> Data {
+        guard let typed = text.withLock({ $0[pane] }) else { return screen }
+        // Bytes, not Characters: in Swift `\r\n` is one Character, which splitting on `"\n"` would not match.
+        var lines = screen.split(separator: 0x0A, omittingEmptySubsequences: false).map { Data($0) }
+        let prompt = Data("❯".utf8)
+        guard let row = lines.lastIndex(where: { $0.firstRange(of: prompt) != nil }) else { return screen }
+        let ending = lines[row].last == 0x0D ? "\r" : ""
+        lines[row] = Data(("❯ " + typed.split(whereSeparator: \.isNewline).joined(separator: " ") + ending).utf8)
+        return Data(lines.joined(separator: [0x0A]))
     }
 }
