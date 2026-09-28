@@ -4,7 +4,7 @@ import SwiftUI
 import TranscriptKit
 
 /// A window showing one pane's conversation, opened with Open in New Window (docs/design.md, "Pane windows"). It holds
-/// its own store, so closing the window frees it.
+/// its own store, so closing the window frees it, and offers that store to the menu bar while it is in front.
 public struct PaneWindowView: View {
     let store: AppStore
     let paneID: PaneID
@@ -29,6 +29,7 @@ public struct PaneWindowView: View {
         }
         .environment(\.textScale, store.textScale.factor)
         .frame(minWidth: 420, minHeight: 320)
+        .focusedSceneValue(window)
         .onAppear {
             if window == nil {
                 window = store.paneWindow(paneID)
@@ -37,34 +38,20 @@ public struct PaneWindowView: View {
     }
 }
 
-/// The pane's plan, conversation and composer, with its title, status and Reload in the window's title bar and toolbar.
+/// The pane as the main window shows it, once the first herd has named it.
 struct PaneWindowContent: View {
     let window: PaneWindowStore
 
     var body: some View {
-        VStack(spacing: 0) {
-            ConversationColumn(conversation: window.conversation, perform: window.perform)
-                .overlay(alignment: .bottom) {
-                    if let notice = window.notice {
-                        StaleBanner(message: notice)
-                    }
-                }
-            Divider()
-            ComposerView(composer: window.composer, perform: window.perform)
-        }
-        .navigationTitle(window.header?.title ?? window.paneID.rawValue)
-        .navigationSubtitle(window.header?.location ?? "")
-        .toolbar {
-            if let header = window.header {
-                ToolbarItem {
-                    PaneStatusView(header: header)
-                }
-            }
-            ToolbarItem {
-                ToolbarCommandButton(
-                    command: .reloadConversation, systemImage: "arrow.clockwise",
-                    isEnabled: window.isEnabled(.reloadConversation), perform: window.perform)
-            }
+        if let header = window.header {
+            PaneDetail(model: window, header: header, notice: window.notice)
+        } else if let notice = window.notice {
+            ContentUnavailableView(notice, systemImage: "rectangle.slash")
+                .navigationTitle(window.paneID.rawValue)
+        } else {
+            ProgressView()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .navigationTitle(window.paneID.rawValue)
         }
     }
 }
