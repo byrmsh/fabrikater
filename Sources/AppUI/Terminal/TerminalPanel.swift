@@ -15,19 +15,20 @@ struct TerminalPanel: View {
     }
 
     @ViewBuilder private var content: some View {
-        if let screen = terminal.screen {
+        switch terminal.content {
+        case .screen(let screen, let stale):
             PaneWideTerminal(screen: screen, columns: terminal.columns)
                 .overlay(alignment: .bottom) {
-                    if let failure = terminal.failure {
-                        StaleBanner(message: failure)
+                    if let stale {
+                        StaleBanner(message: stale)
                     }
                 }
-        } else if let failure = terminal.failure {
-            ContentUnavailableView("Terminal Unavailable", systemImage: "terminal", description: Text(failure))
-        } else if let placeholder = terminal.placeholder, terminal.paneID != nil {
-            ProgressView(placeholder)
-        } else if let placeholder = terminal.placeholder {
-            ContentUnavailableView(placeholder, systemImage: "rectangle.slash")
+        case .unavailable(let title, let reason):
+            ContentUnavailableView(title, systemImage: "terminal", description: Text(reason))
+        case .reading(let message):
+            ProgressView(message)
+        case .gone(let message):
+            ContentUnavailableView(message, systemImage: "rectangle.slash")
         }
     }
 }
