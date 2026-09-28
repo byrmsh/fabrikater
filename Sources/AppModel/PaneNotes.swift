@@ -15,16 +15,19 @@ public struct PaneNotes: Equatable, Sendable {
     public var unread: Set<PaneID> = []
     /// How each workspace's rows are ordered (B14).
     public var order = PaneOrder.herdr
+    /// Workspaces whose panes post no notifications (M6).
+    public var mutedWorkspaces: Set<String> = []
 
     public init(
         names: [PaneID: String] = [:], pins: [PaneID] = [], hiding: Hiding = Hiding(), unread: Set<PaneID> = [],
-        order: PaneOrder = .herdr
+        order: PaneOrder = .herdr, mutedWorkspaces: Set<String> = []
     ) {
         self.names = names
         self.pins = pins
         self.hiding = hiding
         self.unread = unread
         self.order = order
+        self.mutedWorkspaces = mutedWorkspaces
     }
 }
 
@@ -35,6 +38,7 @@ extension PaneNotes: Codable {
         case hiding
         case unread
         case order
+        case mutedWorkspaces
     }
 
     public init(from decoder: any Decoder) throws {
@@ -46,6 +50,7 @@ extension PaneNotes: Codable {
         hiding = try container.decodeIfPresent(Hiding.self, forKey: .hiding) ?? Hiding()
         unread = Set(try container.decodeIfPresent([String].self, forKey: .unread)?.compactMap { PaneID($0) } ?? [])
         order = (try? container.decodeIfPresent(PaneOrder.self, forKey: .order)) ?? .herdr
+        mutedWorkspaces = try container.decodeIfPresent(Set<String>.self, forKey: .mutedWorkspaces) ?? []
     }
 
     public func encode(to encoder: any Encoder) throws {
@@ -56,6 +61,7 @@ extension PaneNotes: Codable {
         try container.encode(hiding, forKey: .hiding)
         try container.encode(unread.map(\.rawValue).sorted(), forKey: .unread)
         try container.encode(order, forKey: .order)
+        try container.encode(mutedWorkspaces.sorted(), forKey: .mutedWorkspaces)
     }
 }
 

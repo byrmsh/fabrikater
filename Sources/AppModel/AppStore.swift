@@ -21,6 +21,8 @@ public struct PaneHeader: Equatable, Sendable {
 @Observable
 public final class AppStore {
     public private(set) var sections: [SidebarSection] = []
+    /// The panes waiting on the user, above the workspaces and on the Dock badge.
+    public private(set) var needsYou = NeedsYou()
     public private(set) var connection = ConnectionState.connecting
     public private(set) var selection: PaneID?
     public private(set) var header: PaneHeader?
@@ -59,6 +61,8 @@ public final class AppStore {
     private let terminals: any TerminalReader
     @ObservationIgnored private var paneWindows = PaneWindowList()
     private let opener: any URLOpener
+    private let notifier: any Notifier
+    private let isAppActive: @MainActor () -> Bool
     private let host: String
     @ObservationIgnored private var herdUpdates: AsyncStream<HerdUpdate>?
     private let log = Log(category: "AppModel")
@@ -70,6 +74,8 @@ public final class AppStore {
     ///   - terminals: reads panes' recent output for the terminal views.
     ///   - host: the ssh alias the panes run on, for links that reach them from this Mac.
     ///   - now: the clock that stamps each pane's last activity.
+    ///   - notifier: shows an alert when a pane becomes blocked or finishes a turn.
+    ///   - isAppActive: whether the app is frontmost, when the selected pane needs no alert.
     public init(
         herdUpdates: AsyncStream<HerdUpdate>,
         transcripts: any TranscriptService,
@@ -82,7 +88,9 @@ public final class AppStore {
         clipboard: any Clipboard = InMemoryClipboard(),
         opener: any URLOpener = RecordingURLOpener(),
         host: String = "arch",
-        now: @escaping @Sendable () -> Date = { Date() }
+        now: @escaping @Sendable () -> Date = { Date() },
+        notifier: any Notifier = RecordingNotifier(),
+        isAppActive: @escaping @MainActor () -> Bool = { true }
     ) {
         self.herdUpdates = herdUpdates
         notesStore = notes
@@ -90,6 +98,8 @@ public final class AppStore {
         self.opener = opener
         self.host = host
         self.now = now
+        self.notifier = notifier
+        self.isAppActive = isAppActive
         self.transcripts = transcripts
         self.control = control
         self.screens = screens
@@ -123,6 +133,12 @@ public final class AppStore {
             select(neighbour(offset: 1))
         case .selectPreviousPane:
             select(neighbour(offset: -1))
+        case .selectNeedsYou(let number):
+            guard let pane = needsYou.pane(number: number) else { return }
+            select(pane.id)
+        case .toggleNotifications(let id):
+            guard let id = workspace(id) else { return }
+            updateNotes(notes.togglingMuted(id))
         case .send:
             composer.send()
         case .sendKey(let key):
@@ -199,6 +215,8 @@ public final class AppStore {
     public func isEnabled(_ command: AppCommand) -> Bool {
         switch command {
         case .selectPane, .selectNextPane, .selectPreviousPane: !sections.isEmpty
+        case .selectNeedsYou(let number): needsYou.pane(number: number) != nil
+        case .toggleNotifications(let id): workspace(id) != nil
         case .send: composer.canSend
         case .sendKey(let key): composer.canSend(key)
         case .answerPrompt: prompt.canAnswer
@@ -227,6 +245,9 @@ public final class AppStore {
     /// The menu title of `command` as it applies now: Pin becomes Unpin for a pinned pane.
     public func title(of command: AppCommand) -> String {
         switch command {
+        case .selectNeedsYou(let number): needsYou.pane(number: number)?.label ?? command.title
+        case .toggleNotifications(let id) where workspace(id).map { notes.mutedWorkspaces.contains($0) } == true:
+            "Turn On Notifications"
         case .togglePin(let id) where target(id).map { notes.pins.contains($0) } == true: "Unpin"
         case .toggleHidden(let id) where target(id).map { notes.hiding.panes.contains($0) } == true:
             "Unhide Pane"
@@ -292,6 +313,7 @@ public final class AppStore {
             activity = activity.seeing(herd, at: now())
             updateNotes(notes.markingFinishedTurns(from: old, to: herd, except: selection))
             refreshSections()
+            notify(since: old)
             connection = .connected
             if let selection, herd.pane(selection) == nil {
                 log.info("selected pane \(selection) is gone")
@@ -320,7 +342,18 @@ public final class AppStore {
             .hiding(notes.hiding)
             .sorted(notes.order)
             .pinned(notes.pins)
+        needsYou = sections.needingYou
         switcher = switcher?.refreshing(sections.switcherItems(in: herd))
+    }
+
+    private func notify(since old: Herd) {
+        let watched = isAppActive() ? selection : nil
+        for pane in herd.alerting(since: old, watched: watched, muted: notes.mutedWorkspaces) {
+            let header = header(for: pane)
+            notifier.post(
+                PaneAlert(
+                    paneID: pane.id, title: header.title, subtitle: header.location, body: pane.agentStatus.alertBody))
+        }
     }
 
     private func updateNotes(_ notes: PaneNotes) {

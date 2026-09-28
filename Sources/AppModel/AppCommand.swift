@@ -5,6 +5,10 @@ public enum AppCommand: Hashable, Sendable {
     case selectPane(PaneID?)
     case selectNextPane
     case selectPreviousPane
+    /// Selects the pane at this place (1 is the first) in the "Needs You" group.
+    case selectNeedsYou(Int)
+    /// Turns notifications for a workspace off, or on again; nil means the selected pane's workspace.
+    case toggleNotifications(String?)
     case reloadConversation
     /// Reads further back in the conversation's log, when older messages exist.
     case loadEarlier
@@ -81,6 +85,8 @@ public enum AppCommand: Hashable, Sendable {
         case .selectPane: "Select Pane"
         case .selectNextPane: "Next Pane"
         case .selectPreviousPane: "Previous Pane"
+        case .selectNeedsYou(let number): "\(NeedsYou.title) \(number)"
+        case .toggleNotifications: "Turn Off Notifications"
         case .reloadConversation: "Reload Conversation"
         case .loadEarlier: "Load Earlier Messages"
         case .send: "Send"

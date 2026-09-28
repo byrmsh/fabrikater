@@ -80,11 +80,13 @@ Manual on the Mac: capture the screen fixtures from the scratch pane; make Claud
 
 The "Needs you" group, Dock badge, and notifications on `blocked` and `working` to `done`.
 
+**Done** (this PR). As built: `NeedsYou` in `AppModel` is derived from the finished sidebar rows (blocked panes, then unread panes that are `done` or `idle`, each in sidebar order) and kept apart from `sections`, so next and previous pane, the switcher and the pinned section are untouched; the sidebar draws it as the first section. `AppCommand.selectNeedsYou(1…9)` (⌘1…⌘9, listed by pane label in the Pane menu) only selects. The Dock badge is `NeedsYou.badge`, set on `NSApp.dockTile` (no notification permission needed). `Herd.alerting(since:watched:muted:)` picks the panes to notify about; `AppStore` posts them through a `Notifier` (a recording one in tests and fixture runs, `SystemNotifier` over `UNUserNotificationCenter` in the app, whose click selects the pane). Per-workspace muting is `PaneNotes.mutedWorkspaces`, toggled by Turn Off / Turn On Notifications. The rest of the notification preferences wait for the Settings scene.
+
 CI-verifiable: the "Needs you" store: which panes it lists, in which order, how they leave it when opened, and the badge count; which status transitions notify, and when the pane is selected and the app frontmost, that none do.
 
 Manual on the Mac: with the app in the background, a scratch-pane agent finishing a turn produces a notification; clicking it selects that pane; the Dock badge matches the "Needs you" group.
 
-Open for M6: the "Needs you" list reorders as panes change state, so ⌘1…⌘9 can land on a different pane from the one the user just saw. They only select a pane and must never send or answer anything; confirm this reading of [design.md](design.md) with the user.
+Resolved for M6: ⌘1…⌘9 only select a pane and never send or answer anything. To keep them from landing on a different pane than the one just seen, the group is ordered by state then sidebar order rather than by recency, so a pane only moves when its own state changes (or when the sidebar's order does, under Sort Panes By › Recent Activity). Carried forward: sounds and per-kind choices in the Settings scene; whether a notification's click should also bring up a pane window when the main window is closed.
 
 ## M7: Other agents
 

@@ -108,7 +108,8 @@ e2e_expect_label() {
 }
 
 # e2e_expect_order FIRST SECOND: waits until elements VoiceOver reads as exactly FIRST and SECOND are both in the
-# window, FIRST earlier, as sidebar rows are top to bottom.
+# window, FIRST earlier, as sidebar rows are top to bottom. Each label's last element counts, so a row's copy in
+# Needs You or Pinned above the workspaces does not.
 e2e_expect_order() {
     e2e_wait "\"$1\" above \"$2\"" _e2e_in_order "$1" "$2"
 }
@@ -116,8 +117,8 @@ e2e_expect_order() {
 _e2e_in_order() {
     local labels first second
     labels="$(e2e_screen_text AXTitle AXValue AXDescription)"
-    first="$(printf '%s\n' "${labels}" | grep -nxF -m1 -- "$1" | cut -d: -f1)"
-    second="$(printf '%s\n' "${labels}" | grep -nxF -m1 -- "$2" | cut -d: -f1)"
+    first="$(printf '%s\n' "${labels}" | grep -nxF -- "$1" | tail -n1 | cut -d: -f1)"
+    second="$(printf '%s\n' "${labels}" | grep -nxF -- "$2" | tail -n1 | cut -d: -f1)"
     [ -n "${first}" ] && [ -n "${second}" ] && [ "${first}" -lt "${second}" ]
 }
 
