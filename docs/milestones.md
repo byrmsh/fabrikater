@@ -98,6 +98,16 @@ CI-verifiable: parser tests for Codex, pi/omp and OpenCode against scrubbed host
 
 Manual on the Mac: a Codex pane's conversation renders its user turns, assistant text and tool calls; so do an omp or pi pane and an OpenCode pane when one runs; a shell pane opens in the terminal.
 
+## M8: Past sessions
+
+The one gap left from comparing fabrikater with Cursor's Agents window (the backlog below): browsing a pane's earlier sessions.
+
+**Done** (this PR). Pane ▸ Past Sessions… (⌘Y) and the row's context menu open a sheet listing the Claude sessions in the selected pane's project folder, newest first with their first prompt, age and size, the live one marked Current (design.md, "Past sessions"). One host command lists them (`HostCommand.claudeSessions`, architecture.md "Past sessions"); `PastSession.parse(listing:)` reads the listing, `PastSessionsStore` holds the sheet and `SessionWindowStore` a past session's window, whose `ConversationStore` shows a log with no pane behind it. Opening a session is `WindowGroup(for: SessionWindowID.self)`, a `Codable` value whose `SessionID` is checked again when a window is restored. Carried forward: sessions of Codex, pi and OpenCode (their logs are not kept per folder, so each needs its own listing), menu bar commands reaching a past session's window (⌘R and ⇧⌘C act on the main window while one is in front; its toolbar has Reload and Copy Conversation), a search field in the sheet, and resuming a past session in a pane.
+
+CI-verifiable: the listing script over a fake home directory (order, the prompt rows it picks, the cut), the listing parser (cut rows, escapes, logs without a prompt), the sheet's rows and messages, the session window's conversation, the e2e flow `past-sessions`.
+
+Manual on the Mac: ⌘Y on a Claude pane lists its folder's sessions quickly and in the right order; opening one shows its conversation; a second ⌘Y and Open on the same session brings its window to the front.
+
 ## Later
 
 Movable, dockable panels (IDE-style) on the layout model from `.claude/skills/macos-design`; the Settings scene from design.md (host alias, notifications, Return-to-send, font sizes); creating and closing tabs and panes; starting agents; search across all conversations; a `MenuBarExtra` with the "Needs you" list; image attachments in the composer.

@@ -116,6 +116,7 @@ struct SidebarView: View {
                 openWindow(value: pane.id)
             }
             .disabled(!store.isEnabled(.openInNewWindow(pane.id)))
+            CommandButton(target: MenuTarget(app: store), command: .showPastSessions(pane.id))
         }
     }
 }

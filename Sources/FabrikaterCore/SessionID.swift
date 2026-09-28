@@ -2,7 +2,8 @@
 ///
 /// Session ids end up in remote shell commands, so a value of this type is always valid: a UUID
 /// (Claude, Codex, pi, Grok) or an OpenCode id `ses_` plus 8 to 64 ASCII letters and digits (docs/parsing.md 1.1).
-public struct SessionID: Hashable, Sendable, CustomStringConvertible {
+/// Decoding checks it the same way, so a restored window cannot carry an invalid id.
+public struct SessionID: Hashable, Sendable, Codable, CustomStringConvertible {
     public let rawValue: String
 
     public init?(_ rawValue: String) {
@@ -11,6 +12,20 @@ public struct SessionID: Hashable, Sendable, CustomStringConvertible {
     }
 
     public var description: String { rawValue }
+
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let raw = try container.decode(String.self)
+        guard let id = SessionID(raw) else {
+            throw DecodingError.dataCorruptedError(in: container, debugDescription: "not a session id")
+        }
+        self = id
+    }
+
+    public func encode(to encoder: any Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(rawValue)
+    }
 
     private static func isUUID(_ value: String) -> Bool {
         let groups = value.utf8.split(separator: UInt8(ascii: "-"), omittingEmptySubsequences: false)

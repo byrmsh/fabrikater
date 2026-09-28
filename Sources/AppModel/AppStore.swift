@@ -38,6 +38,10 @@ public final class AppStore {
     public let detail: PaneDetailStores
     /// Builds a window's pane detail stores, all sharing one set of drafts.
     private let makeDetail: () -> PaneDetailStores
+    /// The Past Sessions sheet (M8).
+    public let pastSessions: PastSessionsStore
+    /// Builds a past session's window store.
+    private let makeSessionWindow: (SessionWindowID) -> SessionWindowStore
 
     private var herd = Herd()
     private var activity = PaneActivity()
@@ -65,6 +69,7 @@ public final class AppStore {
     public init(
         herdUpdates: AsyncStream<HerdUpdate>,
         transcripts: any TranscriptService,
+        history: any SessionHistory = NoSessionHistory(),
         control: any HerdrControl,
         screens: any PaneReader = UnreadableScreens(),
         answers: (any HerdrControl)? = nil,
@@ -97,6 +102,8 @@ public final class AppStore {
         }
         detail = makeDetail()
         focus = FocusSync(control: control)
+        pastSessions = PastSessionsStore(history: history, now: now)
+        makeSessionWindow = { SessionWindowStore($0, transcripts: transcripts, clipboard: clipboard) }
     }
 
     /// Applies herd updates until the stream ends. Call once, for the lifetime of the window.
@@ -175,6 +182,12 @@ public final class AppStore {
         case .openInVSCode(let id):
             guard let url = vscodeLink(id) else { return }
             opener.open(url)
+        case .showPastSessions(let id):
+            guard let pane = pane(id) else { return }
+            pastSessions.open(pane)
+        case .closePastSessions, .openPastSession:
+            // SwiftUI's openWindow opens the session's window before this; the window asks `sessionWindow(_:)`.
+            pastSessions.close()
         case .openInNewWindow:
             // The view opens the window (SwiftUI's openWindow) with `windowPane(_:)`; the window asks `paneWindow(_:)`.
             break
@@ -203,6 +216,9 @@ public final class AppStore {
         case .chooseQuickSwitcherResult(let id): (id ?? switcher?.highlighted) != nil
         case .openInVSCode(let id): vscodeLink(id) != nil
         case .openInNewWindow(let id): windowPane(id) != nil
+        case .showPastSessions(let id): PastSessionsStore.canList(pane(id))
+        case .closePastSessions: pastSessions.sheet != nil
+        case .openPastSession(let id): pastSessions.sheet?.rows.contains { $0.window == id } == true
         case .send, .sendKey, .answerPrompt, .toggleChanges, .setChangesShown, .toggleSessionFacts,
             .setSessionFactsShown, .copyPath, .toggleTerminal, .showPanel, .setTerminalVisible, .reloadConversation,
             .loadEarlier, .copyMessage, .copyConversation, .expandEntry, .collapseEntry:
@@ -254,6 +270,11 @@ public final class AppStore {
         paneWindows.add(window)
         refresh(window)
         return window
+    }
+
+    /// A past session's window store, with its own read-only conversation.
+    public func sessionWindow(_ id: SessionWindowID) -> SessionWindowStore {
+        makeSessionWindow(id)
     }
 
     private func refreshPaneWindows() {
