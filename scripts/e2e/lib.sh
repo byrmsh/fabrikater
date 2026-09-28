@@ -209,10 +209,10 @@ APPLESCRIPT
 )" = "pressed" ]
 }
 
-# e2e_disclose TEXT: expands the first disclosure row (a list row that has AXDisclosing) holding a text that reads
-# exactly TEXT, as clicking its triangle does.
+# e2e_disclose TEXT: expands the first disclosure triangle whose label holds a text reading exactly TEXT, as clicking it
+# does. A DisclosureGroup outside a List exposes its label's texts as the triangle's children.
 e2e_disclose() {
-    e2e_wait "a disclosure row holding \"$1\"" _e2e_disclose "$1"
+    e2e_wait "a disclosure triangle labelled \"$1\"" _e2e_disclose "$1"
     sleep 0.5
 }
 
@@ -222,15 +222,16 @@ tell application "System Events"
     tell window 1 of process "${E2E_PROCESS}"
         repeat with uiItem in (entire contents as list)
             try
-                value of attribute "AXDisclosing" of uiItem
-                repeat with inner in (entire contents of uiItem as list)
-                    try
-                        if value of inner is "$1" then
-                            set value of attribute "AXDisclosing" of uiItem to true
-                            return "expanded"
-                        end if
-                    end try
-                end repeat
+                if role of uiItem is "AXDisclosureTriangle" then
+                    repeat with inner in (UI elements of uiItem)
+                        try
+                            if value of inner is "$1" then
+                                perform action "AXPress" of uiItem
+                                return "expanded"
+                            end if
+                        end try
+                    end repeat
+                end if
             end try
         end repeat
     end tell
