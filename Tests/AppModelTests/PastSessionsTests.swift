@@ -95,14 +95,18 @@ struct PastSessionsTests {
             store.pastSessions.sheet?.emptyMessage == "Could not list sessions: No session log was found for this pane")
     }
 
-    @Test func onlyClaudePanesListSessions() throws {
+    @Test func panesWhoseLogIsReadListSessions() throws {
         let store = try makeStore(.success([]), snapshot: "snapshot-agents.synthetic.json")
         #expect(!store.isEnabled(.showPastSessions(nil)))
         #expect(store.isEnabled(.showPastSessions(refactor)))
+        #expect(store.isEnabled(.showPastSessions(PaneID("w1:pB")!)))
+        #expect(store.isEnabled(.showPastSessions(PaneID("w2:p2")!)))
+        #expect(store.isEnabled(.showPastSessions(PaneID("w2:p3")!)))
         #expect(!store.isEnabled(.showPastSessions(PaneID("w1:pA")!)))
-        #expect(!store.isEnabled(.showPastSessions(PaneID("w1:pB")!)))
-        store.perform(.showPastSessions(PaneID("w1:pB")!))
+        store.perform(.showPastSessions(PaneID("w1:pA")!))
         #expect(store.pastSessions.sheet == nil)
+        store.perform(.showPastSessions(PaneID("w1:pB")!))
+        #expect(store.pastSessions.sheet?.title == "Sessions in project-2")
     }
 
     @Test func aSessionWindowReadsItsOwnLog() async throws {

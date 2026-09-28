@@ -2,8 +2,7 @@ import FabrikaterCore
 import Foundation
 import HostKit
 
-/// One of the conversations kept beside a pane's live Claude log: an earlier session started in the same working
-/// directory, or the live one itself.
+/// One of the conversations an agent kept for a pane's working directory: an earlier session, or the live one itself.
 public struct PastSession: Hashable, Sendable, Identifiable {
     public let log: SessionLog
     /// When the log was last written.
@@ -26,9 +25,11 @@ public struct PastSession: Hashable, Sendable, Identifiable {
 }
 
 extension PastSession {
-    /// The sessions in `HostCommand.claudeSessions`'s output, newest first as listed. A log without a prompt (a
-    /// hand-over stub, a session closed before its first message) is left out, unless it is the live one.
-    public static func parse(listing: Data) -> [PastSession] {
+    /// The sessions in `HostCommand.sessions`'s output for an agent writing `format`, newest first as listed. A log
+    /// without a prompt (a hand-over stub, a session closed before its first message) is left out, unless it is the
+    /// live one.
+    public static func parse(listing: Data, format: SessionLog.Format) -> [PastSession] {
+        let listed = ListedSessions(format)
         let lines = listing.split(separator: UInt8(ascii: "\n"))
         guard let first = lines.first else { return [] }
         let current = String(decoding: first, as: UTF8.self)
@@ -37,30 +38,26 @@ extension PastSession {
             guard fields.count >= 3,
                 let seconds = TimeInterval(String(decoding: fields[0], as: UTF8.self)),
                 let bytes = Int(String(decoding: fields[1], as: UTF8.self)),
-                case let name = String(decoding: fields[2], as: UTF8.self), name.hasSuffix(".jsonl"),
-                let session = SessionID(String(name.dropLast(6)))
+                case let name = String(decoding: fields[2], as: UTF8.self),
+                let session = listed.session(name)
             else { return nil }
             let isCurrent = name == current
-            let title = fields.dropFirst(3).lazy.compactMap { title(ofUserRow: $0) }.first
+            let title = fields.dropFirst(3).lazy.compactMap { title(ofRow: $0, in: listed) }.first
             guard title != nil || isCurrent else { return nil }
             return PastSession(
-                log: SessionLog(format: .claude, session: session), modified: Date(timeIntervalSince1970: seconds),
+                log: SessionLog(format: format, session: session), modified: Date(timeIntervalSince1970: seconds),
                 bytes: bytes, title: title ?? "", isCurrent: isCurrent)
         }
     }
 
-    /// The prompt a Claude user row carries, on one line, or nil when it has none. A row cut short by the listing is
-    /// read up to the cut.
-    static func title(ofUserRow row: Data.SubSequence) -> String? {
+    /// The prompt a listed row carries, on one line, or nil when it has none. A row cut short by the listing is read
+    /// up to the cut.
+    static func title(ofRow row: Data.SubSequence, in listed: ListedSessions) -> String? {
         let text: String?
         if let object = try? JSONSerialization.jsonObject(with: row) as? [String: Any] {
-            let content = (object["message"] as? [String: Any])?["content"]
-            text =
-                content as? String
-                ?? (content as? [[String: Any]])?.first { $0["type"] as? String == "text" }?["text"] as? String
+            text = listed.prompt(object)
         } else {
-            text =
-                Self.leadingString(after: #""content":""#, in: row) ?? Self.leadingString(after: #""text":""#, in: row)
+            text = listed.cutKeys.lazy.compactMap { Self.leadingString(after: #""\#($0)":""#, in: row) }.first
         }
         guard let text, !text.hasPrefix("<") else { return nil }
         let line = TextRules.oneLine(TextRules.stripANSI(text))
@@ -130,11 +127,9 @@ public protocol SessionHistory: Sendable {
 }
 
 extension HostTranscriptService: SessionHistory {
-    /// Only Claude keeps its sessions per working directory; other formats list nothing yet.
     public func pastSessions(besides log: SessionLog) async throws -> [PastSession] {
-        guard log.format == .claude else { return [] }
         do {
-            return PastSession.parse(listing: try await runner.run(.claudeSessions(log.session)))
+            return PastSession.parse(listing: try await runner.run(.sessions(log)), format: log.format)
         } catch HostError.exited(HostCommand.notFoundStatus, _) {
             throw TranscriptError.noLog
         }
