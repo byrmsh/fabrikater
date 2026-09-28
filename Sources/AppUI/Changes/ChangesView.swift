@@ -13,8 +13,13 @@ struct ChangesView: View {
             ContentUnavailableView(
                 panel.emptyTitle, systemImage: "doc.text.magnifyingglass", description: Text(panel.emptyDetail))
         } else {
-            List {
-                Section {
+            // A scroll view rather than a sidebar-style List: the List's outline rows hide their text from
+            // accessibility, as the herd sidebar's tab rows do.
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 6) {
+                    Text(panel.summary)
+                        .font(.headline)
+                        .foregroundStyle(.secondary)
                     ForEach(panel.files) { file in
                         DisclosureGroup(isExpanded: isExpanded(file.id)) {
                             ForEach(file.edits) { edit in
@@ -27,16 +32,14 @@ struct ChangesView: View {
                             Button(AppCommand.copyPath(file.path).title) { perform(.copyPath(file.path)) }
                         }
                     }
-                } header: {
-                    Text(panel.summary)
-                } footer: {
                     if let footnote = panel.footnote {
                         Text(footnote)
+                            .font(.callout)
                             .foregroundStyle(.secondary)
                     }
                 }
+                .padding(12)
             }
-            .listStyle(.sidebar)
         }
     }
 
