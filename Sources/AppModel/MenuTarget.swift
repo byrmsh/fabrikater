@@ -25,7 +25,7 @@ public struct MenuTarget {
         let pane = window.paneID
         switch command {
         case .send, .reloadConversation, .copyConversation, .toggleChanges, .setChangesShown, .toggleSessionFacts,
-            .setSessionFactsShown:
+            .setSessionFactsShown, .toggleTerminal, .showPanel:
             return .window(command)
         case .togglePin(nil): return .app(.togglePin(pane))
         case .toggleHidden(nil): return .app(.toggleHidden(pane))

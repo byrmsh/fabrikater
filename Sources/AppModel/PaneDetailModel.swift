@@ -7,6 +7,9 @@ public protocol PaneDetailModel: AnyObject {
     var conversation: ConversationStore { get }
     var composer: ComposerStore { get }
     var panels: PanePanels { get }
+    /// Which panel the detail shows: the conversation or the terminal.
+    var layout: WorkspaceLayout { get }
+    var terminal: TerminalStore { get }
     func perform(_ command: AppCommand)
     func isEnabled(_ command: AppCommand) -> Bool
 }
