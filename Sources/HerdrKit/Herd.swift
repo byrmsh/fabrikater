@@ -68,6 +68,8 @@ public struct Herd: Equatable, Sendable {
         public var foregroundCwd: String?
         /// `terminal_title_stripped`; Claude sets it to the conversation title.
         public var title: String?
+        /// Herdr's change counter for the pane; it does not track screen output (docs/architecture.md).
+        public var revision: Int?
 
         public init(
             id: PaneID,
@@ -78,7 +80,8 @@ public struct Herd: Equatable, Sendable {
             agentSession: AgentSession? = nil,
             cwd: String? = nil,
             foregroundCwd: String? = nil,
-            title: String? = nil
+            title: String? = nil,
+            revision: Int? = nil
         ) {
             self.id = id
             self.tabID = tabID
@@ -89,6 +92,7 @@ public struct Herd: Equatable, Sendable {
             self.cwd = cwd
             self.foregroundCwd = foregroundCwd
             self.title = title
+            self.revision = revision
         }
 
         /// The session whose log holds this pane's conversation.
@@ -229,6 +233,7 @@ extension Herd.Pane: Decodable {
         case cwd
         case foregroundCwd = "foreground_cwd"
         case title = "terminal_title_stripped"
+        case revision
     }
 
     public init(from decoder: any Decoder) throws {
@@ -242,5 +247,6 @@ extension Herd.Pane: Decodable {
         cwd = try? container.decodeIfPresent(String.self, forKey: .cwd)
         foregroundCwd = try? container.decodeIfPresent(String.self, forKey: .foregroundCwd)
         title = try? container.decodeIfPresent(String.self, forKey: .title)
+        revision = try? container.decodeIfPresent(Int.self, forKey: .revision)
     }
 }

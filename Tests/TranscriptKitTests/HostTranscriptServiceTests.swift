@@ -16,6 +16,16 @@ struct HostTranscriptServiceTests {
         }
     }
 
+    private struct FixedLogRunner: HostCommandRunner {
+        let data: Data
+
+        func run(_ command: HostCommand, input: Data?) async throws(HostError) -> Data { data }
+
+        func lines(_ command: HostCommand, input: Data?) -> AsyncThrowingStream<String, any Error> {
+            AsyncThrowingStream { $0.finish() }
+        }
+    }
+
     private let session = SessionID("00000000-0000-4000-8000-000000000001")!
 
     @Test func loadsTheLogThroughTheRunner() async throws {
@@ -24,6 +34,14 @@ struct HostTranscriptServiceTests {
         #expect(transcript.entries.count == 9)
         #expect(!transcript.isClipped)
         #expect(transcript.facts.firstSeen == SessionFacts.parseTimestamp("2026-09-26T10:00:00.000Z"))
+        #expect(transcript.todos.isEmpty)
+    }
+
+    @Test func attachesTheLatestPlan() async throws {
+        let log = try Fixture.data(named: "claude-todos.synthetic.jsonl")
+        let transcript = try await HostTranscriptService(runner: FixedLogRunner(data: log))
+            .claudeTranscript(session: session, bytes: TranscriptWindow.full)
+        #expect(transcript.todos.count == 4)
     }
 
     @Test func marksATranscriptLongerThanTheWindowAsClipped() async throws {

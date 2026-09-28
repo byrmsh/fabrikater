@@ -1,6 +1,7 @@
 import SwiftUI
 
-/// The conversation's text size as a multiple of the system size, set once by `DetailView` from `AppStore.textScale`.
+/// The conversation's text size as a multiple of the system size, set by `DetailView` and each pane window from
+/// `AppStore.textScale`.
 private struct TextScaleKey: EnvironmentKey {
     static let defaultValue = 1.0
 }

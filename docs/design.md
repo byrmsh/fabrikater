@@ -18,6 +18,8 @@ One main window, a standard macOS three-part `NavigationSplitView`:
 
 The arrangement of these panels comes from a layout model in `AppModel`, not from the view hierarchy (`.claude/skills/macos-design`, `references/layout-model.md`). The first version has the fixed shape above; a later milestone makes panels movable and dockable, IDE-style (Xcode, Zed), without rewriting the views.
 
+**Pane windows.** Open in New Window, in a pane row's context menu and the Pane menu, opens that pane's conversation in a window of its own (one per pane; opening it again brings it to the front). The window has no sidebar and no composer: its title and subtitle are the pane's label and location, its toolbar shows the status and Reload, and it follows the main window's text size. When Herdr no longer has the pane, the window keeps the last conversation and says so. Menu bar commands still act on the main window's selection.
+
 The selection survives relaunch. Keyboard: ⌘1…⌘9 jump to the first nine panes in the "Needs you" group, ⌘↑/⌘↓ move through the sidebar, ⌘K opens a quick switcher that jumps to any pane by name, workspace, tab or agent, ⌘L focuses the composer, ⌘T toggles Conversation/Terminal, ⌘F searches the conversation.
 
 ## Conversation view
@@ -31,6 +33,7 @@ A vertically scrolling transcript of the pane's session log, oldest at the top, 
 - **Timestamps** on hover, and a divider when more than 15 minutes pass between turns.
 - Thinking blocks are not shown (Claude's logs store them empty).
 - Subagent (sidechain) traffic is hidden.
+- **Current plan**: when the session has a plan (Claude's latest `TodoWrite` call), a compact checklist sits above the transcript under a "Plan · 2 of 4 done" disclosure: pending items as open circles, the item in progress in the accent colour with its present-tense wording, completed items struck through. More than six items scroll inside the panel. A session without a plan, or whose latest plan is empty or malformed, shows nothing.
 
 Older history loads when the user scrolls near the top. Search (⌘F) matches across loaded messages and offers to load everything for a full search.
 

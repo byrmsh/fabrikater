@@ -1,6 +1,7 @@
 import AppModel
 import FabrikaterCore
 import SwiftUI
+import TranscriptKit
 
 /// The selected pane's conversation and composer; its title, status and agent are in the window's title bar and toolbar.
 struct DetailView: View {
@@ -9,6 +10,10 @@ struct DetailView: View {
     var body: some View {
         if let header = store.header {
             VStack(spacing: 0) {
+                if !store.conversation.transcript.todos.isEmpty {
+                    TodoPlanView(todos: store.conversation.transcript.todos)
+                    Divider()
+                }
                 TranscriptView(conversation: store.conversation, perform: store.perform)
                 Divider()
                 ComposerView(store: store)
@@ -18,7 +23,7 @@ struct DetailView: View {
             .navigationSubtitle(header.location)
             .toolbar {
                 ToolbarItem {
-                    PaneStatusView(store: store, header: header)
+                    SessionFactsButton(store: store, header: header)
                 }
                 ToolbarItem {
                     Button {

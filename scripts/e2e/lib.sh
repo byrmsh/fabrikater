@@ -82,6 +82,20 @@ e2e_expect_label() {
     e2e_wait "an element labelled \"$1\"" _e2e_has_label "$1"
 }
 
+# e2e_expect_order FIRST SECOND: waits until elements VoiceOver reads as exactly FIRST and SECOND are both in the
+# window, FIRST earlier, as sidebar rows are top to bottom.
+e2e_expect_order() {
+    e2e_wait "\"$1\" above \"$2\"" _e2e_in_order "$1" "$2"
+}
+
+_e2e_in_order() {
+    local labels first second
+    labels="$(e2e_screen_text AXTitle AXValue AXDescription)"
+    first="$(printf '%s\n' "${labels}" | grep -nxF -m1 -- "$1" | cut -d: -f1)"
+    second="$(printf '%s\n' "${labels}" | grep -nxF -m1 -- "$2" | cut -d: -f1)"
+    [ -n "${first}" ] && [ -n "${second}" ] && [ "${first}" -lt "${second}" ]
+}
+
 # e2e_expect_no_text TEXT: fails if TEXT is on screen now.
 e2e_expect_no_text() {
     if _e2e_has_text "$1"; then
@@ -125,6 +139,24 @@ e2e_key() {
     osascript -e "tell application \"System Events\" to tell process \"${E2E_PROCESS}\"
         set frontmost to true
         ${press}${using}
+    end tell" >/dev/null
+    sleep 0.5
+}
+
+# e2e_menu MENU ITEM: chooses ITEM from the menu bar's MENU, for commands without a shortcut. Example: e2e_menu Pane "Hide Pane"
+e2e_menu() {
+    osascript -e "tell application \"System Events\" to tell process \"${E2E_PROCESS}\"
+        set frontmost to true
+        click menu item \"$2\" of menu 1 of menu bar item \"$1\" of menu bar 1
+    end tell" >/dev/null
+    sleep 0.5
+}
+
+# e2e_submenu MENU SUBMENU ITEM: chooses ITEM from SUBMENU in the menu bar's MENU. Example: e2e_submenu View "Sort Panes By" "Recent Activity"
+e2e_submenu() {
+    osascript -e "tell application \"System Events\" to tell process \"${E2E_PROCESS}\"
+        set frontmost to true
+        click menu item \"$3\" of menu 1 of menu item \"$2\" of menu 1 of menu bar item \"$1\" of menu bar 1
     end tell" >/dev/null
     sleep 0.5
 }
@@ -225,6 +257,17 @@ e2e_wait() {
         fi
         sleep 0.5
     done
+}
+
+# e2e_expect_windows COUNT: waits until the app has COUNT windows open, as after opening a pane in a new window. The
+# newest window is then the front one, which every other step reads.
+e2e_expect_windows() {
+    e2e_wait "$1 windows" _e2e_window_count_is "$1"
+}
+
+_e2e_window_count_is() {
+    [ "$(osascript -e "tell application \"System Events\" to count windows of process \"${E2E_PROCESS}\"" 2>/dev/null)" \
+        = "$1" ]
 }
 
 _e2e_has_window() {

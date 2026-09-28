@@ -3,7 +3,7 @@ import HerdrKit
 import Observation
 import TranscriptKit
 
-/// The selected pane's conversation, read from its session log.
+/// One pane's conversation, read from its session log: the main window's selected pane, or a pane window's pane.
 ///
 /// A pane seen recently shows its cached conversation at once and re-reads in the background. A pane seen for the
 /// first time reads a small window first, so something shows quickly, then the full window.
@@ -21,6 +21,7 @@ public final class ConversationStore {
     private let transcripts: any TranscriptService
     private let log = Log(category: "AppModel")
     private var session: SessionID?
+    private var status: AgentStatus?
     private var cache = TranscriptCache()
     @ObservationIgnored private(set) var loadTask: Task<Void, Never>?
 
@@ -34,10 +35,16 @@ public final class ConversationStore {
         self.transcripts = transcripts
     }
 
-    /// Shows `pane`'s conversation. Loads when the pane or its session changed, and otherwise does nothing.
+    /// Shows `pane`'s conversation. Loads when the pane or its session changed, and re-reads when its status changed,
+    /// since a turn starting or ending changes the log.
     func show(_ pane: Herd.Pane?) {
         let session = pane?.sessionID
-        guard pane?.id != paneID || session != self.session else { return }
+        let previousStatus = status
+        status = pane?.agentStatus
+        guard pane?.id != paneID || session != self.session else {
+            if previousStatus != status, Self.unavailableReason(for: pane) == nil { reload() }
+            return
+        }
         loadTask?.cancel()
         paneID = pane?.id
         self.session = session
@@ -56,12 +63,35 @@ public final class ConversationStore {
         load(quickFirst: false)
     }
 
-    func expand(_ id: String) {
-        expansion = expansion.expanding(id)
+    /// Handles the commands that act on this conversation alone; ignores every other.
+    func perform(_ command: AppCommand, clipboard: any Clipboard) {
+        switch command {
+        case .reloadConversation:
+            reload()
+        case .copyMessage(let id):
+            guard let entry = transcript.entries.first(where: { $0.id == id }) else { return }
+            clipboard.copy(Transcript.markdownBody(of: entry))
+        case .copyConversation:
+            guard !transcript.entries.isEmpty else { return }
+            clipboard.copy(Transcript.markdown(of: transcript.entries))
+        case .expandEntry(let id):
+            expansion = expansion.expanding(id)
+        case .collapseEntry(let id):
+            expansion = expansion.collapsing(id)
+        default:
+            break
+        }
     }
 
-    func collapse(_ id: String) {
-        expansion = expansion.collapsing(id)
+    /// Whether a conversation command applies now; nil for any other command.
+    func isEnabled(_ command: AppCommand) -> Bool? {
+        switch command {
+        case .reloadConversation: canReload
+        case .copyMessage(let id): transcript.entries.contains { $0.id == id }
+        case .copyConversation: !transcript.entries.isEmpty
+        case .expandEntry, .collapseEntry: true
+        default: nil
+        }
     }
 
     private func load(quickFirst: Bool) {

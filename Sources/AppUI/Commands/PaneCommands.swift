@@ -5,6 +5,7 @@ import SwiftUI
 @MainActor
 public struct PaneCommands: Commands {
     let store: AppStore
+    @Environment(\.openWindow) private var openWindow
 
     public init(store: AppStore) {
         self.store = store
@@ -19,7 +20,16 @@ public struct PaneCommands: Commands {
             Divider()
             button(.renamePane(nil))
             button(.togglePin(nil))
+            button(.toggleHidden(nil))
+            button(.toggleHiddenWorkspace(nil))
+            Divider()
             button(.openInVSCode(nil))
+            Button(AppCommand.openInNewWindow(nil).title) {
+                if let id = store.windowPane(nil) {
+                    openWindow(value: id)
+                }
+            }
+            .disabled(!store.isEnabled(.openInNewWindow(nil)))
             Divider()
             button(.reloadConversation)
             button(.copyConversation)
