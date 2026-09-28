@@ -23,10 +23,8 @@ public struct MenuTarget {
     func route(_ command: AppCommand) -> Route {
         guard let window else { return .app(command) }
         let pane = window.paneID
+        if PaneDetailStores.handles(command) { return .window(command) }
         switch command {
-        case .send, .sendKey, .answerPrompt, .reloadConversation, .copyConversation, .toggleChanges, .setChangesShown,
-            .toggleSessionFacts, .setSessionFactsShown, .toggleTerminal, .showPanel:
-            return .window(command)
         case .togglePin(nil): return .app(.togglePin(pane))
         case .toggleHidden(nil): return .app(.toggleHidden(pane))
         case .openInVSCode(nil): return .app(.openInVSCode(pane))
