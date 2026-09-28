@@ -2,7 +2,7 @@ import AppModel
 import SwiftUI
 
 /// A window reading one past session's conversation, opened from the Past Sessions sheet. It holds its own store, so
-/// closing the window frees it. There is no composer: the session is not running in a pane.
+/// closing the window frees it, and offers that store to the menu bar while it is in front. There is no composer: the session is not running in a pane.
 public struct SessionWindowView: View {
     let store: AppStore
     let id: SessionWindowID
@@ -27,6 +27,7 @@ public struct SessionWindowView: View {
         }
         .environment(\.textScale, store.textScale.factor)
         .frame(minWidth: 420, minHeight: 320)
+        .focusedSceneValue(window)
         .onAppear {
             if window == nil {
                 window = store.sessionWindow(id)

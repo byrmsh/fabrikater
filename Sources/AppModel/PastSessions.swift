@@ -158,6 +158,11 @@ public final class SessionWindowStore {
     /// Says the conversation is read here, not answered.
     public var subtitle: String { "Past Session" }
 
+    /// Whether `command` acts on the conversation, the only thing this window has.
+    func handles(_ command: AppCommand) -> Bool {
+        conversation.isEnabled(command) != nil
+    }
+
     public func perform(_ command: AppCommand) {
         conversation.perform(command, clipboard: clipboard)
     }
