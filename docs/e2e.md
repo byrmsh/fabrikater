@@ -15,6 +15,7 @@
 | `send-guard` | with a permission prompt on the pane's screen (`screen-w1-p1.synthetic.txt`), Return sends nothing and the draft stays with the reason | `send-guard.png` |
 | `copy` | Copy Conversation as Markdown (⌘⇧C) puts the conversation on the pasteboard as markdown, saved as `copy.md` | `copy.png` |
 | `collapse` | a long prompt and a compaction summary (`claude-long.synthetic.jsonl`) start collapsed with Show All, and Show All expands one and offers Show Less | `collapse.png`, `collapse-expanded.png` |
+| `plan` | a session with `TodoWrite` calls (`claude-todos.synthetic.jsonl`) shows its latest plan above the conversation, "2 of 4 done", the item in progress in its present-tense wording, and no subagent plan | `plan.png` |
 | `pinning` | Pin (⌘⇧P) on the selected pane adds a Pinned section above the workspaces, the pin survives a relaunch, and Unpin removes the section | `pinning.png`, `pinning-unpinned.png` |
 | `hiding` | Hide Pane (Pane menu) drops the selected pane's row, turning off View › Show Shell Panes drops the shell pane, both survive a relaunch, and View › Show Hidden Panes brings the pane back read as hidden | `hiding.png`, `hiding-shown.png` |
 | `unread` | swapping in `snapshot-later.synthetic.json` (the refactor pane's turn ends) marks that unselected row Unread, the mark survives a relaunch, and selecting the pane clears it | `unread.png`, `unread-read.png` |
