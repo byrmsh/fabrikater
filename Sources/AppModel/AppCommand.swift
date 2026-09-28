@@ -66,6 +66,11 @@ public enum AppCommand: Hashable, Sendable {
     case setSessionFactsShown(Bool)
     /// Opens a pane's conversation in a window of its own; nil means the selected pane.
     case openInNewWindow(PaneID?)
+    /// Lists the other sessions kept beside a pane's live log, in a sheet; nil means the selected pane.
+    case showPastSessions(PaneID?)
+    case closePastSessions
+    /// Opens a listed session in a window of its own and closes the sheet; the view opens the window.
+    case openPastSession(SessionWindowID)
     /// Shows or hides the inspector listing the files the selected pane's session changed.
     case toggleChanges
     /// The inspector was shown or hidden by the window itself.
@@ -120,6 +125,9 @@ public enum AppCommand: Hashable, Sendable {
         case .toggleSessionFacts: "Session Info"
         case .setSessionFactsShown(let shown): shown ? "Show Session Info" : "Hide Session Info"
         case .openInNewWindow: "Open in New Window"
+        case .showPastSessions: "Past Sessions…"
+        case .closePastSessions: "Close Past Sessions"
+        case .openPastSession: PastSessionsStore.openTitle
         case .toggleChanges: "Show Changes"
         case .setChangesShown(let shown): shown ? "Show Changes" : "Hide Changes"
         case .copyPath: "Copy Path"

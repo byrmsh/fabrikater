@@ -44,6 +44,8 @@ public final class AppStore {
     public let composer: ComposerStore
     /// The main window's card answering the selected pane's prompt.
     public let prompt: PromptCardStore
+    /// The Past Sessions sheet (M8).
+    public let pastSessions: PastSessionsStore
     /// Every composer's drafts, kept between launches.
     private let drafts: Drafts
 
@@ -79,6 +81,7 @@ public final class AppStore {
     public init(
         herdUpdates: AsyncStream<HerdUpdate>,
         transcripts: any TranscriptService,
+        history: any SessionHistory = NoSessionHistory(),
         control: any HerdrControl,
         screens: any PaneReader = UnreadableScreens(),
         answers: (any HerdrControl)? = nil,
@@ -112,6 +115,7 @@ public final class AppStore {
         prompt = PromptCardStore(reader: screens, control: self.answers)
         focus = FocusSync(control: control)
         terminal = TerminalStore(reader: terminals)
+        pastSessions = PastSessionsStore(history: history, now: now)
     }
 
     /// Applies herd updates until the stream ends. Call once, for the lifetime of the window.
@@ -204,6 +208,12 @@ public final class AppStore {
             layout.perform(command)
         case .setTerminalVisible(let visible):
             terminal.setVisible(visible)
+        case .showPastSessions(let id):
+            guard let pane = pane(id) else { return }
+            pastSessions.open(pane)
+        case .closePastSessions, .openPastSession:
+            // SwiftUI's openWindow opens the session's window before this; the window asks `sessionWindow(_:)`.
+            pastSessions.close()
         case .openInNewWindow:
             // The view opens the window (SwiftUI's openWindow) with `windowPane(_:)`; the window asks `paneWindow(_:)`.
             break
@@ -237,6 +247,9 @@ public final class AppStore {
         case .copyPath, .setTerminalVisible: true
         case .toggleTerminal, .showPanel: layout.isEnabled(command, hasPane: header != nil) ?? false
         case .openInNewWindow(let id): windowPane(id) != nil
+        case .showPastSessions(let id): PastSessionsStore.canList(pane(id))
+        case .closePastSessions: pastSessions.sheet != nil
+        case .openPastSession(let id): pastSessions.sheet?.rows.contains { $0.window == id } == true
         case .reloadConversation, .loadEarlier, .copyMessage, .copyConversation, .expandEntry, .collapseEntry:
             conversation.isEnabled(command) ?? false
         }
@@ -289,6 +302,11 @@ public final class AppStore {
         paneWindows.add(window)
         refresh(window)
         return window
+    }
+
+    /// A past session's window store, with its own read-only conversation.
+    public func sessionWindow(_ id: SessionWindowID) -> SessionWindowStore {
+        SessionWindowStore(id, transcripts: transcripts, clipboard: clipboard)
     }
 
     private func refreshPaneWindows() {
