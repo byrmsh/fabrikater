@@ -42,6 +42,7 @@ struct FabrikaterApp: App {
             transcripts: HostTranscriptService(runner: runner),
             control: PolicedControl(SendGuard(client, reader: client), policy: policy) { try await client.snapshot() },
             notes: UserDefaultsPaneNotesStore(defaults: defaults),
+            drafts: UserDefaultsDraftStorage(defaults: defaults),
             clipboard: PasteboardClipboard(),
             opener: WorkspaceURLOpener(),
             host: host.rawValue

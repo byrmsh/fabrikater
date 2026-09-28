@@ -12,7 +12,7 @@ public final class PaneWindowStore {
     /// The pane's title, location, agent and status; the last known ones once the pane is gone.
     public private(set) var header: PaneHeader?
     public let conversation: ConversationStore
-    /// Sends prompts to this window's pane, with drafts of its own.
+    /// Sends prompts to this window's pane; its draft is the pane's, shared with the main window.
     public let composer: ComposerStore
     /// Set once Herdr no longer has the pane; the conversation stays as last read.
     public private(set) var notice: String?
@@ -21,11 +21,14 @@ public final class PaneWindowStore {
 
     private let clipboard: any Clipboard
 
-    init(paneID: PaneID, transcripts: any TranscriptService, control: any HerdrControl, clipboard: any Clipboard) {
+    init(
+        paneID: PaneID, transcripts: any TranscriptService, control: any HerdrControl, clipboard: any Clipboard,
+        drafts: Drafts = Drafts()
+    ) {
         self.paneID = paneID
         self.clipboard = clipboard
         conversation = ConversationStore(transcripts: transcripts)
-        composer = ComposerStore(control: control)
+        composer = ComposerStore(control: control, drafts: drafts)
     }
 
     /// The pane as the herd has it now with its header, or nil when it is gone.
