@@ -70,6 +70,8 @@ public struct Herd: Equatable, Sendable {
         public var title: String?
         /// Herdr's change counter for the pane; it does not track screen output (docs/architecture.md).
         public var revision: Int?
+        /// The pane's terminal width in cells, from its tab's layout.
+        public var columns: Int?
 
         public init(
             id: PaneID,
@@ -81,7 +83,8 @@ public struct Herd: Equatable, Sendable {
             cwd: String? = nil,
             foregroundCwd: String? = nil,
             title: String? = nil,
-            revision: Int? = nil
+            revision: Int? = nil,
+            columns: Int? = nil
         ) {
             self.id = id
             self.tabID = tabID
@@ -93,6 +96,7 @@ public struct Herd: Equatable, Sendable {
             self.foregroundCwd = foregroundCwd
             self.title = title
             self.revision = revision
+            self.columns = columns
         }
 
         /// The session whose log holds this pane's conversation.
@@ -142,7 +146,16 @@ extension Herd {
         guard let snapshot = reply.result?.snapshot else {
             throw HerdrError(reply.error?.message ?? "Herdr's reply holds no snapshot")
         }
-        self.init(workspaces: snapshot.workspaces.items, tabs: snapshot.tabs.items, panes: snapshot.panes.items)
+        let columns = Dictionary(
+            snapshot.layouts.items.flatMap(\.panes).map { ($0.id, $0.rect.width) },
+            uniquingKeysWith: { first, _ in first }
+        )
+        let panes = snapshot.panes.items.map { pane in
+            var pane = pane
+            pane.columns = columns[pane.id]
+            return pane
+        }
+        self.init(workspaces: snapshot.workspaces.items, tabs: snapshot.tabs.items, panes: panes)
     }
 
     private struct Reply: Decodable {
@@ -156,15 +169,33 @@ extension Herd {
         let workspaces: Lossy<Workspace>
         let tabs: Lossy<Tab>
         let panes: Lossy<Pane>
+        let layouts: Lossy<Layout>
 
-        private enum CodingKeys: CodingKey { case workspaces, tabs, panes }
+        private enum CodingKeys: CodingKey { case workspaces, tabs, panes, layouts }
 
         init(from decoder: any Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             workspaces = try container.decodeIfPresent(Lossy<Workspace>.self, forKey: .workspaces) ?? Lossy()
             tabs = try container.decodeIfPresent(Lossy<Tab>.self, forKey: .tabs) ?? Lossy()
             panes = try container.decodeIfPresent(Lossy<Pane>.self, forKey: .panes) ?? Lossy()
+            layouts = (try? container.decodeIfPresent(Lossy<Layout>.self, forKey: .layouts)) ?? Lossy()
         }
+    }
+
+    /// Only what the app uses of a tab's layout: each pane's size in cells.
+    private struct Layout: Decodable {
+        struct Placed: Decodable {
+            struct Rect: Decodable { let width: Int }
+            let id: PaneID
+            let rect: Rect
+
+            private enum CodingKeys: String, CodingKey {
+                case id = "pane_id"
+                case rect
+            }
+        }
+
+        let panes: [Placed]
     }
 }
 
