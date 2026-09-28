@@ -55,10 +55,13 @@ struct OpenCodeRowsTests {
 
     /// The script's output, or nil when it exits as not found.
     private func run(_ tail: String) throws -> [String]? {
-        let session = try #require(SessionID(Self.id))
+        try runScript(HostCommand.openCodeRows(try #require(SessionID(Self.id))) + tail)
+    }
+
+    private func runScript(_ script: String) throws -> [String]? {
         let process = Process()
         process.executableURL = URL(filePath: "/bin/sh")
-        process.arguments = ["-c", HostCommand.openCodeRows(session) + tail]
+        process.arguments = ["-c", script]
         process.environment = ["HOME": home.path, "PATH": "/usr/bin:/bin"]
         let output = Pipe()
         process.standardOutput = output
@@ -108,5 +111,27 @@ struct OpenCodeRowsTests {
         let script = HostCommand.logTail(log, bytes: 20).remoteScript
         #expect(script.hasSuffix("rows -1 | tail -c 20"))
         #expect(HostCommand.logFollow(log, bytes: 20).remoteScript.hasSuffix("sleep 2; done"))
+    }
+
+    @Test func listsTheSessionsOfTheLiveOnesDirectoryNewestFirst() throws {
+        let listing = HostCommand.openCodeSessions(try #require(SessionID(Self.id)))
+        #expect(try runScript(listing) == nil)
+        try v1(updated: 3000)
+        try sql(
+            """
+            create table session(id text, parent_id text, directory text, title text, time_updated int);
+            insert into session values ('\(Self.id)', null, '/home/user/app', 'Rename the flag', 3000000);
+            insert into session values ('ses_older0001', null, '/home/user/app', 'Tab\tin title', 2000000);
+            insert into session values ('ses_child0001', '\(Self.id)', '/home/user/app', 'Subagent', 4000000);
+            insert into session values ('ses_other0001', null, '/home/user/other', 'Elsewhere', 5000000);
+            """)
+        let lines = try runScript(listing)
+        #expect(
+            lines == [
+                Self.id,
+                "3000\t99\t\(Self.id)\t{\"title\":\"Rename the flag\"}",
+                "2000\t0\tses_older0001\t{\"title\":\"Tab\\tin title\"}",
+            ])
+        #expect(try runScript(HostCommand.openCodeSessions(try #require(SessionID("ses_missing0001")))) == nil)
     }
 }

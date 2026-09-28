@@ -75,7 +75,7 @@ public struct PastSessionsSheet: Equatable, Sendable {
     public var emptyMessage: String?
 }
 
-/// The conversations kept beside the selected pane's live Claude log, listed in a sheet; choosing one opens it
+/// The conversations the selected pane's agent kept for its working directory, listed in a sheet; choosing one opens it
 /// read-only in a window of its own (M8, docs/design.md "Past sessions").
 @MainActor
 @Observable
@@ -95,14 +95,14 @@ public final class PastSessionsStore {
         self.now = now
     }
 
-    /// Whether `pane` keeps sessions this version can list.
+    /// Whether `pane` runs an agent whose sessions can be listed: one whose log the app reads.
     static func canList(_ pane: Herd.Pane?) -> Bool {
-        pane?.sessionLog?.format == .claude
+        pane?.sessionLog != nil
     }
 
     /// Opens the sheet for `pane` and lists its sessions.
     func open(_ pane: Herd.Pane) {
-        guard let sessionLog = pane.sessionLog, Self.canList(pane) else { return }
+        guard let sessionLog = pane.sessionLog else { return }
         loadTask?.cancel()
         let folder = [pane.foregroundCwd, pane.cwd].compactMap(\.self).first { !$0.isEmpty }
             .map { $0.split(separator: "/").last.map(String.init) ?? $0 }
