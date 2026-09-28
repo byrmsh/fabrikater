@@ -33,19 +33,11 @@ public final class AppStore {
     public private(set) var textScale = TextScale.actual
     /// The ⌘K switcher while it is open.
     public private(set) var switcher: QuickSwitcher?
-    /// The main window's changes inspector and session facts popover.
-    public private(set) var panels = PanePanels()
-    /// Whether the main window's detail shows the conversation or the terminal.
-    public private(set) var layout = WorkspaceLayout()
-    /// The main window's terminal view; each pane window has its own.
-    public let terminal: TerminalStore
-    /// The main window's conversation; each pane window has its own (`paneWindow(_:)`).
-    public let conversation: ConversationStore
-    public let composer: ComposerStore
-    /// The main window's card answering the selected pane's prompt.
-    public let prompt: PromptCardStore
-    /// Every composer's drafts, kept between launches.
-    private let drafts: Drafts
+    /// The main window's conversation, composer, prompt card, terminal and panels; each pane window has its own
+    /// (`paneWindow(_:)`).
+    public let detail: PaneDetailStores
+    /// Builds a window's pane detail stores, all sharing one set of drafts.
+    private let makeDetail: () -> PaneDetailStores
 
     private var herd = Herd()
     private var activity = PaneActivity()
@@ -53,12 +45,6 @@ public final class AppStore {
     private let focus: FocusSync
     private var notes: PaneNotes
     private let notesStore: any PaneNotesStore
-    private let clipboard: any Clipboard
-    private let transcripts: any TranscriptService
-    private let control: any HerdrControl
-    private let screens: any PaneReader
-    private let answers: any HerdrControl
-    private let terminals: any TerminalReader
     @ObservationIgnored private var paneWindows = PaneWindowList()
     private let opener: any URLOpener
     private let notifier: any Notifier
@@ -94,24 +80,23 @@ public final class AppStore {
     ) {
         self.herdUpdates = herdUpdates
         notesStore = notes
-        self.clipboard = clipboard
         self.opener = opener
         self.host = host
         self.now = now
         self.notifier = notifier
         self.isAppActive = isAppActive
-        self.transcripts = transcripts
-        self.control = control
-        self.screens = screens
-        self.answers = answers ?? control
-        self.terminals = terminals
         self.notes = notes.load()
-        conversation = ConversationStore(transcripts: transcripts)
-        self.drafts = Drafts(storage: drafts)
-        composer = ComposerStore(control: control, drafts: self.drafts)
-        prompt = PromptCardStore(reader: screens, control: self.answers)
+        let drafts = Drafts(storage: drafts)
+        let answers = answers ?? control
+        makeDetail = {
+            PaneDetailStores(
+                conversation: ConversationStore(transcripts: transcripts),
+                composer: ComposerStore(control: control, drafts: drafts),
+                prompt: PromptCardStore(reader: screens, control: answers),
+                terminal: TerminalStore(reader: terminals), clipboard: clipboard)
+        }
+        detail = makeDetail()
         focus = FocusSync(control: control)
-        terminal = TerminalStore(reader: terminals)
     }
 
     /// Applies herd updates until the stream ends. Call once, for the lifetime of the window.
@@ -139,12 +124,6 @@ public final class AppStore {
         case .toggleNotifications(let id):
             guard let id = workspace(id) else { return }
             updateNotes(notes.togglingMuted(id))
-        case .send:
-            composer.send()
-        case .sendKey(let key):
-            composer.send(key)
-        case .answerPrompt(let number):
-            prompt.answer(number)
         case .renamePane(let id):
             renaming = target(id)
         case .commitRename(let id, let text):
@@ -196,19 +175,13 @@ public final class AppStore {
         case .openInVSCode(let id):
             guard let url = vscodeLink(id) else { return }
             opener.open(url)
-        case .toggleChanges, .setChangesShown, .toggleSessionFacts, .setSessionFactsShown:
-            panels.perform(command, hasPane: header != nil)
-        case .copyPath(let path):
-            clipboard.copy(path)
-        case .toggleTerminal, .showPanel:
-            layout.perform(command)
-        case .setTerminalVisible(let visible):
-            terminal.setVisible(visible)
         case .openInNewWindow:
             // The view opens the window (SwiftUI's openWindow) with `windowPane(_:)`; the window asks `paneWindow(_:)`.
             break
-        case .reloadConversation, .loadEarlier, .copyMessage, .copyConversation, .expandEntry, .collapseEntry:
-            conversation.perform(command, clipboard: clipboard)
+        case .send, .sendKey, .answerPrompt, .toggleChanges, .setChangesShown, .toggleSessionFacts,
+            .setSessionFactsShown, .copyPath, .toggleTerminal, .showPanel, .setTerminalVisible, .reloadConversation,
+            .loadEarlier, .copyMessage, .copyConversation, .expandEntry, .collapseEntry:
+            detail.perform(command, hasPane: header != nil)
         }
     }
 
@@ -217,9 +190,6 @@ public final class AppStore {
         case .selectPane, .selectNextPane, .selectPreviousPane: !sections.isEmpty
         case .selectNeedsYou(let number): needsYou.pane(number: number) != nil
         case .toggleNotifications(let id): workspace(id) != nil
-        case .send: composer.canSend
-        case .sendKey(let key): composer.canSend(key)
-        case .answerPrompt: prompt.canAnswer
         case .renamePane(let id), .togglePin(let id), .toggleHidden(let id): target(id) != nil
         case .commitRename, .cancelRename: renaming != nil
         case .toggleHiddenWorkspace(let id): workspace(id) != nil
@@ -232,13 +202,11 @@ public final class AppStore {
         case .closeQuickSwitcher, .searchQuickSwitcher, .moveQuickSwitcherHighlight: switcher != nil
         case .chooseQuickSwitcherResult(let id): (id ?? switcher?.highlighted) != nil
         case .openInVSCode(let id): vscodeLink(id) != nil
-        case .toggleChanges, .setChangesShown, .toggleSessionFacts, .setSessionFactsShown:
-            PanePanels.isEnabled(command, hasPane: header != nil) ?? false
-        case .copyPath, .setTerminalVisible: true
-        case .toggleTerminal, .showPanel: WorkspaceLayout.isEnabled(command, hasPane: header != nil) ?? false
         case .openInNewWindow(let id): windowPane(id) != nil
-        case .reloadConversation, .loadEarlier, .copyMessage, .copyConversation, .expandEntry, .collapseEntry:
-            conversation.isEnabled(command) ?? false
+        case .send, .sendKey, .answerPrompt, .toggleChanges, .setChangesShown, .toggleSessionFacts,
+            .setSessionFactsShown, .copyPath, .toggleTerminal, .showPanel, .setTerminalVisible, .reloadConversation,
+            .loadEarlier, .copyMessage, .copyConversation, .expandEntry, .collapseEntry:
+            detail.isEnabled(command, hasPane: header != nil) ?? false
         }
     }
 
@@ -262,8 +230,7 @@ public final class AppStore {
         switch command {
         case .toggleShowHidden: notes.hiding.showHidden
         case .toggleShowShells: notes.hiding.showShells
-        case .toggleChanges: panels.isChecked(command)
-        case .toggleTerminal: layout.isChecked(command)
+        case .toggleChanges, .toggleTerminal: detail.isChecked(command)
         case .sortPanes(let order): notes.order == order
         default: nil
         }
@@ -283,9 +250,7 @@ public final class AppStore {
 
     /// A new pane window's store, with its own conversation, kept up to date with the herd until the window lets go of it.
     public func paneWindow(_ id: PaneID) -> PaneWindowStore {
-        let window = PaneWindowStore(
-            paneID: id, transcripts: transcripts, control: control, terminals: terminals, clipboard: clipboard,
-            drafts: drafts, prompt: PromptCardStore(reader: screens, control: answers))
+        let window = PaneWindowStore(paneID: id, detail: makeDetail())
         paneWindows.add(window)
         refresh(window)
         return window
@@ -325,10 +290,9 @@ public final class AppStore {
             refreshPaneWindows()
         case .failed(let reason):
             connection = sections.isEmpty ? .offline(reason) : .stale(reason)
-            refreshComposer()
+            refreshInput()
             for window in paneWindows.stores {
-                window.composer.show(herd.pane(window.paneID), isOnline: false)
-                window.prompt.show(herd.pane(window.paneID), isOnline: false)
+                window.detail.showInput(herd.pane(window.paneID), isOnline: false)
             }
         }
     }
@@ -382,17 +346,12 @@ public final class AppStore {
     private func refreshSelection() {
         let selected = pane(nil)
         header = selected.map(header(for:))
-        if header == nil {
-            panels.losePane()
-        }
-        conversation.show(selected)
-        terminal.show(selected?.id, columns: selected?.columns)
-        refreshComposer()
+        detail.show(selected)
+        refreshInput()
     }
 
-    private func refreshComposer() {
-        composer.show(pane(nil), isOnline: connection == .connected)
-        prompt.show(pane(nil), isOnline: connection == .connected)
+    private func refreshInput() {
+        detail.showInput(pane(nil), isOnline: connection == .connected)
     }
 
     private func header(for pane: Herd.Pane) -> PaneHeader {
