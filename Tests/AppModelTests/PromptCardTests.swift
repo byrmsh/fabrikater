@@ -250,5 +250,6 @@ extension PromptCardTests {
         #expect(store.question == PromptCardStore.unknownMessage)
         #expect(store.subject == nil)
         #expect(store.options.isEmpty)
+        #expect(store.offersTerminal)
     }
 }

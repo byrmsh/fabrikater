@@ -5,6 +5,8 @@ import SwiftUI
 /// the prompt cannot be read, that it waits (docs/design.md, "Blocked panes: prompt cards").
 struct PromptCardView: View {
     let prompt: PromptCardStore
+    /// Whether the window can switch to its terminal now: not while it already shows it.
+    let canShowTerminal: Bool
     let perform: @MainActor (AppCommand) -> Void
 
     var body: some View {
@@ -30,6 +32,14 @@ struct PromptCardView: View {
                         .disabled(!prompt.canAnswer)
                     }
                 }
+            }
+            if prompt.offersTerminal {
+                Button(PromptCardStore.terminalTitle) {
+                    perform(PromptCardStore.terminalCommand)
+                }
+                .controlSize(.small)
+                .disabled(!canShowTerminal)
+                .help(PromptCardStore.terminalHelp)
             }
             if let notice = prompt.notice {
                 Label(notice, systemImage: "exclamationmark.triangle.fill")

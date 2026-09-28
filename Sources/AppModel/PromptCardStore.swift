@@ -106,7 +106,15 @@ public final class PromptCardStore {
 
     /// What the card says when it has no options to offer.
     public static let unknownMessage =
-        "The agent is waiting for input that fabrikater can't read. Answer it in Herdr, or press Esc to cancel it."
+        "The agent is waiting for input that fabrikater can't read. Answer it in the terminal, or press Esc to cancel it."
+
+    /// The card without options offers to switch to the terminal, where the prompt can be answered by hand.
+    public var offersTerminal: Bool { card == .unknown }
+
+    /// The button that switches the window to its terminal.
+    public static let terminalCommand = AppCommand.showPanel(.terminal)
+    public static let terminalTitle = "Show Terminal"
+    public static let terminalHelp = "Answer the prompt in the pane's terminal"
 
     public var canAnswer: Bool { isOnline && answering == nil }
 
