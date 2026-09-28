@@ -50,6 +50,8 @@ Claude Code does not keep one file per conversation. Resuming, `/fork`, and prom
 
 No `continued-in` rows exist in the 60 most recent logs on this host, so step 1 is **UNVERIFIED** here; the root heuristic has to carry the load.
 
+What fabrikater does: both steps run on the host, in the shell prefix every Claude log command starts with (`HostKit/HostCommand+ClaudeLog.swift`), so resolving costs no extra round trip and is redone on every read and every follow (re)connect. Rows are matched as text, not decoded: `awk` finds `"continuedInSessionId":"<uuid>"` and main-thread `"type":"assistant"` rows, and the root is the first `"uuid":"…"` in the first 64 KiB (both copies keep that row byte for byte). Siblings are only opened when newer than the best so far. Not done yet: re-resolving while a follow is running and the pane's session id has not changed.
+
 ## 2. The normalized transcript model
 
 From `bridge/journal/types.ts:23-82`:
