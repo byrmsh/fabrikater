@@ -27,7 +27,7 @@ public struct PaneWindowView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
-        .environment(\.textScale, store.textScale.factor)
+        .preferred(store.preferences.preferences, scale: store.textScale)
         .frame(minWidth: 420, minHeight: 320)
         .focusedSceneValue(window)
         .onAppear {

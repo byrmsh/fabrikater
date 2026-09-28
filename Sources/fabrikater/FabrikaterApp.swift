@@ -16,18 +16,24 @@ struct FabrikaterApp: App {
     init() {
         let log = Log(category: "App")
         let environment = ProcessInfo.processInfo.environment
-        let alias = environment["FABRIKATER_HOST"] ?? "arch"
-        let host = HostAlias(alias) ?? HostAlias("arch")!
+        // Fixture runs keep their notes and settings apart, so a demo or an e2e flow never touches the real ones.
+        let fixtures = environment["FABRIKATER_FIXTURES"]
+        let defaults =
+            fixtures == nil
+            ? UserDefaults.standard : UserDefaults(suiteName: "sh.bayram.fabrikater.fixtures") ?? .standard
+        let preferenceStorage = UserDefaultsPreferencesStorage(defaults: defaults)
+        let alias = environment["FABRIKATER_HOST"] ?? preferenceStorage.load().host ?? Preferences.defaultHost
+        let host = HostAlias(alias) ?? HostAlias(Preferences.defaultHost)!
         if host.rawValue != alias {
-            log.error("FABRIKATER_HOST is not a valid ssh alias; using arch")
+            log.error("the host is not a valid ssh alias; using arch")
         }
+        let preferences = PreferencesStore(
+            storage: preferenceStorage, connectedHost: host.rawValue,
+            hostIsOverridden: environment["FABRIKATER_HOST"] != nil, isValidHost: { HostAlias($0) != nil })
         let runner: any HostCommandRunner
-        // Fixture runs keep their notes apart, so a demo or an e2e flow never touches the real pane names.
-        var defaults = UserDefaults.standard
-        if let fixtures = environment["FABRIKATER_FIXTURES"] {
+        if let fixtures {
             log.info("replaying fixtures")
             runner = ReplayRunner(directory: URL(filePath: fixtures))
-            defaults = UserDefaults(suiteName: "sh.bayram.fabrikater.fixtures") ?? .standard
         } else {
             runner = SSHRunner(host: host)
         }
@@ -39,7 +45,7 @@ struct FabrikaterApp: App {
         #endif
         // Fixture runs stay silent; the notification centre needs a bundle id, which `swift run` does not have.
         let notifier =
-            environment["FABRIKATER_FIXTURES"] == nil && Bundle.main.bundleIdentifier != nil ? SystemNotifier() : nil
+            fixtures == nil && Bundle.main.bundleIdentifier != nil ? SystemNotifier() : nil
         let policy = SendPolicy(environment: environment, isDebugBuild: isDebugBuild)
         let fresh: @Sendable () async throws -> Herd = { try await client.snapshot() }
         store = AppStore(
@@ -55,7 +61,8 @@ struct FabrikaterApp: App {
             opener: WorkspaceURLOpener(),
             host: host.rawValue,
             notifier: notifier ?? RecordingNotifier(),
-            isAppActive: { NSApplication.shared.isActive }
+            isAppActive: { NSApplication.shared.isActive },
+            preferences: preferences
         )
         let store = store
         notifier?.onOpen = { store.perform(.selectPane($0)) }
@@ -79,5 +86,8 @@ struct FabrikaterApp: App {
         }
         .defaultSize(width: 720, height: 720)
         .windowToolbarStyle(.unified)
+        Settings {
+            SettingsView(preferences: store.preferences)
+        }
     }
 }

@@ -7,7 +7,7 @@ import SwiftUI
 /// composer sends), and a new screen waits while the user has scrolled up (`TerminalFeed`).
 struct TerminalScreenView: NSViewRepresentable {
     let screen: TerminalScreen
-    @Environment(\.textScale) private var scale
+    @Environment(\.terminalFontSize) private var fontSize
     @Environment(\.colorScheme) private var colorScheme
 
     func makeCoordinator() -> Coordinator {
@@ -27,9 +27,9 @@ struct TerminalScreenView: NSViewRepresentable {
 
     func updateNSView(_ view: SnapshotTerminalView, context: Context) {
         let coordinator = context.coordinator
-        if coordinator.scale != scale {
-            coordinator.scale = scale
-            view.font = Self.font(scale: scale)
+        if coordinator.fontSize != fontSize {
+            coordinator.fontSize = fontSize
+            view.font = Self.font(size: fontSize)
             coordinator.resized(view)
         }
         if coordinator.colorScheme != colorScheme {
@@ -43,14 +43,14 @@ struct TerminalScreenView: NSViewRepresentable {
         coordinator.show(screen, in: view)
     }
 
-    static func font(scale: Double) -> NSFont {
-        NSFont.monospacedSystemFont(ofSize: 12 * scale, weight: .regular)
+    static func font(size: Double) -> NSFont {
+        NSFont.monospacedSystemFont(ofSize: size, weight: .regular)
     }
 
     /// The frame width that fits `columns` cells: SwiftTerm's cell is the advance of "W", and its scroller sits
     /// beside the cells. One point spare keeps rounding from losing the last column.
-    static func width(columns: Int, scale: Double) -> CGFloat {
-        let font = font(scale: scale)
+    static func width(columns: Int, fontSize: Double) -> CGFloat {
+        let font = font(size: fontSize)
         let cell = font.advancement(forGlyph: font.glyph(withName: "W")).width
         let scroller = NSScroller.scrollerWidth(for: .regular, scrollerStyle: .legacy)
         return ceil(cell * CGFloat(columns) + scroller) + 1
@@ -58,7 +58,7 @@ struct TerminalScreenView: NSViewRepresentable {
 
     @MainActor
     final class Coordinator: NSObject, @preconcurrency TerminalViewDelegate {
-        var scale: Double?
+        var fontSize: Double?
         var colorScheme: ColorScheme?
         private var feed = TerminalFeed()
 

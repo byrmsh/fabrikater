@@ -8,7 +8,7 @@ struct PaneWideTerminal: View {
     let screen: TerminalScreen
     /// The pane's width in cells; nil fits the terminal to the window.
     let columns: Int?
-    @Environment(\.textScale) private var scale
+    @Environment(\.terminalFontSize) private var fontSize
 
     private static let inset: CGFloat = 8
 
@@ -27,6 +27,6 @@ struct PaneWideTerminal: View {
     }
 
     private var paneWidth: CGFloat {
-        columns.map { TerminalScreenView.width(columns: $0, scale: scale) } ?? 0
+        columns.map { TerminalScreenView.width(columns: $0, fontSize: fontSize) } ?? 0
     }
 }

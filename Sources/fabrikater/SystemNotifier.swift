@@ -41,7 +41,7 @@ final class SystemNotifier: NSObject, Notifier, UNUserNotificationCenterDelegate
         content.title = alert.title
         content.subtitle = alert.subtitle
         content.body = alert.body
-        content.sound = .default
+        content.sound = alert.playsSound ? .default : nil
         content.threadIdentifier = alert.paneID.rawValue
         content.userInfo = [paneKey: alert.paneID.rawValue]
         try await center.add(UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil))
