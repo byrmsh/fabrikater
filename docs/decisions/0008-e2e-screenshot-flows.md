@@ -1,6 +1,6 @@
 # 0008: End-to-end flows with screenshots on the macOS CI job
 
-Status: accepted (e2e screenshots session, 2026-09-26)
+Status: accepted (e2e screenshots session, 2026-09-26). Reading the tree: superseded by [0014](0014-native-e2e-accessibility-helper.md).
 
 ## Context
 

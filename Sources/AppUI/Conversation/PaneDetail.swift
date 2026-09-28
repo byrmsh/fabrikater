@@ -27,9 +27,7 @@ struct PaneDetail: View {
             Divider()
             if model.prompt.isShown {
                 PromptCardView(
-                    prompt: model.prompt,
-                    canShowTerminal: model.isEnabled(PromptCardStore.terminalCommand)
-                        && model.layout.detail != .terminal, perform: perform)
+                    prompt: model.prompt, canShowTerminal: model.canShowTerminalForPrompt, perform: perform)
             }
             ComposerView(composer: model.composer, perform: perform)
         }

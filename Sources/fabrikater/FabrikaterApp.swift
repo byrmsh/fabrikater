@@ -41,13 +41,14 @@ struct FabrikaterApp: App {
         let notifier =
             environment["FABRIKATER_FIXTURES"] == nil && Bundle.main.bundleIdentifier != nil ? SystemNotifier() : nil
         let policy = SendPolicy(environment: environment, isDebugBuild: isDebugBuild)
+        let fresh: @Sendable () async throws -> Herd = { try await client.snapshot() }
         store = AppStore(
             herdUpdates: HerdFeed(service: client).updates(),
             transcripts: HostTranscriptService(runner: runner),
             history: HostTranscriptService(runner: runner),
-            control: PolicedControl(SendGuard(client, reader: client), policy: policy) { try await client.snapshot() },
+            control: PolicedControl(SendGuard(client, reader: client), policy: policy, fresh: fresh),
             screens: client,
-            answers: PolicedControl(client, policy: policy) { try await client.snapshot() },
+            answers: PolicedControl(client, policy: policy, fresh: fresh),
             terminals: client,
             notes: UserDefaultsPaneNotesStore(defaults: defaults),
             drafts: UserDefaultsDraftStorage(defaults: defaults),
