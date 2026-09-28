@@ -86,4 +86,4 @@ M1 settled the host, Herdr and store recipes below; the parser recipe is still a
 2. Test it on Linux with fake services: state after each input, what happens when a service errors, and stale data kept while offline.
 3. Write the view in `AppUI/<Feature>/`. It reads the store and calls `perform(_:)`, and holds only view-local state (`@ViewState private var`). Design and review it with `.claude/skills/macos-design` and the vendored skills in `.claude/skills/`, where the repo's rules win.
 4. Wire the store once in the composition root in `fabrikater` (`FabrikaterApp.init`), and add menu items to `AppUI/Commands/`.
-5. Anything visual goes on the PR's "manual on the Mac" checklist.
+5. Anything visual goes on the PR's "manual on the Mac" checklist, and the same items go into [mac-checklist.md](mac-checklist.md) under their area.

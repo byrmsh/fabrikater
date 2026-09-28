@@ -9,6 +9,7 @@ A native macOS SwiftUI app that shows and drives coding agents running in Herdr 
 - [docs/structure.md](docs/structure.md): the targets, what may depend on what, the engineering rules, and recipes for common changes.
 - [docs/decisions/](docs/decisions/): why the structure, tooling and CI are the way they are.
 - [docs/macos-tooling.md](docs/macos-tooling.md): building without Xcode, and the library choices.
+- [docs/mac-checklist.md](docs/mac-checklist.md): the checks still waiting for the user's Mac; add a PR's manual checks here.
 - [docs/e2e.md](docs/e2e.md): the end-to-end flows and screenshots, how to add a flow and how to look at the screenshots.
 - The `CLAUDE.md` inside each target you touch.
 

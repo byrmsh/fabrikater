@@ -27,4 +27,6 @@ Release builds can send to any pane. `FABRIKATER_SEND_ALLOWLIST=label1,label2` l
 FABRIKATER_FIXTURES=Tests/Fixtures build/fabrikater.app/Contents/MacOS/fabrikater
 ```
 
+**Checks only your Mac can do.** [docs/mac-checklist.md](docs/mac-checklist.md) collects every check from the merged PRs that needs the host or your eyes, in order, starting with setup.
+
 `scripts/check.sh` runs lint, the warnings-as-errors build and the tests. A bare `swift test` fails under the Command Line Tools. If a build fails with SDK or search-path errors, retry with `FABRIKATER_BUILD_SYSTEM=native`.
