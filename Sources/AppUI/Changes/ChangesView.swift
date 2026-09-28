@@ -23,7 +23,7 @@ struct ChangesView: View {
                     ForEach(panel.files) { file in
                         DisclosureGroup(isExpanded: isExpanded(file.id)) {
                             ForEach(file.edits) { edit in
-                                DiffView(edit: edit)
+                                DiffView(edit: edit, language: file.language)
                             }
                         } label: {
                             FileChangeRow(file: file)
