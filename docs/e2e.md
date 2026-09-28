@@ -26,6 +26,7 @@
 | `sorting` | with View › Sort Panes By › Recent Activity, swapping in `snapshot-codex.synthetic.json` (the Codex pane's revision changes) moves the Codex row above the refactor pane in its workspace, and Herdr Order puts it back | `sorting.png`, `sorting-herdr.png` |
 | `follow` | lines appended to the session log's fixture (`claude-follow.synthetic.jsonl`) appear in the open conversation without a reload, and a pane window opened on the same pane shows the next appended line (`claude-follow-more.synthetic.jsonl`) too | `follow.png`, `follow-window.png` |
 | `window` | Pane › Open in New Window on the selected pane opens a second window with its conversation and toolbar status ("Claude, Working") and no sidebar; typing in its composer and pressing Return sends and clears the draft | `window.png`, `window-sent.png` |
+| `window-panels` | with a pane window in front, Rename… is disabled, Show Changes (⌥⌘0) opens that window's changes inspector (`claude-changes.synthetic.jsonl`), and Session Info (⌘I) opens its facts popover (`claude-facts.synthetic.jsonl`), Esc closing it | `window-changes.png`, `window-facts.png` |
 | `markdown` | an agent reply (`claude-markdown.synthetic.jsonl`) renders its heading, numbered and nested lists, code block, table and quote as blocks, with no `##` or table delimiter row left as text | `markdown.png` |
 | `offline` | with no snapshot fixture the sidebar says Offline and why, and does not claim a last known state | `offline.png` |
 
