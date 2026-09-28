@@ -26,6 +26,7 @@
 | `sorting` | with View › Sort Panes By › Recent Activity, swapping in `snapshot-codex.synthetic.json` (the Codex pane's revision changes) moves the Codex row above the refactor pane in its workspace, and Herdr Order puts it back | `sorting.png`, `sorting-herdr.png` |
 | `follow` | lines appended to the session log's fixture (`claude-follow.synthetic.jsonl`) appear in the open conversation without a reload, and a pane window opened on the same pane shows the next appended line (`claude-follow-more.synthetic.jsonl`) too | `follow.png`, `follow-window.png` |
 | `window` | Pane › Open in New Window on the selected pane opens a second window with its conversation and toolbar status ("Claude, Working") and no sidebar; typing in its composer and pressing Return sends and clears the draft | `window.png`, `window-sent.png` |
+| `markdown` | an agent reply (`claude-markdown.synthetic.jsonl`) renders its heading, numbered and nested lists, code block, table and quote as blocks, with no `##` or table delimiter row left as text | `markdown.png` |
 | `offline` | with no snapshot fixture the sidebar says Offline and why, and does not claim a last known state | `offline.png` |
 
 A failed step stops its flow and fails the job after the other flows ran. It leaves in `build/e2e/`: `<flow>-failure.png`, `<flow>-failure.txt` (every element in the window with its role and text attributes; the text checks search AXTitle, AXValue, AXDescription and AXHelp), `<flow>.log` (the app's output) and `<flow>.osascript.log`. When a text check fails, read the `.txt` first.
