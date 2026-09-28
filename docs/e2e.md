@@ -13,6 +13,8 @@
 | `rename` | Rename… (⌘⇧R) on the selected pane, typed name and Return: the row shows the name instead of Herdr's label | `rename-editing.png`, `rename.png` |
 | `composer` | typing a prompt and pressing Return sends it to the selected pane and clears the draft (the replay host shows the typed text in the input box, so the send guard sees it arrive) | `composer-draft.png`, `composer-sent.png` |
 | `send-guard` | with a permission prompt on the pane's screen (`screen-w1-p1.synthetic.txt`), Return sends nothing and the draft stays with the reason | `send-guard.png` |
+| `prompt-card` | a blocked Claude pane (`snapshot-prompt.synthetic.json`) with a permission prompt on its screen (`screen-w1-p1.synthetic.txt`) shows the card with the command and the question; choosing No sends its key, and since the replay host keeps the prompt, the card says it is still showing | `prompt-card.png`, `prompt-card-answered.png` |
+| `prompt-fallback` | the blocked Codex pane gets the card that offers no answer, and its Show Terminal button swaps the conversation for the terminal | `prompt-fallback.png`, `prompt-fallback-terminal.png` |
 | `drafts` | a draft typed for a pane is still in its composer after the app is quit and relaunched | `drafts.png` |
 | `key-bar` | the key bar's Escape sends to the pane and leaves the draft in the field | `key-bar.png` |
 | `send-draft` | with text already in the agent's input box (`screen-draft.synthetic.txt`), Return sends nothing and the composer says the box holds text | `send-draft.png` |

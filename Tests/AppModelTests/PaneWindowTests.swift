@@ -126,6 +126,7 @@ struct PaneWindowTests {
     @Test func aWindowSendsItsOwnDraftToItsOwnPane() async throws {
         let (store, _) = try makeStore()
         store.perform(.selectPane(scratch))
+        await store.focusTask?.value
         store.composer.draft = "for scratch"
         let window = store.paneWindow(refactor)
         #expect(!window.isEnabled(.send))
@@ -159,7 +160,7 @@ struct PaneWindowTests {
         var list = PaneWindowList()
         var window: PaneWindowStore? = PaneWindowStore(
             paneID: refactor, transcripts: transcripts, control: control, terminals: BlankTerminalReader(),
-            clipboard: clipboard)
+            clipboard: clipboard, prompt: PromptCardStore(reader: UnreadableScreens(), control: control))
         list.add(try #require(window))
         #expect(list.stores.count == 1)
         window = nil

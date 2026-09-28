@@ -24,7 +24,7 @@ public struct MenuTarget {
         guard let window else { return .app(command) }
         let pane = window.paneID
         switch command {
-        case .send, .sendKey, .reloadConversation, .copyConversation, .toggleChanges, .setChangesShown,
+        case .send, .sendKey, .answerPrompt, .reloadConversation, .copyConversation, .toggleChanges, .setChangesShown,
             .toggleSessionFacts, .setSessionFactsShown, .toggleTerminal, .showPanel:
             return .window(command)
         case .togglePin(nil): return .app(.togglePin(pane))
@@ -65,6 +65,11 @@ public struct MenuTarget {
         case .window(let command): window?.isChecked(command)
         case .unavailable: nil
         }
+    }
+
+    /// The front window's prompt card, whose options the Pane menu offers.
+    public var prompt: PromptCardStore {
+        window?.prompt ?? app.prompt
     }
 
     /// The pane Open in New Window opens: the front window's.

@@ -68,7 +68,7 @@ public final class ComposerStore {
         disabledReason = keysDisabledReason ?? waitingNotice
     }
 
-    static let blockedNotice = "The agent is waiting for an answer in Herdr. Answer it there before sending."
+    static let blockedNotice = "Sending is off while the agent waits for an answer."
 
     private static func disabledReason(hasPane: Bool, isOnline: Bool) -> String? {
         guard hasPane else { return "No pane is selected." }

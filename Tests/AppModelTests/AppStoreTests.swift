@@ -167,6 +167,7 @@ struct AppStoreTests {
         let (store, _) = try makeStore()
         #expect(!store.isEnabled(.send))
         store.perform(.selectPane(scratch))
+        await store.focusTask?.value
         store.composer.draft = "  hello  "
         #expect(store.isEnabled(.send))
         store.perform(.send)
@@ -222,6 +223,7 @@ struct AppStoreTests {
         let (store, _) = try makeStore()
         #expect(!store.isEnabled(.sendKey(.escape)))
         store.perform(.selectPane(scratch))
+        await store.focusTask?.value
         store.composer.draft = "keep me"
         #expect(PaneKey.allCases.allSatisfy { store.isEnabled(.sendKey($0)) })
         store.perform(.sendKey(.shiftTab))

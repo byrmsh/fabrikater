@@ -25,6 +25,12 @@ struct PaneDetail: View {
                 }
             }
             Divider()
+            if model.prompt.isShown {
+                PromptCardView(
+                    prompt: model.prompt,
+                    canShowTerminal: model.isEnabled(PromptCardStore.terminalCommand)
+                        && model.layout.detail != .terminal, perform: perform)
+            }
             ComposerView(composer: model.composer, perform: perform)
         }
         .inspector(isPresented: isShowingChanges) {

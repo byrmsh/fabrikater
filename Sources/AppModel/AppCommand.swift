@@ -12,6 +12,8 @@ public enum AppCommand: Hashable, Sendable {
     case send
     /// Sends one key from the composer's key bar to the selected pane.
     case sendKey(PaneKey)
+    /// Answers the prompt on the card above the composer with its option of this number.
+    case answerPrompt(Int)
     /// Opens the inline name field on a pane's row; nil means the selected pane.
     case renamePane(PaneID?)
     /// Sets the name typed into the field; blank text clears it.
@@ -83,6 +85,7 @@ public enum AppCommand: Hashable, Sendable {
         case .loadEarlier: "Load Earlier Messages"
         case .send: "Send"
         case .sendKey(let key): key.name
+        case .answerPrompt: "Answer"
         case .renamePane: "Rename…"
         case .commitRename: "Rename"
         case .cancelRename: "Cancel Rename"

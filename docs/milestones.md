@@ -68,6 +68,8 @@ Manual on the Mac: the terminal view of the scratch pane matches what Herdr show
 
 ## M5: Prompt cards
 
+**Done** ([#41](https://github.com/byrmsh/fabrikater/pull/41), [decisions/0013](decisions/0013-prompt-cards.md)). `PromptKit`'s `Prompt(on:)` reads Claude Code's numbered permission, `AskUserQuestion`, plan and folder-trust prompts; `PromptCardStore` shows the card above the composer in both kinds of window, and Pane › Answer Prompt lists the same options. An answer is sent only when a fresh read still shows the same prompt, and the host checks the prompt's rows again right before the keys. Anything else a blocked pane shows gets the card without options, with Show Terminal to answer it by hand. Carried forward: the multi-question wizard, multi-select, the unnumbered trust list and menus stay on the fallback card (parsing.md 4.3, step 5 of the port order); typed answers (`Type something.`, plan feedback) are answered in the terminal.
+
 Prompt detection for Claude Code's permission prompt and `AskUserQuestion`, rendered as cards, with guarded answering. The fallback card for anything unparsed.
 
 CI-verifiable: grammar tests against captured `--source visible` screen fixtures and Collie's pane fixtures: the permission prompt, a single `AskUserQuestion`, a declined or unsure screen yielding no block; the guard refuses to send when the screen changed.

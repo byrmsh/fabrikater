@@ -40,6 +40,8 @@ public final class AppStore {
     /// The main window's conversation; each pane window has its own (`paneWindow(_:)`).
     public let conversation: ConversationStore
     public let composer: ComposerStore
+    /// The main window's card answering the selected pane's prompt.
+    public let prompt: PromptCardStore
     /// Every composer's drafts, kept between launches.
     private let drafts: Drafts
 
@@ -52,6 +54,8 @@ public final class AppStore {
     private let clipboard: any Clipboard
     private let transcripts: any TranscriptService
     private let control: any HerdrControl
+    private let screens: any PaneReader
+    private let answers: any HerdrControl
     private let terminals: any TerminalReader
     @ObservationIgnored private var paneWindows = PaneWindowList()
     private let opener: any URLOpener
@@ -61,6 +65,8 @@ public final class AppStore {
 
     /// - Parameters:
     ///   - control: changes Herdr on the user's behalf: focus follows the selection, and the composer sends.
+    ///   - screens: reads a blocked pane's screen for its prompt card.
+    ///   - answers: sends a prompt card's answers; `control` when nil. Not the composer's `SendGuard`, which refuses them.
     ///   - terminals: reads panes' recent output for the terminal views.
     ///   - host: the ssh alias the panes run on, for links that reach them from this Mac.
     ///   - now: the clock that stamps each pane's last activity.
@@ -68,6 +74,8 @@ public final class AppStore {
         herdUpdates: AsyncStream<HerdUpdate>,
         transcripts: any TranscriptService,
         control: any HerdrControl,
+        screens: any PaneReader = UnreadableScreens(),
+        answers: (any HerdrControl)? = nil,
         terminals: any TerminalReader = BlankTerminalReader(),
         notes: any PaneNotesStore = InMemoryPaneNotesStore(),
         drafts: any DraftStorage = InMemoryDraftStorage(),
@@ -84,11 +92,14 @@ public final class AppStore {
         self.now = now
         self.transcripts = transcripts
         self.control = control
+        self.screens = screens
+        self.answers = answers ?? control
         self.terminals = terminals
         self.notes = notes.load()
         conversation = ConversationStore(transcripts: transcripts)
         self.drafts = Drafts(storage: drafts)
         composer = ComposerStore(control: control, drafts: self.drafts)
+        prompt = PromptCardStore(reader: screens, control: self.answers)
         focus = FocusSync(control: control)
         terminal = TerminalStore(reader: terminals)
     }
@@ -116,6 +127,8 @@ public final class AppStore {
             composer.send()
         case .sendKey(let key):
             composer.send(key)
+        case .answerPrompt(let number):
+            prompt.answer(number)
         case .renamePane(let id):
             renaming = target(id)
         case .commitRename(let id, let text):
@@ -188,6 +201,7 @@ public final class AppStore {
         case .selectPane, .selectNextPane, .selectPreviousPane: !sections.isEmpty
         case .send: composer.canSend
         case .sendKey(let key): composer.canSend(key)
+        case .answerPrompt: prompt.canAnswer
         case .renamePane(let id), .togglePin(let id), .toggleHidden(let id): target(id) != nil
         case .commitRename, .cancelRename: renaming != nil
         case .toggleHiddenWorkspace(let id): workspace(id) != nil
@@ -250,7 +264,7 @@ public final class AppStore {
     public func paneWindow(_ id: PaneID) -> PaneWindowStore {
         let window = PaneWindowStore(
             paneID: id, transcripts: transcripts, control: control, terminals: terminals, clipboard: clipboard,
-            drafts: drafts)
+            drafts: drafts, prompt: PromptCardStore(reader: screens, control: answers))
         paneWindows.add(window)
         refresh(window)
         return window
@@ -292,6 +306,7 @@ public final class AppStore {
             refreshComposer()
             for window in paneWindows.stores {
                 window.composer.show(herd.pane(window.paneID), isOnline: false)
+                window.prompt.show(herd.pane(window.paneID), isOnline: false)
             }
         }
     }
@@ -344,6 +359,7 @@ public final class AppStore {
 
     private func refreshComposer() {
         composer.show(pane(nil), isOnline: connection == .connected)
+        prompt.show(pane(nil), isOnline: connection == .connected)
     }
 
     private func header(for pane: Herd.Pane) -> PaneHeader {
