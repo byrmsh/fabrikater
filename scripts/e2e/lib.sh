@@ -129,6 +129,15 @@ e2e_key() {
     sleep 0.5
 }
 
+# e2e_menu MENU ITEM: chooses ITEM from the menu bar's MENU, for commands without a shortcut. Example: e2e_menu Pane "Hide Pane"
+e2e_menu() {
+    osascript -e "tell application \"System Events\" to tell process \"${E2E_PROCESS}\"
+        set frontmost to true
+        click menu item \"$2\" of menu 1 of menu bar item \"$1\" of menu bar 1
+    end tell" >/dev/null
+    sleep 0.5
+}
+
 # e2e_expect_menu_item MENU ITEM enabled|disabled: waits until the menu bar's MENU holds ITEM in that state.
 e2e_expect_menu_item() {
     e2e_wait "\"$2\" $3 in the $1 menu" _e2e_menu_item_is "$@"

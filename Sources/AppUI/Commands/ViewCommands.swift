@@ -1,7 +1,7 @@
 import AppModel
 import SwiftUI
 
-/// The View menu's additions: the conversation's text size and the sidebar.
+/// The View menu's additions: the conversation's text size, the sidebar, and what the sidebar leaves out.
 @MainActor
 public struct ViewCommands: Commands {
     let store: AppStore
@@ -19,6 +19,9 @@ public struct ViewCommands: Commands {
         }
         CommandGroup(before: .sidebar) {
             CommandButton(store: store, command: .toggleSidebar)
+            CommandButton(store: store, command: .toggleShowHidden)
+            CommandButton(store: store, command: .toggleShowShells)
+            Divider()
         }
     }
 }

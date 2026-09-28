@@ -7,6 +7,11 @@ public struct SidebarSection: Equatable, Sendable, Identifiable {
     public var id: String
     public var title: String
     public var rows: [SidebarRow]
+    /// A hidden workspace shown by View › Show Hidden Panes (B5).
+    public var isHidden = false
+
+    /// The section's heading: the title, marked when the workspace is hidden.
+    public var heading: String { isHidden ? "\(title) (Hidden)" : title }
 }
 
 /// A tab with several panes, or a single pane (a tab with one pane collapses to its pane).
@@ -45,6 +50,8 @@ public struct PaneRow: Equatable, Sendable, Identifiable {
     public var label: String
     public var status: AgentStatus
     public var agent: AgentKind?
+    /// A hidden pane shown by View › Show Hidden Panes (B5).
+    public var isHidden = false
     /// When fabrikater last saw the pane change (B6).
     public var lastActivity: Date?
     /// The agent finished a turn since the pane was last selected (B7).
@@ -113,7 +120,7 @@ extension Herd {
 extension PaneRow {
     /// What VoiceOver reads for the row: the label (a rename when set), the agent, the status and whether it is unread.
     public var spokenLabel: String {
-        "\(label), \(agent?.title ?? "Shell"), \(status.title)\(isUnread ? ", Unread" : "")"
+        "\(label), \(agent?.title ?? "Shell"), \(status.title)\(isUnread ? ", Unread" : "")\(isHidden ? ", Hidden" : "")"
     }
 }
 

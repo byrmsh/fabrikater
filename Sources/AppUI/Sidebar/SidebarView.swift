@@ -25,15 +25,20 @@ struct SidebarView: View {
                     }
                 } header: {
                     // A sidebar section heading drops its accessibility label but keeps its value.
-                    Text(section.title)
-                        .accessibilityValue(section.title)
+                    Text(section.heading)
+                        .accessibilityValue(section.heading)
+                        .contextMenu {
+                            if store.isEnabled(.toggleHiddenWorkspace(section.id)) {
+                                CommandButton(store: store, command: .toggleHiddenWorkspace(section.id))
+                            }
+                        }
                 }
             }
         }
         .listStyle(.sidebar)
         .overlay {
             if store.sections.isEmpty {
-                let empty = store.connection.emptySidebar
+                let empty = store.emptySidebar
                 ContentUnavailableView {
                     Label(empty.title, systemImage: "server.rack")
                 } description: {
@@ -85,9 +90,8 @@ struct SidebarView: View {
             Button(AppCommand.renamePane(pane.id).title) {
                 store.perform(.renamePane(pane.id))
             }
-            Button(store.title(of: .togglePin(pane.id))) {
-                store.perform(.togglePin(pane.id))
-            }
+            CommandButton(store: store, command: .togglePin(pane.id))
+            CommandButton(store: store, command: .toggleHidden(pane.id))
             Button(AppCommand.reloadConversation.title) {
                 store.perform(.selectPane(pane.id))
                 store.perform(.reloadConversation)

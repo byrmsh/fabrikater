@@ -8,4 +8,4 @@ The app's state and behaviour, as `@MainActor @Observable` stores plus the platf
 - A view never decides, formats or falls back: labels, header text, status words and empty-state messages are store properties, tested here (`.claude/skills/macos-design`, Rule 1).
 - Input methods change state synchronously, then start host work in a `Task`. When a read fails, keep the last data and say it is stale.
 - A new user action is a new `AppCommand` case with its title, handled in `AppStore.perform(_:)`, and a `Keymap` entry if it has a shortcut.
-- Per-pane local state (names, pins, unread marks, and later hidden panes) lives in `PaneNotes` behind `PaneNotesStore`; a feature adds only its own field. Sidebar features are pure functions in `Sidebar+<Feature>.swift`, applied one per line in `AppStore.refreshSections()`.
+- Per-pane local state (names, pins, unread marks, hidden panes) lives in `PaneNotes` behind `PaneNotesStore`; a feature adds only its own field. Sidebar features are pure functions in `Sidebar+<Feature>.swift`, applied one per line in `AppStore.refreshSections()`.
