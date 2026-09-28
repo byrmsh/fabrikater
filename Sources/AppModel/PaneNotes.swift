@@ -13,14 +13,18 @@ public struct PaneNotes: Equatable, Sendable {
     public var hiding = Hiding()
     /// Panes whose agent finished a turn since they were last selected (B7).
     public var unread: Set<PaneID> = []
+    /// How each workspace's rows are ordered (B14).
+    public var order = PaneOrder.herdr
 
     public init(
-        names: [PaneID: String] = [:], pins: [PaneID] = [], hiding: Hiding = Hiding(), unread: Set<PaneID> = []
+        names: [PaneID: String] = [:], pins: [PaneID] = [], hiding: Hiding = Hiding(), unread: Set<PaneID> = [],
+        order: PaneOrder = .herdr
     ) {
         self.names = names
         self.pins = pins
         self.hiding = hiding
         self.unread = unread
+        self.order = order
     }
 }
 
@@ -30,6 +34,7 @@ extension PaneNotes: Codable {
         case pins
         case hiding
         case unread
+        case order
     }
 
     public init(from decoder: any Decoder) throws {
@@ -40,6 +45,7 @@ extension PaneNotes: Codable {
         pins = try container.decodeIfPresent([String].self, forKey: .pins)?.compactMap { PaneID($0) } ?? []
         hiding = try container.decodeIfPresent(Hiding.self, forKey: .hiding) ?? Hiding()
         unread = Set(try container.decodeIfPresent([String].self, forKey: .unread)?.compactMap { PaneID($0) } ?? [])
+        order = (try? container.decodeIfPresent(PaneOrder.self, forKey: .order)) ?? .herdr
     }
 
     public func encode(to encoder: any Encoder) throws {
@@ -49,6 +55,7 @@ extension PaneNotes: Codable {
         try container.encode(pins.map(\.rawValue), forKey: .pins)
         try container.encode(hiding, forKey: .hiding)
         try container.encode(unread.map(\.rawValue).sorted(), forKey: .unread)
+        try container.encode(order, forKey: .order)
     }
 }
 
