@@ -50,6 +50,8 @@ public enum AppCommand: Hashable, Sendable {
     case collapseEntry(String)
     /// Opens a pane's folder in VS Code over Remote-SSH; nil means the selected pane.
     case openInVSCode(PaneID?)
+    /// Opens a pane's conversation in a window of its own; nil means the selected pane.
+    case openInNewWindow(PaneID?)
     /// Shows or hides the inspector listing the files the selected pane's session changed.
     case toggleChanges
     /// The inspector was shown or hidden by the window itself.
@@ -90,6 +92,7 @@ public enum AppCommand: Hashable, Sendable {
         case .expandEntry: "Show All"
         case .collapseEntry: "Show Less"
         case .openInVSCode: "Open Folder in VS Code"
+        case .openInNewWindow: "Open in New Window"
         case .toggleChanges: "Show Changes"
         case .setChangesShown(let shown): shown ? "Show Changes" : "Hide Changes"
         case .copyPath: "Copy Path"

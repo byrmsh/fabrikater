@@ -299,6 +299,17 @@ e2e_wait() {
     done
 }
 
+# e2e_expect_windows COUNT: waits until the app has COUNT windows open, as after opening a pane in a new window. The
+# newest window is then the front one, which every other step reads.
+e2e_expect_windows() {
+    e2e_wait "$1 windows" _e2e_window_count_is "$1"
+}
+
+_e2e_window_count_is() {
+    [ "$(osascript -e "tell application \"System Events\" to count windows of process \"${E2E_PROCESS}\"" 2>/dev/null)" \
+        = "$1" ]
+}
+
 _e2e_has_window() {
     [ "$(osascript -e "tell application \"System Events\" to count windows of process \"${E2E_PROCESS}\"" 2>/dev/null)" \
         -gt 0 ] 2>/dev/null

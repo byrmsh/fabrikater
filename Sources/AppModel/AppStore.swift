@@ -33,6 +33,7 @@ public final class AppStore {
     public private(set) var switcher: QuickSwitcher?
     /// Whether the changes inspector is open.
     public private(set) var isShowingChanges = false
+    /// The main window's conversation; each pane window has its own (`paneWindow(_:)`).
     public let conversation: ConversationStore
     public let composer: ComposerStore
 
@@ -43,6 +44,8 @@ public final class AppStore {
     private var notes: PaneNotes
     private let notesStore: any PaneNotesStore
     private let clipboard: any Clipboard
+    private let transcripts: any TranscriptService
+    @ObservationIgnored private var paneWindows = PaneWindowList()
     private let opener: any URLOpener
     private let host: String
     @ObservationIgnored private var herdUpdates: AsyncStream<HerdUpdate>?
@@ -68,6 +71,7 @@ public final class AppStore {
         self.opener = opener
         self.host = host
         self.now = now
+        self.transcripts = transcripts
         self.notes = notes.load()
         conversation = ConversationStore(transcripts: transcripts)
         composer = ComposerStore(control: control)
@@ -93,8 +97,6 @@ public final class AppStore {
             select(neighbour(offset: 1))
         case .selectPreviousPane:
             select(neighbour(offset: -1))
-        case .reloadConversation:
-            conversation.reload()
         case .send:
             composer.send()
         case .renamePane(let id):
@@ -151,16 +153,6 @@ public final class AppStore {
             guard let chosen = id ?? switcher?.highlighted else { return }
             switcher = nil
             select(chosen)
-        case .copyMessage(let id):
-            guard let entry = conversation.transcript.entries.first(where: { $0.id == id }) else { return }
-            clipboard.copy(Transcript.markdownBody(of: entry))
-        case .copyConversation:
-            guard !conversation.transcript.entries.isEmpty else { return }
-            clipboard.copy(Transcript.markdown(of: conversation.transcript.entries))
-        case .expandEntry(let id):
-            conversation.expand(id)
-        case .collapseEntry(let id):
-            conversation.collapse(id)
         case .openInVSCode(let id):
             guard let url = vscodeLink(id) else { return }
             opener.open(url)
@@ -170,13 +162,17 @@ public final class AppStore {
             isShowingChanges = shown
         case .copyPath(let path):
             clipboard.copy(path)
+        case .openInNewWindow:
+            // The view opens the window (SwiftUI's openWindow) with `windowPane(_:)`; the window asks `paneWindow(_:)`.
+            break
+        case .reloadConversation, .copyMessage, .copyConversation, .expandEntry, .collapseEntry:
+            conversation.perform(command, clipboard: clipboard)
         }
     }
 
     public func isEnabled(_ command: AppCommand) -> Bool {
         switch command {
         case .selectPane, .selectNextPane, .selectPreviousPane: !sections.isEmpty
-        case .reloadConversation: conversation.canReload
         case .send: composer.canSend
         case .renamePane(let id): (id ?? selection) != nil
         case .commitRename, .cancelRename: renaming != nil
@@ -190,12 +186,12 @@ public final class AppStore {
         case .openQuickSwitcher: !sections.isEmpty && switcher == nil
         case .closeQuickSwitcher, .searchQuickSwitcher, .moveQuickSwitcherHighlight: switcher != nil
         case .chooseQuickSwitcherResult(let id): (id ?? switcher?.highlighted) != nil
-        case .copyMessage(let id): conversation.transcript.entries.contains { $0.id == id }
-        case .copyConversation: !conversation.transcript.entries.isEmpty
-        case .expandEntry, .collapseEntry: true
         case .openInVSCode(let id): vscodeLink(id) != nil
         case .toggleChanges: header != nil
         case .setChangesShown, .copyPath: true
+        case .openInNewWindow(let id): windowPane(id) != nil
+        case .reloadConversation, .copyMessage, .copyConversation, .expandEntry, .collapseEntry:
+            conversation.isEnabled(command) ?? false
         }
     }
 
@@ -229,6 +225,29 @@ public final class AppStore {
             title: "Everything Is Hidden", detail: "Show Hidden Panes and Show Shell Panes are in the View menu.")
     }
 
+    /// The pane `id` (nil: the selection) if Herdr has it, to open in its own window.
+    public func windowPane(_ id: PaneID?) -> PaneID? {
+        (id ?? selection).flatMap { herd.pane($0) }?.id
+    }
+
+    /// A new pane window's store, with its own conversation, kept up to date with the herd until the window lets go of it.
+    public func paneWindow(_ id: PaneID) -> PaneWindowStore {
+        let window = PaneWindowStore(paneID: id, transcripts: transcripts, clipboard: clipboard)
+        paneWindows.add(window)
+        refresh(window)
+        return window
+    }
+
+    private func refreshPaneWindows() {
+        paneWindows.stores.forEach(refresh)
+    }
+
+    private func refresh(_ window: PaneWindowStore) {
+        // Before the first herd a restored window waits rather than saying its pane is gone.
+        guard connection != .connecting else { return }
+        window.show(herd.pane(window.paneID).map { ($0, header(for: $0)) })
+    }
+
     private func vscodeLink(_ id: PaneID?) -> URL? {
         (id ?? selection).flatMap { herd.pane($0) }.flatMap { VSCodeLink.url(host: host, pane: $0) }
     }
@@ -237,7 +256,6 @@ public final class AppStore {
         switch update {
         case .herd(let herd):
             let old = self.herd
-            let previous = selection.flatMap { old.pane($0) }
             self.herd = herd
             activity = activity.seeing(herd, at: now())
             updateNotes(notes.markingFinishedTurns(from: old, to: herd, except: selection))
@@ -250,12 +268,7 @@ public final class AppStore {
                 self.renaming = nil
             }
             refreshSelection()
-            // A turn starting or ending changes the log; re-read it so the conversation keeps up.
-            if let previous, let current = selection.flatMap({ herd.pane($0) }),
-                previous.sessionID == current.sessionID, previous.agentStatus != current.agentStatus
-            {
-                conversation.reload()
-            }
+            refreshPaneWindows()
         case .failed(let reason):
             connection = sections.isEmpty ? .offline(reason) : .stale(reason)
             refreshComposer()
@@ -280,6 +293,7 @@ public final class AppStore {
         notesStore.save(notes)
         refreshSections()
         header = selection.flatMap { herd.pane($0) }.map(header(for:))
+        refreshPaneWindows()
     }
 
     private func select(_ id: PaneID?) {
