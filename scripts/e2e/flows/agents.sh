@@ -1,6 +1,8 @@
-# Codex, omp and OpenCode panes show their conversations from their own logs; a shell pane opens in the terminal.
+# Codex, omp and OpenCode panes show their conversations from their own logs, and a Codex pane lists its folder's
+# past sessions; a shell pane opens in the terminal.
 e2e_launch snapshot-agents.synthetic.json=snapshot.synthetic.json events.synthetic.jsonl claude.synthetic.jsonl \
-    codex.synthetic.jsonl pi.synthetic.jsonl opencode.synthetic.jsonl terminal-w1-pA.synthetic.txt
+    codex.synthetic.jsonl pi.synthetic.jsonl opencode.synthetic.jsonl terminal-w1-pA.synthetic.txt \
+    codex-sessions.synthetic.txt
 e2e_expect_text "Synthetic refactor"
 e2e_key k command
 e2e_expect_text "Synthetic A › api"
@@ -12,6 +14,13 @@ e2e_expect_text "ISO week dates like"
 e2e_expect_no_text "Conversations from"
 e2e_expect_menu_item View "Show Terminal" enabled
 e2e_shot agents-codex
+e2e_key y command
+e2e_expect_text "Sessions in project-2"
+e2e_expect_text "Add a --since flag to the export command"
+e2e_expect_text "Why is the CSV writer dropping the last row?"
+e2e_shot agents-codex-sessions
+e2e_key escape
+e2e_expect_no_text "Sessions in project-2"
 e2e_key k command
 e2e_expect_text "Synthetic A › api"
 e2e_key retries

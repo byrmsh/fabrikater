@@ -83,6 +83,13 @@ extension HostCommand {
         + #"[ "$(head -c 65536 "$g" | grep -m 1 -o '"uuid":"[^"]*"')" = "$r" ] || continue; "#
         + #"[ -z "$(tail -c 65536 "$g" | \#(handOverTarget))" ] || continue; b=$g; done; f=$b; fi; "#
 
+    /// Sets `d` to OpenCode's database and defines `q SQL`, which runs a query on it read-only, or exits with
+    /// `notFoundStatus` when there is no database.
+    static let openCodeDatabase =
+        #"d="${XDG_DATA_HOME:-$HOME/.local/share}/opencode/opencode.db"; "#
+        + "[ -f \"$d\" ] || exit \(notFoundStatus); "
+        + #"q() { sqlite3 -readonly -noheader "$d" "$1"; }; "#
+
     /// Defines `rows SINCE`, printing one JSON line per message of an OpenCode session updated after SINCE (ms), and
     /// `latest`, the session's newest update, reading OpenCode's database read-only (docs/parsing.md 2.4). It exits
     /// with `notFoundStatus` when neither store holds the session. The store with the newer rows wins, a tie going to
@@ -104,9 +111,7 @@ extension HostCommand {
         let v2Rows =
             "select json_object('id', id, 'ts', time_created, 'type', type, 'data', \(json("data"))) "
             + "from session_message where session_id = \(id) and coalesce(time_updated, 0) > $1 order by seq"
-        return #"d="${XDG_DATA_HOME:-$HOME/.local/share}/opencode/opencode.db"; "#
-            + "[ -f \"$d\" ] || exit \(notFoundStatus); "
-            + #"q() { sqlite3 -readonly -noheader "$d" "$1"; }; "#
+        return openCodeDatabase
             + #"t=$(q "select group_concat(' ' || name || ' ', '') from sqlite_master where type = 'table'") || exit 1; "#
             + #"m1=-1; m2=-1; case $t in *" message "*" part "*|*" part "*" message "*) "#
             + "m1=$(q \"\(v1Latest)\") || exit 1;; esac; "
