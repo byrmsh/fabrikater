@@ -40,6 +40,8 @@ struct SidebarView: View {
                             if store.isEnabled(.toggleHiddenWorkspace(section.id)) {
                                 CommandButton(
                                     target: MenuTarget(app: store), command: .toggleHiddenWorkspace(section.id))
+                                CommandButton(
+                                    target: MenuTarget(app: store), command: .toggleNotifications(section.id))
                             }
                         }
                 }

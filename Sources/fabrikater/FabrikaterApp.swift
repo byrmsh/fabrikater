@@ -1,3 +1,4 @@
+import AppKit
 import AppModel
 import AppUI
 import FabrikaterCore
@@ -36,6 +37,9 @@ struct FabrikaterApp: App {
         #else
             let isDebugBuild = false
         #endif
+        // Fixture runs stay silent; the notification centre needs a bundle id, which `swift run` does not have.
+        let notifier =
+            environment["FABRIKATER_FIXTURES"] == nil && Bundle.main.bundleIdentifier != nil ? SystemNotifier() : nil
         let policy = SendPolicy(environment: environment, isDebugBuild: isDebugBuild)
         store = AppStore(
             herdUpdates: HerdFeed(service: client).updates(),
@@ -46,8 +50,12 @@ struct FabrikaterApp: App {
             drafts: UserDefaultsDraftStorage(defaults: defaults),
             clipboard: PasteboardClipboard(),
             opener: WorkspaceURLOpener(),
-            host: host.rawValue
+            host: host.rawValue,
+            notifier: notifier ?? RecordingNotifier(),
+            isAppActive: { NSApplication.shared.isActive }
         )
+        let store = store
+        notifier?.onOpen = { store.perform(.selectPane($0)) }
         log.info("launched")
     }
 

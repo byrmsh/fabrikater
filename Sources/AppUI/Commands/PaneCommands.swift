@@ -32,6 +32,7 @@ public struct PaneCommands: Commands {
             button(.togglePin(nil))
             button(.toggleHidden(nil))
             button(.toggleHiddenWorkspace(nil))
+            button(.toggleNotifications(nil))
             Divider()
             button(.openInVSCode(nil))
             Button(AppCommand.openInNewWindow(nil).title) {
