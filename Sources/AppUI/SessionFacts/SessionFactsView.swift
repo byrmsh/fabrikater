@@ -20,11 +20,9 @@ struct SessionFactsView: View {
                                 .gridColumnAlignment(.trailing)
                             Text(row.value)
                                 .fontDesign(.monospaced)
-                                .textSelection(.enabled)
                                 .lineLimit(2)
                                 .truncationMode(.middle)
                         }
-                        .accessibilityElement(children: .combine)
                     }
                 }
             }
