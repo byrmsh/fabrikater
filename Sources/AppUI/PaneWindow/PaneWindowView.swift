@@ -37,7 +37,7 @@ public struct PaneWindowView: View {
     }
 }
 
-/// The pane's plan and conversation, with its title, status and Reload in the window's title bar and toolbar.
+/// The pane's plan, conversation and composer, with its title, status and Reload in the window's title bar and toolbar.
 struct PaneWindowContent: View {
     let window: PaneWindowStore
 
@@ -48,11 +48,13 @@ struct PaneWindowContent: View {
                 Divider()
             }
             TranscriptView(conversation: window.conversation, perform: window.perform)
-        }
-        .overlay(alignment: .bottom) {
-            if let notice = window.notice {
-                StaleBanner(message: notice)
-            }
+                .overlay(alignment: .bottom) {
+                    if let notice = window.notice {
+                        StaleBanner(message: notice)
+                    }
+                }
+            Divider()
+            ComposerView(composer: window.composer, perform: window.perform)
         }
         .navigationTitle(window.header?.title ?? window.paneID.rawValue)
         .navigationSubtitle(window.header?.location ?? "")

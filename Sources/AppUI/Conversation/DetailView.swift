@@ -16,7 +16,7 @@ struct DetailView: View {
                 }
                 TranscriptView(conversation: store.conversation, perform: store.perform)
                 Divider()
-                ComposerView(store: store)
+                ComposerView(composer: store.composer, perform: store.perform)
             }
             .environment(\.textScale, store.textScale.factor)
             .inspector(isPresented: isShowingChanges) {

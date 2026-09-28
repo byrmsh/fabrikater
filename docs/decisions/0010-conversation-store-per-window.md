@@ -23,5 +23,5 @@ Alternatives considered:
 
 - Removing the feature deletes `PaneWindowStore.swift`, `AppUI/PaneWindow/`, the scene, the two menu items, the `AppCommand` case and the three `AppStore` members (`paneWindows`, `paneWindow(_:)`, `refreshPaneWindows()`). The moves into `ConversationStore` stay, since the main window uses them.
 - The menu bar still acts on the main window: with a pane window in front, Pane › Copy Conversation copies the main window's selection. Routing menu commands to the focused window needs a focused-scene value and is left for when a second window gains more than the conversation.
-- A pane window has no composer; `ComposerStore` keeps one pane's draft for the main window. Giving pane windows a composer means a composer per window too.
+- Each pane window has its own `ComposerStore` too, in its `PaneWindowStore`, so its drafts and sends are separate from the main window's. The composer's send button carries ⌘Return itself, so the key sends the front window's draft rather than the Pane menu's (the main window's).
 - Several windows on one pane each read the log; SwiftUI brings an already open window for the same pane to the front instead of opening another.

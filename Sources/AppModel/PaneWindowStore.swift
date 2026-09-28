@@ -12,19 +12,23 @@ public final class PaneWindowStore {
     /// The pane's title, location, agent and status; the last known ones once the pane is gone.
     public private(set) var header: PaneHeader?
     public let conversation: ConversationStore
+    /// Sends prompts to this window's pane, with drafts of its own.
+    public let composer: ComposerStore
     /// Set once Herdr no longer has the pane; the conversation stays as last read.
     public private(set) var notice: String?
 
     private let clipboard: any Clipboard
 
-    init(paneID: PaneID, transcripts: any TranscriptService, clipboard: any Clipboard) {
+    init(paneID: PaneID, transcripts: any TranscriptService, control: any HerdrControl, clipboard: any Clipboard) {
         self.paneID = paneID
         self.clipboard = clipboard
         conversation = ConversationStore(transcripts: transcripts)
+        composer = ComposerStore(control: control)
     }
 
     /// The pane as the herd has it now with its header, or nil when it is gone.
-    func show(_ pane: (pane: Herd.Pane, header: PaneHeader)?) {
+    func show(_ pane: (pane: Herd.Pane, header: PaneHeader)?, isOnline: Bool) {
+        composer.show(pane?.pane, isOnline: isOnline)
         guard let pane else {
             notice = "This pane is no longer in Herdr."
             return
@@ -34,13 +38,19 @@ public final class PaneWindowStore {
         conversation.show(pane.pane)
     }
 
-    /// Handles the conversation's commands for this window; ignores every other.
+    /// Handles the conversation's commands and Send for this window; ignores every other.
     public func perform(_ command: AppCommand) {
-        conversation.perform(command, clipboard: clipboard)
+        switch command {
+        case .send: composer.send()
+        default: conversation.perform(command, clipboard: clipboard)
+        }
     }
 
     public func isEnabled(_ command: AppCommand) -> Bool {
-        conversation.isEnabled(command) ?? false
+        switch command {
+        case .send: composer.canSend
+        default: conversation.isEnabled(command) ?? false
+        }
     }
 }
 

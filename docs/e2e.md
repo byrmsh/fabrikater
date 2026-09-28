@@ -24,7 +24,7 @@
 | `facts` | Session Info (⌘I) opens a popover on the toolbar's status item with the model, folder, branch and context used from `claude-facts.synthetic.jsonl`, and Esc closes it | `facts.png` |
 | `activity` | no row shows an activity time at launch; once a later herd (`snapshot-later.synthetic.json`, swapped in for the next 20 s poll) shows the refactor pane done, its row reads "Active just now" | `activity.png` |
 | `sorting` | with View › Sort Panes By › Recent Activity, swapping in `snapshot-codex.synthetic.json` (the Codex pane's revision changes) moves the Codex row above the refactor pane in its workspace, and Herdr Order puts it back | `sorting.png`, `sorting-herdr.png` |
-| `window` | Pane › Open in New Window on the selected pane opens a second window with its conversation and toolbar status ("Claude, Working") and no sidebar | `window.png` |
+| `window` | Pane › Open in New Window on the selected pane opens a second window with its conversation and toolbar status ("Claude, Working") and no sidebar; typing in its composer and pressing Return sends and clears the draft | `window.png`, `window-sent.png` |
 | `offline` | with no snapshot fixture the sidebar says Offline and why, and does not claim a last known state | `offline.png` |
 
 A failed step stops its flow and fails the job after the other flows ran. It leaves in `build/e2e/`: `<flow>-failure.png`, `<flow>-failure.txt` (every element in the window with its role and text attributes; the text checks search AXTitle, AXValue, AXDescription and AXHelp), `<flow>.log` (the app's output) and `<flow>.osascript.log`. When a text check fails, read the `.txt` first.

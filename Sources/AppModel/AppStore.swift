@@ -47,6 +47,7 @@ public final class AppStore {
     private let notesStore: any PaneNotesStore
     private let clipboard: any Clipboard
     private let transcripts: any TranscriptService
+    private let control: any HerdrControl
     @ObservationIgnored private var paneWindows = PaneWindowList()
     private let opener: any URLOpener
     private let host: String
@@ -74,6 +75,7 @@ public final class AppStore {
         self.host = host
         self.now = now
         self.transcripts = transcripts
+        self.control = control
         self.notes = notes.load()
         conversation = ConversationStore(transcripts: transcripts)
         composer = ComposerStore(control: control)
@@ -240,7 +242,7 @@ public final class AppStore {
 
     /// A new pane window's store, with its own conversation, kept up to date with the herd until the window lets go of it.
     public func paneWindow(_ id: PaneID) -> PaneWindowStore {
-        let window = PaneWindowStore(paneID: id, transcripts: transcripts, clipboard: clipboard)
+        let window = PaneWindowStore(paneID: id, transcripts: transcripts, control: control, clipboard: clipboard)
         paneWindows.add(window)
         refresh(window)
         return window
@@ -253,7 +255,7 @@ public final class AppStore {
     private func refresh(_ window: PaneWindowStore) {
         // Before the first herd a restored window waits rather than saying its pane is gone.
         guard connection != .connecting else { return }
-        window.show(herd.pane(window.paneID).map { ($0, header(for: $0)) })
+        window.show(herd.pane(window.paneID).map { ($0, header(for: $0)) }, isOnline: connection == .connected)
     }
 
     private func vscodeLink(_ id: PaneID?) -> URL? {
@@ -280,6 +282,9 @@ public final class AppStore {
         case .failed(let reason):
             connection = sections.isEmpty ? .offline(reason) : .stale(reason)
             refreshComposer()
+            for window in paneWindows.stores {
+                window.composer.show(herd.pane(window.paneID), isOnline: false)
+            }
         }
     }
 
