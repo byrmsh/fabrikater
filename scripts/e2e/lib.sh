@@ -33,8 +33,10 @@ e2e_launch() {
         defaults delete sh.bayram.fabrikater.fixtures >/dev/null 2>&1 || true
     fi
     # `open` does not pass the environment on, so run the bundled binary directly. Ignoring saved window state keeps
-    # one flow's hidden sidebar or text size out of the next.
-    FABRIKATER_FIXTURES="${e2e_fixture_dir}" "${E2E_BINARY}" -ApplePersistenceIgnoreState YES >"${E2E_OUT}/${E2E_FLOW:-app}.log" 2>&1 &
+    # one flow's hidden sidebar or text size out of the next. E2E_DARK=1 sets dark mode for this launch only, through
+    # the argument domain, leaving the runner's own appearance alone.
+    FABRIKATER_FIXTURES="${e2e_fixture_dir}" "${E2E_BINARY}" -ApplePersistenceIgnoreState YES \
+        $([ -n "${E2E_DARK:-}" ] && echo "-AppleInterfaceStyle Dark") >"${E2E_OUT}/${E2E_FLOW:-app}.log" 2>&1 &
     e2e_pid=$!
     e2e_wait "the main window" _e2e_has_window
     osascript -e "tell application \"System Events\" to set frontmost of process \"${E2E_PROCESS}\" to true" >/dev/null
