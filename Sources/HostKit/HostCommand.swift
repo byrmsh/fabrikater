@@ -77,16 +77,6 @@ public enum HostCommand: Hashable, Sendable {
     }
 }
 
-extension HostCommand {
-    /// Sets `f` to the session's log, found by scanning the project directories (docs/parsing.md 1.2), or exits with
-    /// `notFoundStatus`.
-    // TODO(M2): follow hand-overs and the conversation root to the live file (docs/parsing.md 1.3).
-    private static func claudeLog(_ session: SessionID) -> String {
-        "f=$(ls -1t ~/.claude/projects/*/\(shellQuoted(session.rawValue + ".jsonl")) 2>/dev/null | head -n 1); "
-            + "[ -n \"$f\" ] || exit \(notFoundStatus); "
-    }
-}
-
 extension PaneID {
     /// The id with `:` replaced, for fixture file names: `w1:p1` is `w1-p1`.
     var fileName: String { rawValue.replacing(":", with: "-") }

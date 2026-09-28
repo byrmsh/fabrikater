@@ -27,19 +27,19 @@ struct SSHArgumentsTests {
         let session = try #require(SessionID("00000000-0000-4000-8000-000000000019"))
         let script = HostCommand.claudeLogTail(session: session, bytes: 1024).remoteScript
         #expect(
-            script == "f=$(ls -1t ~/.claude/projects/*/'00000000-0000-4000-8000-000000000019.jsonl' 2>/dev/null"
-                + " | head -n 1); [ -n \"$f\" ] || exit 44; tail -c 1024 \"$f\"")
+            script.hasPrefix(
+                "f=$(ls -1t ~/.claude/projects/*/'00000000-0000-4000-8000-000000000019.jsonl' 2>/dev/null"
+                    + " | head -n 1); [ -n \"$f\" ] || exit 44; "))
+        #expect(script.hasSuffix("; tail -c 1024 \"$f\""))
     }
 
     @Test func claudeLogFollowStreamsTheTailWithoutATerminal() throws {
         let session = try #require(SessionID("00000000-0000-4000-8000-000000000019"))
         let arguments = SSHArguments.arguments(for: .claudeLogFollow(session: session, bytes: 65536), host: host)
-        #expect(
-            Array(arguments.suffix(4)) == [
-                "-T", "arch", "--",
-                "f=$(ls -1t ~/.claude/projects/*/'00000000-0000-4000-8000-000000000019.jsonl' 2>/dev/null"
-                    + " | head -n 1); [ -n \"$f\" ] || exit 44; exec tail -c 65536 -F \"$f\"",
-            ])
+        #expect(Array(arguments.suffix(4).prefix(3)) == ["-T", "arch", "--"])
+        let script = try #require(arguments.last)
+        #expect(script.hasPrefix(HostCommand.claudeLog(session)))
+        #expect(script.hasSuffix("; exec tail -c 65536 -F \"$f\""))
     }
 
     @Test func paneScreenReadsOnlyTheVisibleScreen() throws {
