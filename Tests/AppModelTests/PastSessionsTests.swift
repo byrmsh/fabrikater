@@ -32,12 +32,14 @@ struct PastSessionsTests {
             modified: now.addingTimeInterval(-age), bytes: bytes, title: title, isCurrent: suffix == "01")
     }
 
+    private let clipboard = InMemoryClipboard()
+
     private func makeStore(
         _ result: Result<[PastSession], TranscriptError>, snapshot: String = "snapshot.synthetic.json"
     ) throws -> AppStore {
         let store = AppStore(
             herdUpdates: AsyncStream { $0.finish() }, transcripts: NamingTranscripts(),
-            history: FakeHistory(result: result), control: FakeControl(), now: { Self.now })
+            history: FakeHistory(result: result), control: FakeControl(), clipboard: clipboard, now: { Self.now })
         store.apply(.herd(try Herd(snapshotReply: Fixture.data(named: snapshot))))
         return store
     }
@@ -118,6 +120,38 @@ struct PastSessionsTests {
         #expect(window.isEnabled(.copyConversation))
         #expect(window.isEnabled(.reloadConversation))
         #expect(!window.isEnabled(.send))
+    }
+
+    @Test func aSessionWindowInFrontTakesTheConversationCommands() async throws {
+        let store = try makeStore(.success([]))
+        store.perform(.selectPane(refactor))
+        let id = SessionWindowID(log: Self.session("a1", title: "Add a retry", age: 0).log, title: "Add a retry")
+        let window = store.sessionWindow(id)
+        await window.conversation.loadTask?.value
+        let target = MenuTarget(app: store, session: window)
+
+        #expect(target.route(.reloadConversation) == .session(.reloadConversation))
+        #expect(target.route(.loadEarlier) == .session(.loadEarlier))
+        target.perform(.copyConversation)
+        #expect(clipboard.text?.contains("00000000-0000-4000-8000-0000000000a1") == true)
+    }
+
+    @Test func aSessionWindowHasNoPaneToActOn() throws {
+        let store = try makeStore(.success([]))
+        store.perform(.selectPane(refactor))
+        let id = SessionWindowID(log: Self.session("a1", title: "Add a retry", age: 0).log, title: "Add a retry")
+        let target = MenuTarget(app: store, session: store.sessionWindow(id))
+
+        for command in [
+            AppCommand.send, .sendKey(.escape), .toggleTerminal, .toggleChanges, .togglePin(nil), .openInVSCode(nil),
+            .openInNewWindow(nil), .showPastSessions(nil), .renamePane(nil),
+        ] {
+            #expect(target.route(command) == .unavailable)
+            #expect(!target.isEnabled(command))
+        }
+        #expect(target.promptOptions.isEmpty)
+        #expect(target.route(.selectNextPane) == .app(.selectNextPane))
+        #expect(target.route(.biggerText) == .app(.biggerText))
     }
 
     @Test func aPaneWindowLeavesTheSheetToTheMainWindow() throws {

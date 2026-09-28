@@ -8,13 +8,15 @@ public struct ViewCommands: Commands {
     let store: AppStore
     /// The pane window in front, if one is; nil while the main window is.
     @FocusedValue(PaneWindowStore.self) private var paneWindow
+    /// The past session's window in front, if one is.
+    @FocusedValue(SessionWindowStore.self) private var sessionWindow
 
     public init(store: AppStore) {
         self.store = store
     }
 
     private var target: MenuTarget {
-        MenuTarget(app: store, window: paneWindow)
+        MenuTarget(app: store, window: paneWindow, session: sessionWindow)
     }
 
     public var body: some Commands {

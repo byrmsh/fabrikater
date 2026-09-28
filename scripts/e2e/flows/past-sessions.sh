@@ -17,3 +17,10 @@ e2e_expect_windows 2
 e2e_expect_text "Done. Pushes now retry after 1, 2, 4 and 8 seconds before giving up."
 e2e_expect_no_text "Message the agent"
 e2e_shot past-session-window
+# The menu bar's conversation commands act on the session window in front, and the pane's commands have nothing to act
+# on there.
+printf '' | pbcopy
+e2e_key c command shift
+e2e_wait "the past session on the pasteboard" sh -c 'pbpaste | grep -q "Pushes now retry"'
+e2e_expect_menu_item Pane "Send" disabled
+e2e_expect_menu_item Pane "Reload Conversation" enabled

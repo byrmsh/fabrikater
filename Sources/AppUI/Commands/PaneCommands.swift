@@ -7,6 +7,8 @@ public struct PaneCommands: Commands {
     let store: AppStore
     /// The pane window in front, if one is; nil while the main window is.
     @FocusedValue(PaneWindowStore.self) private var paneWindow
+    /// The past session's window in front, if one is.
+    @FocusedValue(SessionWindowStore.self) private var sessionWindow
     @Environment(\.openWindow) private var openWindow
 
     public init(store: AppStore) {
@@ -14,7 +16,7 @@ public struct PaneCommands: Commands {
     }
 
     private var target: MenuTarget {
-        MenuTarget(app: store, window: paneWindow)
+        MenuTarget(app: store, window: paneWindow, session: sessionWindow)
     }
 
     public var body: some Commands {
@@ -55,12 +57,12 @@ public struct PaneCommands: Commands {
                 }
             }
             Menu(PromptCardStore.menuTitle) {
-                ForEach(target.prompt.options) { option in
+                ForEach(target.promptOptions) { option in
                     Button(option.title) { target.perform(.answerPrompt(option.number)) }
                         .disabled(!target.isEnabled(.answerPrompt(option.number)))
                 }
             }
-            .disabled(target.prompt.options.isEmpty)
+            .disabled(target.promptOptions.isEmpty)
         }
     }
 
