@@ -21,6 +21,7 @@
 | `hiding` | Hide Pane (Pane menu) drops the selected pane's row, turning off View › Show Shell Panes drops the shell pane, both survive a relaunch, and View › Show Hidden Panes brings the pane back read as hidden | `hiding.png`, `hiding-shown.png` |
 | `unread` | swapping in `snapshot-later.synthetic.json` (the refactor pane's turn ends) marks that unselected row Unread, the mark survives a relaunch, and selecting the pane clears it | `unread.png`, `unread-read.png` |
 | `vscode` | Open Folder in VS Code is disabled in the Pane menu until a pane with a known folder is selected (never chosen, so no VS Code starts) | `vscode.png` |
+| `facts` | Session Info (⌘I) opens a popover on the toolbar's status item with the model, folder, branch and context used from `claude-facts.synthetic.jsonl`, and Esc closes it | `facts.png` |
 | `activity` | no row shows an activity time at launch; once a later herd (`snapshot-later.synthetic.json`, swapped in for the next 20 s poll) shows the refactor pane done, its row reads "Active just now" | `activity.png` |
 | `sorting` | with View › Sort Panes By › Recent Activity, swapping in `snapshot-codex.synthetic.json` (the Codex pane's revision changes) moves the Codex row above the refactor pane in its workspace, and Herdr Order puts it back | `sorting.png`, `sorting-herdr.png` |
 | `window` | Pane › Open in New Window on the selected pane opens a second window with its conversation and toolbar status ("Claude, Working") and no sidebar | `window.png` |

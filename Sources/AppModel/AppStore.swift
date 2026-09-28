@@ -33,6 +33,8 @@ public final class AppStore {
     public private(set) var switcher: QuickSwitcher?
     /// Whether the changes inspector is open.
     public private(set) var isShowingChanges = false
+    /// The session facts popover on the toolbar's status item is open.
+    public private(set) var isShowingSessionFacts = false
     /// The main window's conversation; each pane window has its own (`paneWindow(_:)`).
     public let conversation: ConversationStore
     public let composer: ComposerStore
@@ -162,6 +164,10 @@ public final class AppStore {
             isShowingChanges = shown
         case .copyPath(let path):
             clipboard.copy(path)
+        case .toggleSessionFacts:
+            isShowingSessionFacts = header != nil && !isShowingSessionFacts
+        case .setSessionFactsShown(let shown):
+            isShowingSessionFacts = header != nil && shown
         case .openInNewWindow:
             // The view opens the window (SwiftUI's openWindow) with `windowPane(_:)`; the window asks `paneWindow(_:)`.
             break
@@ -189,6 +195,8 @@ public final class AppStore {
         case .openInVSCode(let id): vscodeLink(id) != nil
         case .toggleChanges: header != nil
         case .setChangesShown, .copyPath: true
+        case .toggleSessionFacts: header != nil
+        case .setSessionFactsShown: true
         case .openInNewWindow(let id): windowPane(id) != nil
         case .reloadConversation, .copyMessage, .copyConversation, .expandEntry, .collapseEntry:
             conversation.isEnabled(command) ?? false
@@ -307,6 +315,9 @@ public final class AppStore {
     private func refreshSelection() {
         let pane = selection.flatMap { herd.pane($0) }
         header = pane.map(header(for:))
+        if header == nil {
+            isShowingSessionFacts = false
+        }
         conversation.show(pane)
         refreshComposer()
     }

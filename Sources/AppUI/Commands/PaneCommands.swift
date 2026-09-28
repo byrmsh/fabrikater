@@ -33,6 +33,7 @@ public struct PaneCommands: Commands {
             Divider()
             button(.reloadConversation)
             button(.copyConversation)
+            button(.toggleSessionFacts)
             Divider()
             button(.send)
         }
