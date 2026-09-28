@@ -12,6 +12,24 @@ enum TextRules {
         "file_path", "command", "pattern", "query", "url", "path", "description", "task", "prompt",
     ]
 
+    static func isBlank(_ text: String) -> Bool {
+        text.allSatisfy(\.isWhitespace)
+    }
+
+    /// Stripped of ANSI and clamped to the text limit, or nil when blank.
+    static func textPart(_ raw: String) -> TranscriptPart? {
+        let text = stripANSI(raw)
+        guard !isBlank(text) else { return nil }
+        let (clamped, truncated) = clamp(text, to: textLimit)
+        return .text(clamped, truncated: truncated)
+    }
+
+    /// A tool's output, stripped of ANSI and clamped to the result limit.
+    static func result(_ raw: String, isError: Bool = false) -> ToolResult {
+        let (text, truncated) = clamp(stripANSI(raw), to: resultLimit)
+        return ToolResult(text: text, truncated: truncated, isError: isError)
+    }
+
     static func stripANSI(_ text: String) -> String {
         guard text.contains("\u{1B}") else { return text }
         return text.replacing(/\x1B\[[0-9;?]*[ -\/]*[@-~]|\x1B[@-Z\\\-_]/, with: "")

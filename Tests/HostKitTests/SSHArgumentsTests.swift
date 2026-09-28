@@ -25,7 +25,7 @@ struct SSHArgumentsTests {
 
     @Test func claudeLogTailQuotesTheSessionID() throws {
         let session = try #require(SessionID("00000000-0000-4000-8000-000000000019"))
-        let script = HostCommand.claudeLogTail(session: session, bytes: 1024).remoteScript
+        let script = HostCommand.logTail(SessionLog(format: .claude, session: session), bytes: 1024).remoteScript
         #expect(
             script.hasPrefix(
                 "f=$(ls -1t ~/.claude/projects/*/'00000000-0000-4000-8000-000000000019.jsonl' 2>/dev/null"
@@ -35,7 +35,8 @@ struct SSHArgumentsTests {
 
     @Test func claudeLogFollowStreamsTheTailWithoutATerminal() throws {
         let session = try #require(SessionID("00000000-0000-4000-8000-000000000019"))
-        let arguments = SSHArguments.arguments(for: .claudeLogFollow(session: session, bytes: 65536), host: host)
+        let arguments = SSHArguments.arguments(
+            for: .logFollow(SessionLog(format: .claude, session: session), bytes: 65536), host: host)
         #expect(Array(arguments.suffix(4).prefix(3)) == ["-T", "arch", "--"])
         let script = try #require(arguments.last)
         #expect(script.hasPrefix(HostCommand.claudeLog(session)))

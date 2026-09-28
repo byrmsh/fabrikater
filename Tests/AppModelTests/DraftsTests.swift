@@ -9,7 +9,7 @@ import TranscriptKit
 @MainActor
 struct DraftsTests {
     private struct NoTranscripts: TranscriptService {
-        func claudeTranscript(session: SessionID, bytes: Int) async throws -> Transcript { Transcript(entries: []) }
+        func transcript(of log: SessionLog, bytes: Int) async throws -> Transcript { Transcript(entries: []) }
     }
 
     private let refactor = PaneID("w1:p1")!

@@ -9,7 +9,7 @@ import TranscriptKit
 @MainActor
 struct PinningTests {
     private struct NoTranscripts: TranscriptService {
-        func claudeTranscript(session: SessionID, bytes: Int) async throws -> Transcript { Transcript() }
+        func transcript(of log: SessionLog, bytes: Int) async throws -> Transcript { Transcript() }
     }
 
     private let scratch = PaneID("w2:p1")!

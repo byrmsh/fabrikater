@@ -11,7 +11,7 @@ struct SessionFactsRowsTests {
     private struct FixedTranscripts: TranscriptService {
         let transcript: Transcript
 
-        func claudeTranscript(session: SessionID, bytes: Int) async throws -> Transcript { transcript }
+        func transcript(of log: SessionLog, bytes: Int) async throws -> Transcript { transcript }
     }
 
     private var utc: Date.FormatStyle {

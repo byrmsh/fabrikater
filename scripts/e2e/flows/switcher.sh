@@ -14,5 +14,5 @@ e2e_expect_text "Synthetic A › web"
 e2e_expect_gone "fabrikater-test › scratch"
 e2e_shot switcher-search
 e2e_key return
-e2e_expect_text "Conversations from Codex cannot be shown yet."
+e2e_expect_text "Herdr has not reported a session for this pane yet."
 e2e_shot switcher-chosen

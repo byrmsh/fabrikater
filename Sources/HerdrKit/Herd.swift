@@ -102,11 +102,25 @@ public struct Herd: Equatable, Sendable {
         /// The session whose log holds this pane's conversation.
         ///
         /// Herdr keeps the last session any agent announced for a pane, so the reference counts only when it names
-        /// the pane's current agent, is an id, and passes validation (docs/parsing.md 1.1).
+        /// the pane's current agent and passes validation (docs/parsing.md 1.1). A path (pi reports its log's) counts
+        /// for the session id that ends its file name, `…_<uuid>.jsonl`; the log is then found by that id, so the
+        /// path itself never reaches the host.
         public var sessionID: SessionID? {
-            guard let agent, let session = agentSession, session.kind == "id" else { return nil }
+            guard let agent, let session = agentSession else { return nil }
             if let sessionAgent = session.agent, sessionAgent != agent.rawValue { return nil }
-            return SessionID(session.value)
+            switch session.kind {
+            case "id": return SessionID(session.value)
+            case "path":
+                guard let name = session.value.split(separator: "/").last, name.hasSuffix(".jsonl") else { return nil }
+                return SessionID(String(name.dropLast(".jsonl".count).suffix(36)))
+            default: return nil
+            }
+        }
+
+        /// The log holding this pane's conversation, or nil when the agent has no parser or no session yet.
+        public var sessionLog: SessionLog? {
+            guard let agent, let sessionID else { return nil }
+            return SessionLog(agent: agent, session: sessionID)
         }
     }
 

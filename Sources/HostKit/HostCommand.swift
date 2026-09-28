@@ -15,12 +15,12 @@ public enum HostCommand: Hashable, Sendable {
     /// the `r` rows show one after another among the last `window` rows. Otherwise it prints an error reply with the
     /// code `screen_changed` and stops.
     case herdrRequests
-    /// The last `bytes` bytes of the Claude session log for `session`, found by scanning the project directories
-    /// (docs/parsing.md 1.2). Exits with `notFoundStatus` when no log exists.
-    case claudeLogTail(session: SessionID, bytes: Int)
+    /// The last `bytes` bytes of the agent's session log, found by scanning the agent's session directories
+    /// (docs/parsing.md 1.2, `HostCommand+SessionLogs.swift`). Exits with `notFoundStatus` when no log exists.
+    case logTail(SessionLog, bytes: Int)
     /// The last `bytes` bytes of the same log, then every byte appended to it until cancelled (`tail -F`,
     /// docs/architecture.md, "Transcript tail"). Exits with `notFoundStatus` when no log exists.
-    case claudeLogFollow(session: SessionID, bytes: Int)
+    case logFollow(SessionLog, bytes: Int)
     /// The pane's current screen as ANSI text, for checking what typed text would land in (docs/parsing.md 4.1).
     /// `visible` never scrolls the operator's terminal, unlike a long `recent` read.
     case herdrPaneScreen(PaneID)
@@ -79,10 +79,10 @@ public enum HostCommand: Hashable, Sendable {
             #"socat - UNIX-CONNECT:"$HOME/.config/herdr/herdr.sock""#
         case .herdrRequests:
             Self.requestsScript
-        case .claudeLogTail(let session, let bytes):
-            Self.claudeLog(session) + "tail -c \(max(bytes, 1)) \"$f\""
-        case .claudeLogFollow(let session, let bytes):
-            Self.claudeLog(session) + "exec tail -c \(max(bytes, 1)) -F \"$f\""
+        case .logTail(let log, let bytes):
+            Self.tail(of: log, bytes: max(bytes, 1))
+        case .logFollow(let log, let bytes):
+            Self.follow(log, bytes: max(bytes, 1))
         case .herdrPaneScreen(let pane):
             Self.paneScreen(shellQuoted(pane.rawValue))
         case .herdrPaneRecent(let pane, let lines):
@@ -93,8 +93,8 @@ public enum HostCommand: Hashable, Sendable {
     /// Long-lived commands stream until cancelled and have no timeout.
     public var isStreaming: Bool {
         switch self {
-        case .herdrEvents, .claudeLogFollow: true
-        case .herdrSnapshot, .herdrRequests, .claudeLogTail, .herdrPaneScreen, .herdrPaneRecent: false
+        case .herdrEvents, .logFollow: true
+        case .herdrSnapshot, .herdrRequests, .logTail, .herdrPaneScreen, .herdrPaneRecent: false
         }
     }
 
@@ -102,9 +102,9 @@ public enum HostCommand: Hashable, Sendable {
     public var timeout: Duration {
         switch self {
         case .herdrSnapshot: .seconds(10)
-        case .herdrEvents, .claudeLogFollow: .seconds(0)
+        case .herdrEvents, .logFollow: .seconds(0)
         case .herdrRequests: .seconds(15)
-        case .claudeLogTail: .seconds(20)
+        case .logTail: .seconds(20)
         case .herdrPaneScreen, .herdrPaneRecent: .seconds(5)
         }
     }
@@ -115,8 +115,8 @@ public enum HostCommand: Hashable, Sendable {
         case .herdrSnapshot: ["snapshot.json", "snapshot.synthetic.json"]
         case .herdrEvents: ["events.synthetic.jsonl"]
         case .herdrRequests: ["requests.synthetic.jsonl"]
-        case .claudeLogTail(let session, _), .claudeLogFollow(let session, _):
-            ["claude-\(session.rawValue).jsonl", "claude.synthetic.jsonl"]
+        case .logTail(let log, _), .logFollow(let log, _):
+            ["\(log.format.rawValue)-\(log.session.rawValue).jsonl", "\(log.format.rawValue).synthetic.jsonl"]
         case .herdrPaneScreen(let pane):
             ["screen-\(pane.fileName).txt", "screen-\(pane.fileName).synthetic.txt", "screen.synthetic.txt"]
         case .herdrPaneRecent(let pane, _):

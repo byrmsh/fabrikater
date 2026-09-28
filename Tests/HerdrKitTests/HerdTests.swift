@@ -64,5 +64,27 @@ struct HerdTests {
         #expect(pane(agent: .claude, session: .init(agent: "claude", kind: "path", value: uuid)).sessionID == nil)
         #expect(pane(agent: .claude, session: .init(agent: "claude", kind: "id", value: "../../etc")).sessionID == nil)
         #expect(pane(agent: nil, session: .init(agent: "claude", kind: "id", value: uuid)).sessionID == nil)
+        let piPath = "/home/user/.pi/agent/sessions/--home-user--/2026-09-27T10-00-00-000Z_\(uuid).jsonl"
+        #expect(pane(agent: .pi, session: .init(agent: "pi", kind: "path", value: piPath)).sessionID?.rawValue == uuid)
+        #expect(
+            pane(agent: .pi, session: .init(agent: "pi", kind: "path", value: "/tmp/\(uuid).json")).sessionID == nil)
+        #expect(pane(agent: .pi, session: .init(agent: "pi", kind: "path", value: "/tmp/x_1.jsonl")).sessionID == nil)
+    }
+
+    @Test func findsTheLogByTheAgentsFormat() throws {
+        let id = try #require(PaneID("w1:p1"))
+        let uuid = try #require(SessionID("00000000-0000-4000-8000-000000000001"))
+        func log(_ agent: AgentKind, _ value: String) -> SessionLog? {
+            Herd.Pane(
+                id: id, tabID: "w1:t1", workspaceID: "w1", agent: agent,
+                agentSession: .init(agent: agent.rawValue, kind: "id", value: value)
+            ).sessionLog
+        }
+        #expect(log(.claude, uuid.rawValue) == SessionLog(format: .claude, session: uuid))
+        #expect(log(.codex, uuid.rawValue) == SessionLog(format: .codex, session: uuid))
+        #expect(log(.omp, uuid.rawValue) == SessionLog(format: .pi, session: uuid))
+        #expect(log(.grok, uuid.rawValue) == nil)
+        let openCode = try #require(SessionID("ses_0123456789abcdef"))
+        #expect(log(.opencode, openCode.rawValue) == SessionLog(format: .opencode, session: openCode))
     }
 }

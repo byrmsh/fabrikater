@@ -32,7 +32,7 @@ struct TextScaleTests {
 @MainActor
 struct RoomTests {
     private struct NoTranscripts: TranscriptService {
-        func claudeTranscript(session: SessionID, bytes: Int) async throws -> Transcript { Transcript() }
+        func transcript(of log: SessionLog, bytes: Int) async throws -> Transcript { Transcript() }
     }
 
     private func makeStore() -> AppStore {

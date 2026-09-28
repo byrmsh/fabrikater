@@ -44,12 +44,13 @@ public final class PaneDetailStores {
         }
     }
 
-    /// Shows `pane`'s conversation and terminal, or none.
+    /// Shows `pane`'s conversation and terminal, or none; a pane with no conversation to read shows the terminal.
     func show(_ pane: Herd.Pane?) {
         if pane == nil {
             panels.losePane()
         }
         conversation.show(pane)
+        layout.show(hasConversation: pane == nil || ConversationStore.hasParser(pane))
         terminal.show(pane?.id, columns: pane?.columns)
     }
 
@@ -83,7 +84,7 @@ public final class PaneDetailStores {
         case .copyPath, .setTerminalVisible: true
         default:
             PanePanels.isEnabled(command, hasPane: hasPane)
-                ?? WorkspaceLayout.isEnabled(command, hasPane: hasPane)
+                ?? layout.isEnabled(command, hasPane: hasPane)
                 ?? conversation.isEnabled(command)
         }
     }

@@ -13,12 +13,12 @@ struct LiveFollowTests {
         private(set) var follows = 0
         private var feeds: [AsyncThrowingStream<Transcript, any Error>.Continuation] = []
 
-        func claudeTranscript(session: SessionID, bytes: Int) async throws -> Transcript {
+        func transcript(of log: SessionLog, bytes: Int) async throws -> Transcript {
             reads += 1
             return Transcript()
         }
 
-        func followClaudeTranscript(session: SessionID, bytes: Int) -> AsyncThrowingStream<Transcript, any Error> {
+        func followTranscript(of log: SessionLog, bytes: Int) -> AsyncThrowingStream<Transcript, any Error> {
             follows += 1
             let (stream, feed) = AsyncThrowingStream<Transcript, any Error>.makeStream()
             feeds.append(feed)

@@ -8,7 +8,7 @@ import TranscriptKit
 @MainActor
 struct MenuTargetTests {
     private struct EmptyTranscripts: TranscriptService {
-        func claudeTranscript(session: SessionID, bytes: Int) async throws -> Transcript { Transcript() }
+        func transcript(of log: SessionLog, bytes: Int) async throws -> Transcript { Transcript() }
     }
 
     private let clipboard = InMemoryClipboard()
