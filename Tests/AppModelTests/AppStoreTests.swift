@@ -218,6 +218,35 @@ struct AppStoreTests {
         #expect(store.composer.notice == nil)
     }
 
+    @Test func theKeyBarSendsOneKeyAndLeavesTheDraft() async throws {
+        let (store, _) = try makeStore()
+        #expect(!store.isEnabled(.sendKey(.escape)))
+        store.perform(.selectPane(scratch))
+        store.composer.draft = "keep me"
+        #expect(PaneKey.allCases.allSatisfy { store.isEnabled(.sendKey($0)) })
+        store.perform(.sendKey(.shiftTab))
+        await store.composer.keyTask?.value
+        #expect(control.performed.last == [.sendKeys(scratch, [.shiftTab])])
+        #expect(store.composer.draft == "keep me")
+    }
+
+    @Test func whileADialogWaitsOnlyTheKeysThatCancelItAreOn() throws {
+        let (store, _) = try makeStore()
+        store.perform(.selectPane(codex))
+        #expect(PaneKey.allCases.filter { store.isEnabled(.sendKey($0)) } == [.escape, .ctrlC])
+        store.apply(.failed("offline"))
+        #expect(!store.isEnabled(.sendKey(.escape)))
+    }
+
+    @Test func aFailedKeyShowsWhy() async throws {
+        let (store, _) = try makeStore()
+        store.perform(.selectPane(scratch))
+        control.error = SendPolicy.Refusal.paneMissing
+        store.perform(.sendKey(.enter))
+        await store.composer.keyTask?.value
+        #expect(store.composer.error == SendPolicy.Refusal.paneMissing.description)
+    }
+
     @Test func draftsArePerPaneAndSendingStopsWhileOffline() throws {
         let (store, _) = try makeStore()
         store.perform(.selectPane(scratch))

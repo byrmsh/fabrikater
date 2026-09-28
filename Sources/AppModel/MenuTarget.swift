@@ -24,7 +24,8 @@ public struct MenuTarget {
         guard let window else { return .app(command) }
         let pane = window.paneID
         switch command {
-        case .send, .reloadConversation, .copyConversation, .toggleChanges, .setChangesShown, .toggleSessionFacts,
+        case .send, .sendKey, .reloadConversation, .copyConversation, .toggleChanges, .setChangesShown,
+            .toggleSessionFacts,
             .setSessionFactsShown:
             return .window(command)
         case .togglePin(nil): return .app(.togglePin(pane))

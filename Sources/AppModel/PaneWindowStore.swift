@@ -47,6 +47,7 @@ public final class PaneWindowStore {
     public func perform(_ command: AppCommand) {
         switch command {
         case .send: composer.send()
+        case .sendKey(let key): composer.send(key)
         case .toggleChanges, .setChangesShown, .toggleSessionFacts, .setSessionFactsShown:
             panels.perform(command, hasPane: header != nil)
         case .copyPath(let path): clipboard.copy(path)
@@ -57,6 +58,7 @@ public final class PaneWindowStore {
     public func isEnabled(_ command: AppCommand) -> Bool {
         switch command {
         case .send: composer.canSend
+        case .sendKey(let key): composer.canSend(key)
         case .copyPath: true
         default:
             PanePanels.isEnabled(command, hasPane: header != nil) ?? conversation.isEnabled(command) ?? false
