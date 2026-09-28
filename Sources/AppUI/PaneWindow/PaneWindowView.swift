@@ -18,7 +18,10 @@ public struct PaneWindowView: View {
     public var body: some View {
         Group {
             if let window {
-                PaneWindowContent(window: window)
+                // A navigation container gives the window the same title bar and toolbar as the main window's detail.
+                NavigationStack {
+                    PaneWindowContent(window: window)
+                }
             } else {
                 ProgressView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
