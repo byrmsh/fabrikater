@@ -12,6 +12,8 @@ public final class ComposerStore {
     public private(set) var sendTitle = "Send"
     /// Why sending is off, when it is.
     public private(set) var disabledReason: String?
+    /// Why the key bar is off, when it is: no pane, or offline. A dialog leaves the keys that cancel it on.
+    private var keysDisabledReason: String?
 
     /// Shared with the other windows' composers and kept between launches.
     private let drafts: Drafts
@@ -21,6 +23,7 @@ public final class ComposerStore {
     private let control: any HerdrControl
     private let log = Log(category: "AppModel")
     @ObservationIgnored private(set) var sendTask: Task<Void, Never>?
+    @ObservationIgnored private(set) var keyTask: Task<Void, Never>?
 
     public init(control: any HerdrControl, drafts: Drafts = Drafts()) {
         self.control = control
@@ -61,7 +64,8 @@ public final class ComposerStore {
         paneID = pane?.id
         sendTitle = pane?.agentStatus == .working ? "Queue" : "Send"
         waitingNotice = pane?.agentStatus == .blocked ? Self.blockedNotice : nil
-        disabledReason = Self.disabledReason(hasPane: pane != nil, isOnline: isOnline) ?? waitingNotice
+        keysDisabledReason = Self.disabledReason(hasPane: pane != nil, isOnline: isOnline)
+        disabledReason = keysDisabledReason ?? waitingNotice
     }
 
     static let blockedNotice = "The agent is waiting for an answer in Herdr. Answer it there before sending."
@@ -92,6 +96,27 @@ public final class ComposerStore {
                 log.error("send to \(paneID) failed")
             }
             sending.remove(paneID)
+        }
+    }
+
+    /// Whether the key bar's `key` can go to the selected pane. While the agent waits for an answer only Esc and
+    /// Control-C can: they back out of the dialog, where the other keys would answer it.
+    public func canSend(_ key: PaneKey) -> Bool {
+        keysDisabledReason == nil && (waitingNotice == nil || key.key.cancels)
+    }
+
+    /// Sends one key to the selected pane. The draft is left alone; a failure shows as the composer's error.
+    func send(_ key: PaneKey) {
+        guard canSend(key), let paneID else { return }
+        errors[paneID] = nil
+        keyTask = Task {
+            do {
+                try await control.perform([.sendKeys(paneID, [key.key])])
+                log.info("sent a key to \(paneID)")
+            } catch {
+                errors[paneID] = String(describing: error)
+                log.error("key to \(paneID) failed")
+            }
         }
     }
 }

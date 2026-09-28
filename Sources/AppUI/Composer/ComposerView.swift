@@ -9,6 +9,7 @@ struct ComposerView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
+            KeyBar(composer: composer, perform: perform)
             if let notice = composer.notice {
                 Label(notice, systemImage: "exclamationmark.triangle.fill")
                     .font(.callout)

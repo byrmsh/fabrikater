@@ -67,7 +67,7 @@ public struct SendGuard: HerdrControl {
         var index = requests.startIndex
         while index < requests.endIndex {
             let request = requests[index]
-            guard request.typesIntoPane else {
+            guard request.typesIntoPane, !Self.onlyCancels(request) else {
                 try await control.perform([request])
                 index += 1
                 continue
@@ -123,6 +123,12 @@ public struct SendGuard: HerdrControl {
         } catch let error as HerdrError where error == .screenChanged {
             throw Refusal.changed(typed: typed)
         }
+    }
+
+    /// Escape and Control-C back out of a dialog instead of answering it, so they go through while one shows.
+    static func onlyCancels(_ request: HerdrRequest) -> Bool {
+        guard case .sendKeys(_, let keys) = request else { return false }
+        return !keys.isEmpty && keys.allSatisfy(\.cancels)
     }
 
     /// The host refuses on a dialog's footer, and, with a box, unless the box still shows as it did here.

@@ -43,6 +43,11 @@ public struct PaneCommands: Commands {
             button(.toggleSessionFacts)
             Divider()
             button(.send)
+            Menu(PaneKey.menuTitle) {
+                ForEach(PaneKey.allCases, id: \.self) { key in
+                    button(.sendKey(key))
+                }
+            }
         }
     }
 
