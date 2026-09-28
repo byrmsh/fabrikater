@@ -16,6 +16,6 @@ Since [0008](0008-app-drives-live-panes.md) the composer types into live panes. 
 ## Consequences
 
 - A prompt costs two screen reads over the shared ssh connection, one before the text and one before Enter.
-- The check is a footer match, not Collie's full draft verification. A gap of one ssh round trip remains between the last read and the keystroke; parsing.md 4.4 describes collapsing read, check and send into one remote snippet, and verifying the draft appeared before Enter. Both stay M3 work.
+- The check is a footer match, not Collie's full draft verification. A gap of one ssh round trip remains between the last read and the keystroke; parsing.md 4.4 describes collapsing read, check and send into one remote snippet, and verifying the draft appeared before Enter. Both stay M3 work; [0012](0012-verified-sends.md) does them.
 - Screens the check does not know (muse, omp, a Codex approval whose footer scrolled away) pass. Collie's captures in `Tests/Fixtures/panes/` pin what it knows; a new capture that shows a miss adds its hint.
 - M5's answer path (sending a dialog's option keys) must not go through `SendGuard`, which would refuse it; it gets its own guard against the screen having changed (parsing.md 4.4).

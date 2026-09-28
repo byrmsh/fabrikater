@@ -8,6 +8,12 @@ public enum HostCommand: Hashable, Sendable {
     case herdrEvents
     /// Herdr API requests, one JSON line each on stdin, each sent on its own socket connection in order with a short
     /// settle between them; prints one reply line per request (docs/architecture.md, "Control: requests").
+    ///
+    /// A request may follow a screen check: a line `?<pane> <window> <p> <r>`, then `p` phrases and `r` rows. The
+    /// script reads the pane's visible screen, strips styling, spaces, tabs, carriage returns and no-break spaces, and
+    /// drops blank rows. It sends the request only if none of the last three rows contains a phrase (case aside) and
+    /// the `r` rows show one after another among the last `window` rows. Otherwise it prints an error reply with the
+    /// code `screen_changed` and stops.
     case herdrRequests
     /// The last `bytes` bytes of the Claude session log for `session`, found by scanning the project directories
     /// (docs/parsing.md 1.2). Exits with `notFoundStatus` when no log exists.
@@ -22,6 +28,45 @@ public enum HostCommand: Hashable, Sendable {
     /// "Terminal read").
     case herdrPaneRecent(PaneID, lines: Int)
 
+    // The socket answers one request per connection; `-t 5` waits for the reply after stdin closes. A refusal stops
+    // the loop, so Enter is never sent after its text was refused. The settle comes before a request's screen check,
+    // not between the check and the request. Phrases and rows travel in the environment, never in an argument.
+    static let requestsScript = #"""
+        n=0; c=0
+        while IFS= read -r l; do
+          [ $c -eq 1 ] || [ $n -eq 0 ] || sleep 0.3; n=1; c=0
+          case "$l" in '?'*)
+            set -f; set -- ${l#?}; set +f
+            p=$1; w=$2; h=; e=; i=0
+            while [ $i -lt "$3" ]; do IFS= read -r x; h="$h$x
+        "; i=$((i+1)); done
+            i=0; while [ $i -lt "$4" ]; do IFS= read -r x; e="$e$x
+        "; i=$((i+1)); done
+            s=$(\#(Self.paneScreen(#""$p""#))) && printf '%s\n' "$s" | H="$h" E="$e" W="$w" LC_ALL=C awk '
+              BEGIN { nh = split(ENVIRON["H"], h, "\n") - 1; ne = split(ENVIRON["E"], e, "\n") - 1; w = ENVIRON["W"] + 0 }
+              { gsub(/\033\[[0-9;?]*[ -\/]*[@-~]|\033[@-Z\\_-]/, ""); gsub(/[ \t\r]|\302\240/, "")
+                if ($0 != "") s[++c] = $0 }
+              END {
+                for (i = c - 2; i <= c; i++) if (i > 0) { t = tolower(s[i]); for (j = 1; j <= nh; j++) if (index(t, h[j])) exit 1 }
+                if (ne <= 0) exit 0
+                for (a = (c - w + 1 > 1 ? c - w + 1 : 1); a + ne - 1 <= c; a++) {
+                  for (j = 1; j <= ne && (s[a + j - 1] "") == (e[j] ""); j++) {}
+                  if (j > ne) exit 0
+                }
+                exit 1
+              }' || { printf '%s\n' '{"error":{"code":"screen_changed","message":"screen check failed"}}'; exit 0; }
+            c=1; continue;;
+          esac
+          r=$(printf '%s\n' "$l" | socat -t 5 - UNIX-CONNECT:"$HOME/.config/herdr/herdr.sock") || exit 1
+          printf '%s\n' "$r"; case "$r" in *'"error":{'*) exit 0;; esac
+        done
+        """#
+
+    /// `herdr pane read` of the visible screen, for a pane given as an already quoted shell word.
+    static func paneScreen(_ quotedPane: String) -> String {
+        "herdr pane read \(quotedPane) --source visible --format ansi"
+    }
+
     /// The exit status a command's script uses for "the file does not exist".
     public static let notFoundStatus: Int32 = 44
 
@@ -33,17 +78,13 @@ public enum HostCommand: Hashable, Sendable {
         case .herdrEvents:
             #"socat - UNIX-CONNECT:"$HOME/.config/herdr/herdr.sock""#
         case .herdrRequests:
-            // The socket answers one request per connection; `-t 5` waits for the reply after stdin closes. A refusal
-            // stops the loop, so Enter is never sent after its text was refused.
-            #"n=0; while IFS= read -r l; do [ $n -eq 0 ] || sleep 0.3; n=1; "#
-                + #"r=$(printf '%s\n' "$l" | socat -t 5 - UNIX-CONNECT:"$HOME/.config/herdr/herdr.sock") || exit 1; "#
-                + #"printf '%s\n' "$r"; case "$r" in *'"error":{'*) exit 0;; esac; done"#
+            Self.requestsScript
         case .claudeLogTail(let session, let bytes):
             Self.claudeLog(session) + "tail -c \(max(bytes, 1)) \"$f\""
         case .claudeLogFollow(let session, let bytes):
             Self.claudeLog(session) + "exec tail -c \(max(bytes, 1)) -F \"$f\""
         case .herdrPaneScreen(let pane):
-            "herdr pane read \(shellQuoted(pane.rawValue)) --source visible --format ansi"
+            Self.paneScreen(shellQuoted(pane.rawValue))
         case .herdrPaneRecent(let pane, let lines):
             "herdr pane read \(shellQuoted(pane.rawValue)) --source recent --format ansi --lines \(min(max(lines, 1), 1000))"
         }

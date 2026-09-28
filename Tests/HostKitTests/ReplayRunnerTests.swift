@@ -32,6 +32,19 @@ struct ReplayRunnerTests {
         #expect(claude == (try Fixture.data(named: "screen-w1-p1.synthetic.txt")))
     }
 
+    @Test func typedTextShowsOnThePromptRowUntilEnter() async throws {
+        let pane = try #require(PaneID("w2:p1"))
+        let text =
+            #"{"id":"a","method":"pane.send_text","params":{"pane_id":"w2:p1","text":"\u001b[200~fix\nit\u001b[201~"}}"#
+        let enter = #"{"id":"b","method":"pane.send_keys","params":{"keys":["Enter"],"pane_id":"w2:p1"}}"#
+        _ = try await runner.run(.herdrRequests, input: Data("?w2:p1 60 1 1\nhint\n❯\n\(text)\n".utf8))
+        let screen = String(decoding: try await runner.run(.herdrPaneScreen(pane)), as: UTF8.self)
+        #expect(screen.contains("❯ fix it\r\n"))
+        #expect(try await runner.run(.herdrPaneScreen(try #require(PaneID("w3:p1")))) != Data(screen.utf8))
+        _ = try await runner.run(.herdrRequests, input: Data("\(enter)\n".utf8))
+        #expect(try await runner.run(.herdrPaneScreen(pane)) == (try Fixture.data(named: "screen.synthetic.txt")))
+    }
+
     @Test func streamsTheEventFixtureLineByLine() async throws {
         var lines: [String] = []
         for try await line in runner.lines(.herdrEvents, input: nil) {

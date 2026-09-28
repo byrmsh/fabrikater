@@ -32,7 +32,7 @@ let package = Package(
 
 // SwiftUI and AppKit exist only on macOS; on Linux the package is the logic targets and their tests.
 #if os(macOS)
-    // Pinned below 1.12, whose Metal shader the Command Line Tools cannot compile (docs/decisions/0012).
+    // Pinned below 1.12, whose Metal shader the Command Line Tools cannot compile (docs/decisions/0013).
     package.dependencies += [.package(url: "https://github.com/migueldeicaza/SwiftTerm", exact: "1.11.2")]
     package.targets += [
         .target(

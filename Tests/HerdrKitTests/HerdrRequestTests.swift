@@ -64,6 +64,28 @@ struct HerdrRequestTests {
         #expect(lines[1].contains(#""method":"pane.send_keys""#))
     }
 
+    @Test func aCheckedRequestFollowsItsScreenCheck() {
+        let check = ScreenCheck(rows: ["─── x ─", "❯\u{A0}fix  it", "  "], refusing: ["Enter to select"], window: 2)
+        #expect(check.rows == ["───x─", "❯fixit"])
+        #expect(
+            HerdrRequest.checked(check, .sendKeys(pane, [.enter])).lines(id: "r1") == [
+                "?w2:p1 2 1 2", "entertoselect", "───x─", "❯fixit",
+                #"{"id":"r1","method":"pane.send_keys","params":{"keys":["Enter"],"pane_id":"w2:p1"}}"#,
+            ])
+        #expect(HerdrRequest.checked(check, .sendText(pane, "a")).typesIntoPane)
+        #expect(HerdrRequest.checked(check, .focus(pane)).pane == pane)
+    }
+
+    @Test func aFailedScreenCheckIsItsOwnError() async {
+        let runner = RecordingRunner(
+            output: #"{"error":{"code":"screen_changed","message":"screen check failed"}}"# + "\n")
+        await #expect(throws: HerdrError.screenChanged) {
+            try await HerdrClient(runner: runner).perform([
+                .checked(ScreenCheck(rows: [], refusing: [], window: 1), .focus(pane))
+            ])
+        }
+    }
+
     @Test func theClientThrowsWhenHerdrRefusesARequest() async {
         let runner = RecordingRunner(
             output: #"{"id":"fabrikater1","error":{"code":"pane_not_found","message":"no such pane"}}"# + "\n")

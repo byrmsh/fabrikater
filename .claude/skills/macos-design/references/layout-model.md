@@ -2,7 +2,7 @@
 
 How fabrikater gets IDE-style, movable panels while keeping layout logic out of the views. The code below is a sketch of the shape, not a finished API; the first milestone that builds it settles the details and updates this file.
 
-Built so far (M4, [decisions/0012](../../../../docs/decisions/0012-swiftterm-terminal-view.md)): `AppModel/WorkspaceLayout.swift` holds only `detail: DetailPanel` (`.conversation` or `.terminal`), the `.tabs` node of the default layout below, switched by `toggleTerminal` and `showPanel(_:)`. Each window keeps its own; the main window's is saved with the window. The sidebar stays `NavigationSplitView`'s, the changes inspector stays in `PanePanels`. The tree, docking and resizing below come with movable panels.
+Built so far (M4, [decisions/0013](../../../../docs/decisions/0013-swiftterm-terminal-view.md)): `AppModel/WorkspaceLayout.swift` holds only `detail: DetailPanel` (`.conversation` or `.terminal`), the `.tabs` node of the default layout below, switched by `toggleTerminal` and `showPanel(_:)`. Each window keeps its own; the main window's is saved with the window. The sidebar stays `NavigationSplitView`'s, the changes inspector stays in `PanePanels`. The tree, docking and resizing below come with movable panels.
 
 ## Values (in `AppModel`, Foundation only)
 

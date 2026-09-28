@@ -10,7 +10,7 @@ Deployment target: `.macOS(.v15)`. CLT 27 itself only installs on macOS 26.6 or 
 
 SSH: spawn `/usr/bin/ssh` through `Process`. One long-lived `ssh -T arch <remote helper or tail command>` carries events and streams. A ControlMaster/ControlPersist master connection makes the one-off commands cheap. Do not use a Swift SSH library. Build without the App Sandbox and distribute outside the App Store.
 
-Terminal view: SwiftTerm (MIT), pinned to v1.11.2 since M4, the last release before its Metal shader, which the Command Line Tools cannot compile ([decisions/0012](decisions/0012-swiftterm-terminal-view.md)), fed bytes with `TerminalView.feed(byteArray:)`. No PTY (pseudo-terminal) is needed.
+Terminal view: SwiftTerm (MIT), pinned to v1.11.2 since M4, the last release before its Metal shader, which the Command Line Tools cannot compile ([decisions/0013](decisions/0013-swiftterm-terminal-view.md)), fed bytes with `TerminalView.feed(byteArray:)`. No PTY (pseudo-terminal) is needed.
 
 Markdown: our own block parser (`AppModel/MarkdownBlocks.swift`) and view, not Textual, which does not build under the Command Line Tools ([decisions/0011](decisions/0011-own-markdown-blocks.md), section 4).
 

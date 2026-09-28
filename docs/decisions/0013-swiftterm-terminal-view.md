@@ -1,4 +1,4 @@
-# 0012: SwiftTerm for the terminal view, fed one read at a time
+# 0013: SwiftTerm for the terminal view, fed one read at a time
 
 Status: accepted (2026-09-28)
 

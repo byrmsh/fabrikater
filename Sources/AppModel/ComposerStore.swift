@@ -13,21 +13,23 @@ public final class ComposerStore {
     /// Why sending is off, when it is.
     public private(set) var disabledReason: String?
 
+    /// Shared with the other windows' composers and kept between launches.
+    private let drafts: Drafts
     /// Per pane, like the drafts, so switching panes mid-send shows each pane's own state.
-    private var drafts: [PaneID: String] = [:]
     private var sending: Set<PaneID> = []
     private var errors: [PaneID: String] = [:]
     private let control: any HerdrControl
     private let log = Log(category: "AppModel")
     @ObservationIgnored private(set) var sendTask: Task<Void, Never>?
 
-    public init(control: any HerdrControl) {
+    public init(control: any HerdrControl, drafts: Drafts = Drafts()) {
         self.control = control
+        self.drafts = drafts
     }
 
     /// The selected pane's draft. The view binds its text field to this.
     public var draft: String {
-        get { paneID.flatMap { drafts[$0] } ?? "" }
+        get { paneID.map { drafts[$0] } ?? "" }
         set {
             guard let paneID else { return }
             drafts[paneID] = newValue
@@ -80,7 +82,8 @@ public final class ComposerStore {
             do {
                 try await control.perform(HerdrRequest.prompt(text, to: paneID))
                 // Keep anything typed while the send was in flight.
-                if let current = drafts[paneID], current.hasPrefix(text) {
+                let current = drafts[paneID]
+                if current.hasPrefix(text) {
                     drafts[paneID] = String(current.dropFirst(text.count))
                 }
                 log.info("sent a prompt to \(paneID)")
