@@ -89,21 +89,24 @@ private struct PastSessionRowView: View {
             Text(row.title)
                 .lineLimit(1)
                 .truncationMode(.tail)
+                .accessibilityLabel(row.spoken)
             Spacer(minLength: 8)
-            if let badge = row.badge {
-                Text(badge)
-                    .foregroundStyle(.tint)
+            // The title's label already reads these.
+            Group {
+                if let badge = row.badge {
+                    Text(badge)
+                        .foregroundStyle(.tint)
+                }
+                Text(row.age)
+                    .foregroundStyle(.secondary)
+                    .monospacedDigit()
+                Text(row.size)
+                    .foregroundStyle(.secondary)
+                    .monospacedDigit()
+                    .frame(minWidth: 64, alignment: .trailing)
             }
-            Text(row.age)
-                .foregroundStyle(.secondary)
-                .monospacedDigit()
-            Text(row.size)
-                .foregroundStyle(.secondary)
-                .monospacedDigit()
-                .frame(minWidth: 64, alignment: .trailing)
+            .accessibilityHidden(true)
         }
         .help(row.title)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(row.spoken)
     }
 }
