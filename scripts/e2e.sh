@@ -22,6 +22,9 @@ fi
 rm -rf "${E2E_OUT}"
 mkdir -p "${E2E_OUT}"
 
+swiftc -swift-version 6 scripts/e2e/ax.swift -o "${E2E_AX}"
+"${E2E_AX}" check
+
 if [ "$#" -gt 0 ]; then
     flows=("$@")
 else
