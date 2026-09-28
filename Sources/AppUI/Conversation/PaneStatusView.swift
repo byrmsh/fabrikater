@@ -1,7 +1,7 @@
 import AppModel
 import SwiftUI
 
-/// The selected pane's status and agent, shown in the toolbar next to Reload.
+/// The pane's status and agent, shown in the toolbar next to Reload.
 struct PaneStatusView: View {
     let header: PaneHeader
 

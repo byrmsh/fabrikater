@@ -23,7 +23,7 @@ struct DetailView: View {
             .navigationSubtitle(header.location)
             .toolbar {
                 ToolbarItem {
-                    PaneStatusView(header: header)
+                    SessionFactsButton(store: store, header: header)
                 }
                 ToolbarItem {
                     Button {

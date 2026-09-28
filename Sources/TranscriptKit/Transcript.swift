@@ -6,11 +6,19 @@ public struct Transcript: Equatable, Sendable {
     public var isClipped: Bool
     /// The agent's current plan (`Transcript+Todos.swift`); empty when the session has none.
     public var todos: [Todo]
+    /// What the log says about the session: model, folder, branch, start and context use (B11).
+    public var facts: SessionFacts
 
-    public init(entries: [TranscriptEntry] = [], isClipped: Bool = false, todos: [Todo] = []) {
+    public init(
+        entries: [TranscriptEntry] = [],
+        isClipped: Bool = false,
+        todos: [Todo] = [],
+        facts: SessionFacts = SessionFacts()
+    ) {
         self.entries = entries
         self.isClipped = isClipped
         self.todos = todos
+        self.facts = facts
     }
 }
 
