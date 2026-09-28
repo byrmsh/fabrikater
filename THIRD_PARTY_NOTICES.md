@@ -47,10 +47,10 @@ The concurrency and testing skills were found through the index at https://githu
 
 ## SwiftTerm
 
-The terminal view links SwiftTerm (https://github.com/migueldeicaza/SwiftTerm, v1.20.0) as a Swift package; its resource bundle ships inside the app. SwiftTerm is distributed under the following license.
+The terminal view links SwiftTerm (https://github.com/migueldeicaza/SwiftTerm, v1.11.2) as a Swift package. SwiftTerm is distributed under the following license.
 
 ```
-Copyright (c) 2019-2026 Miguel de Icaza (https://github.com/migueldeicaza)
+Copyright (c) 2019-2022 Miguel de Icaza (https://github.com/migueldeicaza)
 Copyright (c) 2017-2019, The xterm.js authors (https://github.com/xtermjs/xterm.js)
 Copyright (c) 2014-2016, SourceLair Private Company (https://www.sourcelair.com)
 Copyright (c) 2012-2013, Christopher Jeffrey (https://github.com/chjj/)

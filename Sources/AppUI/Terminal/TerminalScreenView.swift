@@ -63,5 +63,6 @@ struct TerminalScreenView: NSViewRepresentable {
         func setTerminalTitle(source: TerminalView, title: String) {}
         func hostCurrentDirectoryUpdate(source: TerminalView, directory: String?) {}
         func rangeChanged(source: TerminalView, startY: Int, endY: Int) {}
+        func clipboardCopy(source: TerminalView, content: Data) {}
     }
 }
