@@ -14,20 +14,24 @@ struct TerminalScreenView: NSViewRepresentable {
         Coordinator()
     }
 
-    func makeNSView(context: Context) -> TerminalView {
-        let view = TerminalView(frame: .zero, font: nil)
+    func makeNSView(context: Context) -> SnapshotTerminalView {
+        let view = SnapshotTerminalView(frame: .zero, font: nil)
         view.terminalDelegate = context.coordinator
+        view.onResize = { [weak view, coordinator = context.coordinator] in
+            if let view { coordinator.resized(view) }
+        }
         view.allowMouseReporting = false
         view.setAccessibilityLabel("Terminal")
         return view
     }
 
-    func updateNSView(_ view: TerminalView, context: Context) {
+    func updateNSView(_ view: SnapshotTerminalView, context: Context) {
         let coordinator = context.coordinator
         let size = 12 * scale
         if coordinator.fontSize != size {
             coordinator.fontSize = size
             view.font = NSFont.monospacedSystemFont(ofSize: size, weight: .regular)
+            coordinator.resized(view)
         }
         if coordinator.colorScheme != colorScheme {
             coordinator.colorScheme = colorScheme
@@ -52,6 +56,12 @@ struct TerminalScreenView: NSViewRepresentable {
             }
         }
 
+        func resized(_ view: TerminalView) {
+            if let bytes = feed.resized() {
+                view.feed(byteArray: bytes[...])
+            }
+        }
+
         func scrolled(source: TerminalView, position: Double) {
             if let bytes = feed.scrolled(toBottom: !source.canScroll || position >= 1) {
                 source.feed(byteArray: bytes[...])
@@ -64,5 +74,19 @@ struct TerminalScreenView: NSViewRepresentable {
         func hostCurrentDirectoryUpdate(source: TerminalView, directory: String?) {}
         func rangeChanged(source: TerminalView, startY: Int, endY: Int) {}
         func clipboardCopy(source: TerminalView, content: Data) {}
+    }
+}
+
+/// A `TerminalView` that says when its width in columns changes, which happens first when SwiftUI lays it out: a screen
+/// fed before then was clipped to the few columns of an empty frame.
+final class SnapshotTerminalView: TerminalView {
+    var onResize: (() -> Void)?
+
+    override func setFrameSize(_ newSize: NSSize) {
+        let columns = getTerminal().cols
+        super.setFrameSize(newSize)
+        if getTerminal().cols != columns {
+            onResize?()
+        }
     }
 }

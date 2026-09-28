@@ -143,6 +143,7 @@ struct TerminalTests {
 
     @Test func theFeedHoldsNewScreensWhileTheUserReadsAbove() {
         var feed = TerminalFeed()
+        #expect(feed.resized() == nil)
         let one = TerminalScreen(ansi: "one")
         let two = TerminalScreen(ansi: "two")
         let three = TerminalScreen(ansi: "three")
@@ -155,6 +156,7 @@ struct TerminalTests {
         #expect(feed.scrolled(toBottom: true) == three.bytes)
         #expect(feed.scrolled(toBottom: true) == nil)
         #expect(feed.receive(three) == nil)
+        #expect(feed.resized() == three.bytes)
     }
 
     @Test func theFeedDropsAHeldScreenWhenTheShownOneComesBack() {

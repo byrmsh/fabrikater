@@ -46,6 +46,12 @@ public struct TerminalFeed: Sendable {
         return screen.bytes
     }
 
+    /// The terminal changed its number of columns: returns the shown screen's bytes to feed again, since lines that
+    /// did not fit were clipped when they were fed.
+    public func resized() -> [UInt8]? {
+        shown?.bytes
+    }
+
     /// The user scrolled; returns the held screen's bytes once they are back at the bottom.
     public mutating func scrolled(toBottom: Bool) -> [UInt8]? {
         isAtBottom = toBottom
