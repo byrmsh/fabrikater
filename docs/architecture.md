@@ -83,7 +83,7 @@ Session logs are append-only JSONL. Sizes on the host (**verified**, 377 Claude 
 
 ### Terminal read
 
-For the terminal view, poll `herdr pane read <pane> --source recent --format ansi --lines 400` (**verified**: plain text on stdout, not JSON, about 9 KB for 400 lines) every 1 to 1.5 s while the view is visible, and not at all otherwise. `--source visible` gives only the current screen, which is what prompt detection needs. Do not use the snapshot's pane `revision` to skip reads: it stayed at 17 across 6 s on a `working` pane whose screen was changing (**verified**), so it does not track output.
+For the terminal view, poll `herdr pane read <pane> --source recent --format ansi --lines 400` (**verified**: plain text on stdout, not JSON, about 9 KB for 400 lines) every 1 to 1.5 s while the view is visible, and not at all otherwise. `--source visible` gives only the current screen, which is what prompt detection needs. Do not use the snapshot's pane `revision` to skip reads: it stayed at 17 across 6 s on a `working` pane whose screen was changing (**verified**), so it does not track output. As built (M4): `HostCommand.herdrPaneRecent` every 1.2 s, with a 5 s timeout, only while a terminal view is on screen; the app skips re-drawing when the text is unchanged ([decisions/0013](decisions/0013-swiftterm-terminal-view.md)).
 
 ### Sending
 

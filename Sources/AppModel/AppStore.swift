@@ -33,6 +33,10 @@ public final class AppStore {
     public private(set) var switcher: QuickSwitcher?
     /// The main window's changes inspector and session facts popover.
     public private(set) var panels = PanePanels()
+    /// Whether the main window's detail shows the conversation or the terminal.
+    public private(set) var layout = WorkspaceLayout()
+    /// The main window's terminal view; each pane window has its own.
+    public let terminal: TerminalStore
     /// The main window's conversation; each pane window has its own (`paneWindow(_:)`).
     public let conversation: ConversationStore
     public let composer: ComposerStore
@@ -48,6 +52,7 @@ public final class AppStore {
     private let clipboard: any Clipboard
     private let transcripts: any TranscriptService
     private let control: any HerdrControl
+    private let terminals: any TerminalReader
     @ObservationIgnored private var paneWindows = PaneWindowList()
     private let opener: any URLOpener
     private let host: String
@@ -56,12 +61,14 @@ public final class AppStore {
 
     /// - Parameters:
     ///   - control: changes Herdr on the user's behalf: focus follows the selection, and the composer sends.
+    ///   - terminals: reads panes' recent output for the terminal views.
     ///   - host: the ssh alias the panes run on, for links that reach them from this Mac.
     ///   - now: the clock that stamps each pane's last activity.
     public init(
         herdUpdates: AsyncStream<HerdUpdate>,
         transcripts: any TranscriptService,
         control: any HerdrControl,
+        terminals: any TerminalReader = BlankTerminalReader(),
         notes: any PaneNotesStore = InMemoryPaneNotesStore(),
         drafts: any DraftStorage = InMemoryDraftStorage(),
         clipboard: any Clipboard = InMemoryClipboard(),
@@ -77,11 +84,13 @@ public final class AppStore {
         self.now = now
         self.transcripts = transcripts
         self.control = control
+        self.terminals = terminals
         self.notes = notes.load()
         conversation = ConversationStore(transcripts: transcripts)
         self.drafts = Drafts(storage: drafts)
         composer = ComposerStore(control: control, drafts: self.drafts)
         focus = FocusSync(control: control)
+        terminal = TerminalStore(reader: terminals)
     }
 
     /// Applies herd updates until the stream ends. Call once, for the lifetime of the window.
@@ -162,6 +171,10 @@ public final class AppStore {
             panels.perform(command, hasPane: header != nil)
         case .copyPath(let path):
             clipboard.copy(path)
+        case .toggleTerminal, .showPanel:
+            layout.perform(command)
+        case .setTerminalVisible(let visible):
+            terminal.setVisible(visible)
         case .openInNewWindow:
             // The view opens the window (SwiftUI's openWindow) with `windowPane(_:)`; the window asks `paneWindow(_:)`.
             break
@@ -189,7 +202,8 @@ public final class AppStore {
         case .openInVSCode(let id): vscodeLink(id) != nil
         case .toggleChanges, .setChangesShown, .toggleSessionFacts, .setSessionFactsShown:
             PanePanels.isEnabled(command, hasPane: header != nil) ?? false
-        case .copyPath: true
+        case .copyPath, .setTerminalVisible: true
+        case .toggleTerminal, .showPanel: WorkspaceLayout.isEnabled(command, hasPane: header != nil) ?? false
         case .openInNewWindow(let id): windowPane(id) != nil
         case .reloadConversation, .loadEarlier, .copyMessage, .copyConversation, .expandEntry, .collapseEntry:
             conversation.isEnabled(command) ?? false
@@ -214,6 +228,7 @@ public final class AppStore {
         case .toggleShowHidden: notes.hiding.showHidden
         case .toggleShowShells: notes.hiding.showShells
         case .toggleChanges: panels.isChecked(command)
+        case .toggleTerminal: layout.isChecked(command)
         case .sortPanes(let order): notes.order == order
         default: nil
         }
@@ -234,7 +249,8 @@ public final class AppStore {
     /// A new pane window's store, with its own conversation, kept up to date with the herd until the window lets go of it.
     public func paneWindow(_ id: PaneID) -> PaneWindowStore {
         let window = PaneWindowStore(
-            paneID: id, transcripts: transcripts, control: control, clipboard: clipboard, drafts: drafts)
+            paneID: id, transcripts: transcripts, control: control, terminals: terminals, clipboard: clipboard,
+            drafts: drafts)
         paneWindows.add(window)
         refresh(window)
         return window
@@ -322,6 +338,7 @@ public final class AppStore {
             panels.losePane()
         }
         conversation.show(selected)
+        terminal.show(selected?.id)
         refreshComposer()
     }
 

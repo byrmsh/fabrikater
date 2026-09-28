@@ -4,9 +4,10 @@ import SwiftUI
 /// The main window: the herd sidebar and the selected pane (docs/design.md, "Window").
 public struct RootView: View {
     let store: AppStore
-    /// The window's text size and sidebar, restored with the window.
+    /// The window's text size, sidebar and detail panel, restored with the window.
     @SceneStorage("textScaleStep") private var savedTextScaleStep = TextScale.actual.step
     @SceneStorage("isSidebarVisible") private var savedSidebarVisible = true
+    @SceneStorage("detailPanel") private var savedDetailPanel = DetailPanel.conversation.rawValue
 
     public init(store: AppStore) {
         self.store = store
@@ -25,9 +26,11 @@ public struct RootView: View {
         .onAppear {
             store.perform(.setTextScale(TextScale(step: savedTextScaleStep)))
             store.perform(.setSidebarVisible(savedSidebarVisible))
+            store.perform(.showPanel(DetailPanel(rawValue: savedDetailPanel) ?? .conversation))
         }
         .onChange(of: store.textScale) { _, scale in savedTextScaleStep = scale.step }
         .onChange(of: store.isSidebarVisible) { _, visible in savedSidebarVisible = visible }
+        .onChange(of: store.layout.detail) { _, panel in savedDetailPanel = panel.rawValue }
         .task { await store.run() }
     }
 
