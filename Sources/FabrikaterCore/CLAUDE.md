@@ -8,4 +8,5 @@ Plain value types shared by every layer, plus the `Log` wrapper. Builds and test
 - Decode Herdr's strings leniently: unknown agents become `.other`, unknown statuses `.unknown`. Never fail a whole snapshot over a new value.
 - Tests: `Tests/FabrikaterCoreTests`, with swift-testing. Shared fixtures live in `Tests/Fixtures`.
 - `ReconnectPolicy` is the one reference type here: the shared backoff and the wake signal every host feed waits on (`Reconnect.swift`).
+- `NetworkChange.swift` decides which network path changes should reconnect, debounced; the executable feeds it `NWPathMonitor` (Network is macOS only, so the logic lives here to be tested).
 - Before adding a type here, ask whether a single target uses it. If so, it belongs in that target.

@@ -79,7 +79,7 @@ struct FabrikaterApp: App {
         }
         let session = session
         notifier?.onOpen = { session.store.perform(.selectPane($0)) }
-        WakeRecovery.start(session: session, reconnect: reconnect, usesSSH: fixtures == nil)
+        ConnectionRecovery.start(session: session, reconnect: reconnect, usesSSH: fixtures == nil)
         log.info("launched")
     }
 
