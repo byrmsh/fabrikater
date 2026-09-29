@@ -14,4 +14,9 @@ public enum SSHArguments {
     public static func arguments(for command: HostCommand, host: HostAlias) -> [String] {
         options + (command.isStreaming ? ["-T"] : []) + [host.rawValue, "--", command.remoteScript]
     }
+
+    /// Ends the shared master connection and every command riding on it, so the next command connects afresh.
+    public static func closeSharedConnection(host: HostAlias) -> [String] {
+        options + ["-O", "exit", host.rawValue]
+    }
 }

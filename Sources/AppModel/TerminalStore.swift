@@ -3,7 +3,7 @@ import HerdrKit
 import Observation
 
 /// One window's terminal view of a pane (M4): the pane's recent output, re-read every `interval` while the view is on
-/// screen and not at all otherwise (docs/architecture.md, "Terminal read").
+/// screen and not at all otherwise (docs/architecture.md, "Terminal read"). While reads fail, they back off.
 @MainActor
 @Observable
 public final class TerminalStore {
@@ -22,17 +22,22 @@ public final class TerminalStore {
 
     private let reader: any TerminalReader
     private let interval: Duration
+    private let backoff: Backoff
     private let pause: Pause
     @ObservationIgnored private(set) var pollTask: Task<Void, Never>?
 
-    /// - Parameter pause: waits between reads; tests pass one they release by hand.
+    /// - Parameters:
+    ///   - backoff: the waits after failed reads in a row, when longer than `interval`.
+    ///   - pause: waits between reads; tests pass one they release by hand.
     public init(
         reader: any TerminalReader,
         interval: Duration = .milliseconds(1200),
+        backoff: Backoff = Backoff(),
         pause: @escaping Pause = taskSleep
     ) {
         self.reader = reader
         self.interval = interval
+        self.backoff = backoff
         self.pause = pause
     }
 
@@ -77,7 +82,9 @@ public final class TerminalStore {
         let reader = reader
         let interval = interval
         let pause = pause
+        let backoff = backoff
         pollTask = Task { [weak self] in
+            var backoff = backoff
             while !Task.isCancelled {
                 let result: Result<String, any Error>
                 do {
@@ -87,8 +94,16 @@ public final class TerminalStore {
                 }
                 guard !Task.isCancelled, let self else { return }
                 self.receive(result)
+                let wait: Duration
+                switch result {
+                case .success:
+                    backoff.reset()
+                    wait = interval
+                case .failure:
+                    wait = max(interval, backoff.delay())
+                }
                 do {
-                    try await pause(interval)
+                    try await pause(wait)
                 } catch {
                     return
                 }

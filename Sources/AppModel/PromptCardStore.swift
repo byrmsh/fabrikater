@@ -48,6 +48,8 @@ public final class PromptCardStore {
     /// The pane state last read for: a new status or revision may be a new prompt.
     private var seen: Seen?
     private var isOnline = false
+    /// The last screen read failed, so the card is read again once the host is back.
+    private var readFailed = false
     private let reader: any PaneReader
     private let control: any HerdrControl
     private let sleep: Pause
@@ -126,7 +128,12 @@ public final class PromptCardStore {
             return
         }
         let seen = Seen(pane: pane.id, revision: pane.revision)
-        guard seen != self.seen else { return }
+        let retries = seen == self.seen && readFailed && isOnline && answering == nil
+        guard seen != self.seen || retries else { return }
+        if retries {
+            notice = nil
+            readFailed = false
+        }
         if pane.id != paneID {
             reset()
         }
@@ -202,10 +209,12 @@ public final class PromptCardStore {
     private func read(_ pane: PaneID) async -> PromptCard? {
         do {
             let screen = Screen(ansi: try await reader.screen(of: pane))
+            readFailed = false
             if let prompt = Prompt(on: screen) { return .prompt(prompt) }
             return Dialog(on: screen) == nil ? nil : .unknown
         } catch {
             notice = "Could not read the pane's screen: \(error)"
+            readFailed = true
             return .unknown
         }
     }
@@ -222,6 +231,7 @@ public final class PromptCardStore {
         task = nil
         paneID = nil
         seen = nil
+        readFailed = false
         card = nil
         notice = nil
         answering = nil

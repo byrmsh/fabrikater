@@ -32,4 +32,16 @@ public struct SSHRunner: HostCommandRunner {
         let child = ChildProcess(executable: Self.sshPath, arguments: SSHArguments.arguments(for: command, host: host))
         return child.lines(input: input)
     }
+
+    /// Drops the shared connection: after the Mac sleeps it is usually dead, but ssh takes up to 45 s
+    /// (`ServerAliveInterval` × `ServerAliveCountMax`) to notice, and every command riding on it hangs until then.
+    public func closeSharedConnection() async {
+        let child = ChildProcess(executable: Self.sshPath, arguments: SSHArguments.closeSharedConnection(host: host))
+        do {
+            _ = try await child.run(input: nil, timeout: .seconds(5))
+            log.info("closed the shared connection")
+        } catch {
+            log.error("closing the shared connection failed: \(error)")
+        }
+    }
 }
