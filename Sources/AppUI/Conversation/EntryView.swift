@@ -10,6 +10,7 @@ struct EntryView: View {
     /// Show All or Show Less, when the entry is long enough to collapse.
     var toggle: AppCommand?
     var perform: @MainActor (AppCommand) -> Void = { _ in }
+    @Environment(\.findHighlight) private var findHighlight
 
     var body: some View {
         switch entry.role {
@@ -53,7 +54,7 @@ struct EntryView: View {
                 switch part {
                 case .text(let text, _):
                     if isCollapsed {
-                        Text(AttributedString(inlineMarkdown: text))
+                        Text(AttributedString(inlineMarkdown: text).highlighting(findHighlight))
                             .lineLimit(Collapsing.visibleLines)
                             .textSelection(.enabled)
                             .frame(maxWidth: .infinity, alignment: .leading)

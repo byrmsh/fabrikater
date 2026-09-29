@@ -79,6 +79,7 @@ struct FabrikaterApp: App {
         .commands {
             ViewCommands(store: store)
             PaneCommands(store: store)
+            FindCommands(store: store)
         }
         WindowGroup("Pane", for: PaneID.self) { $id in
             if let id {

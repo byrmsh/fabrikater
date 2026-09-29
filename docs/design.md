@@ -37,7 +37,7 @@ A vertically scrolling transcript of the pane's session log, oldest at the top, 
 - Subagent (sidechain) traffic is hidden.
 - **Current plan**: when the session has a plan (Claude's latest `TodoWrite` call), a compact checklist sits above the transcript under a "Plan · 2 of 4 done" disclosure: pending items as open circles, the item in progress in the accent colour with its present-tense wording, completed items struck through. More than six items scroll inside the panel. A session without a plan, or whose latest plan is empty or malformed, shows nothing.
 
-Older history loads when the user scrolls near the top. Search (⌘F) matches across loaded messages and offers to load everything for a full search.
+Older history loads when the user scrolls near the top. Find (⌘F, Edit › Find) opens a bar above the conversation: it counts the loaded messages holding the text ("2 of 5", ignoring case and accents; tool results stay folded and are not searched), highlights each occurrence, outlines the current message and scrolls to it. Return or ⌘G goes to the next, Shift-Return or ⇧⌘G to the previous, Esc or Done closes the bar. The newest match is current first. A collapsed message that matches shows whole while the bar is open. When older messages exist, the bar offers Load Earlier Messages so the search covers them.
 
 The first version reads the conversation from the session log only. A later version merges the live Herdr screen into this same view for the newest, still-streaming part, rather than adding a separate view for it (the Terminal view below stays for what the log cannot show).
 
