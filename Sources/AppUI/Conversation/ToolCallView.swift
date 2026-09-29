@@ -5,6 +5,7 @@ import TranscriptKit
 struct ToolCallView: View {
     let call: ToolCall
     @ViewState private var isExpanded = false
+    @Environment(\.findHighlight) private var findHighlight
 
     var body: some View {
         DisclosureGroup(isExpanded: $isExpanded) {
@@ -25,10 +26,10 @@ struct ToolCallView: View {
             HStack(spacing: 6) {
                 Image(systemName: call.result?.isError == true ? "xmark.octagon" : "wrench.and.screwdriver")
                     .foregroundStyle(call.result?.isError == true ? .red : .secondary)
-                Text(call.name)
+                Text(AttributedString(call.name).highlighting(findHighlight))
                     .scaledFont(.body)
                     .fontWeight(.medium)
-                Text(call.summary)
+                Text(AttributedString(call.summary).highlighting(findHighlight))
                     .scaledFont(.callout, design: .monospaced)
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
