@@ -34,7 +34,7 @@ Before, every appended line parsed the whole window again (every row for the ent
 
 - `LogReaderTests` (TranscriptKit): following any fixture line by line reads exactly as the whole log read at once, for every format and across a window that drops its oldest lines; and appending 200 lines costs less than one read of the window. That bound is relative, so a slow CI runner slows both sides; before this change the same 200 lines cost 200 reads.
 - `AppStoreTests.aHerdThatChangesNothingTheSidebarShowsLeavesItAlone`: re-applying the same herd fires no observation of the sidebar.
-- The `scale` e2e flow (docs/e2e.md) opens the long conversation in the 64-pane herd, finds a message far up and follows an appended line, and prints how long each took in the macOS job's log (`scale: … after N s`).
+- The `scale` e2e flow (docs/e2e.md) opens the long conversation in the 64-pane herd, follows an appended line and finds a message far up, and prints how long each took in the macOS job's log (`scale: … after N s`).
 
 ## Not done
 
