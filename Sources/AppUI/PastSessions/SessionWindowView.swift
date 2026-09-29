@@ -1,45 +1,21 @@
 import AppModel
 import SwiftUI
 
-/// A window reading one past session's conversation, opened from the Past Sessions sheet. It holds its own store, so
-/// closing the window frees it, and offers that store to the menu bar while it is in front. There is no composer: the
-/// session is not running in a pane. Connecting to another host closes it.
+/// A window reading one past session's conversation, opened from the Past Sessions sheet. There is no composer: the
+/// session is not running in a pane.
 public struct SessionWindowView: View {
     let session: HostSession
     let id: SessionWindowID
-    @ViewState private var window: SessionWindowStore?
-    @Environment(\.dismiss) private var dismiss
 
     public init(session: HostSession, id: SessionWindowID) {
         self.session = session
         self.id = id
     }
 
-    private var store: AppStore { session.store }
-
     public var body: some View {
-        Group {
-            if let window {
-                // A navigation container gives the window the same title bar and toolbar as a pane window.
-                NavigationStack {
-                    SessionWindowContent(window: window)
-                }
-            } else {
-                ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-        }
-        .preferred(store.preferences.preferences, scale: store.textScale)
-        .frame(minWidth: 420, minHeight: 320)
-        .focusedSceneValue(window)
-        .onAppear {
-            if window == nil {
-                window = store.sessionWindow(id)
-            }
-        }
-        .onChange(of: window?.isClosed == true) { _, closed in
-            if closed { dismiss() }
-        }
+        HostWindow(
+            session: session, make: { [id] in $0.sessionWindow(id) }, isClosed: { $0.isClosed },
+            content: { SessionWindowContent(window: $0) })
     }
 }
 
