@@ -123,6 +123,10 @@ public final class AppStore {
     var focusTask: Task<Void, Never>? { focus.task }
 
     public func perform(_ command: AppCommand) {
+        if PaneDetailStores.handles(command) {
+            detail.perform(command, hasPane: header != nil)
+            return
+        }
         switch command {
         case .selectPane(let id):
             select(id)
@@ -196,15 +200,16 @@ public final class AppStore {
         case .openInNewWindow:
             // The view opens the window (SwiftUI's openWindow) with `windowPane(_:)`; the window asks `paneWindow(_:)`.
             break
-        case .send, .sendKey, .answerPrompt, .toggleChanges, .setChangesShown, .toggleSessionFacts,
-            .setSessionFactsShown, .copyPath, .toggleTerminal, .showPanel, .setTerminalVisible, .reloadConversation,
-            .loadEarlier, .copyMessage, .copyConversation, .expandEntry, .collapseEntry:
-            detail.perform(command, hasPane: header != nil)
+        default:
+            break
         }
     }
 
     public func isEnabled(_ command: AppCommand) -> Bool {
-        switch command {
+        if PaneDetailStores.handles(command) {
+            return detail.isEnabled(command, hasPane: header != nil) ?? false
+        }
+        return switch command {
         case .selectPane, .selectNextPane, .selectPreviousPane: !sections.isEmpty
         case .selectNeedsYou(let number): needsYou.pane(number: number) != nil
         case .toggleNotifications(let id): workspace(id) != nil
@@ -224,10 +229,7 @@ public final class AppStore {
         case .showPastSessions(let id): PastSessionsStore.canList(pane(id))
         case .closePastSessions: pastSessions.sheet != nil
         case .openPastSession(let id): pastSessions.sheet?.rows.contains { $0.window == id } == true
-        case .send, .sendKey, .answerPrompt, .toggleChanges, .setChangesShown, .toggleSessionFacts,
-            .setSessionFactsShown, .copyPath, .toggleTerminal, .showPanel, .setTerminalVisible, .reloadConversation,
-            .loadEarlier, .copyMessage, .copyConversation, .expandEntry, .collapseEntry:
-            detail.isEnabled(command, hasPane: header != nil) ?? false
+        default: false
         }
     }
 
