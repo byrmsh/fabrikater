@@ -1,8 +1,8 @@
 # What VoiceOver reads for the controls added since the sidebar's pass: the prompt card and its options, the key bar,
 # the send button, the connection footer, the docked panels and the Settings steppers. Each check is a name that only
 # the view's accessibility modifiers give, so a lost label fails here. accessibility-*.txt keeps the whole tree.
-e2e_launch snapshot-prompt.synthetic.json events.synthetic.jsonl claude.synthetic.jsonl requests.synthetic.jsonl \
-    screen-w1-p1.synthetic.txt
+e2e_launch snapshot-prompt.synthetic.json=snapshot.synthetic.json events.synthetic.jsonl claude.synthetic.jsonl \
+    requests.synthetic.jsonl screen-w1-p1.synthetic.txt
 e2e_expect_label "Connected"
 e2e_key down command
 e2e_expect_text "Do you want to proceed?"
