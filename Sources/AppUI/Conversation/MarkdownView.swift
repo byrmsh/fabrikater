@@ -4,6 +4,7 @@ import SwiftUI
 /// A message's markdown, laid out block by block from `MarkdownBlock.parse`.
 struct MarkdownView: View {
     let blocks: [MarkdownBlock]
+    @Environment(\.findHighlight) private var findHighlight
 
     init(_ text: String) {
         blocks = MarkdownBlock.parse(text)
@@ -22,17 +23,21 @@ struct MarkdownView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
+    private func inline(_ text: String) -> AttributedString {
+        AttributedString(inlineMarkdown: text).highlighting(findHighlight)
+    }
+
     @ViewBuilder
     private func view(for block: MarkdownBlock) -> some View {
         switch block {
         case .heading(let level, let text):
-            Text(AttributedString(inlineMarkdown: text))
+            Text(inline(text))
                 .scaledFont(level == 1 ? .title2 : level == 2 ? .title3 : .body)
                 .fontWeight(.semibold)
                 .accessibilityAddTraits(.isHeader)
                 .padding(.top, 4)
         case .paragraph(let text):
-            Text(AttributedString(inlineMarkdown: text))
+            Text(inline(text))
         case .list(let items):
             VStack(alignment: .leading, spacing: 3) {
                 ForEach(Array(items.enumerated()), id: \.offset) { _, item in
@@ -41,7 +46,7 @@ struct MarkdownView: View {
                             .monospacedDigit()
                             .foregroundStyle(.secondary)
                             .frame(minWidth: 14, alignment: .trailing)
-                        Text(AttributedString(inlineMarkdown: item.text))
+                        Text(inline(item.text))
                     }
                     .padding(.leading, CGFloat(item.level) * 18)
                 }
@@ -68,12 +73,13 @@ struct MarkdownView: View {
 /// A markdown table as a grid, header row bold, each column aligned as its delimiter row says.
 private struct MarkdownTableView: View {
     let table: MarkdownTable
+    @Environment(\.findHighlight) private var findHighlight
 
     var body: some View {
         Grid(alignment: .leading, horizontalSpacing: 14, verticalSpacing: 5) {
             GridRow {
                 ForEach(Array(table.header.enumerated()), id: \.offset) { column, cell in
-                    Text(AttributedString(inlineMarkdown: cell))
+                    Text(AttributedString(inlineMarkdown: cell).highlighting(findHighlight))
                         .fontWeight(.semibold)
                         .gridColumnAlignment(alignment(column))
                 }
@@ -83,7 +89,7 @@ private struct MarkdownTableView: View {
             ForEach(Array(table.rows.enumerated()), id: \.offset) { _, row in
                 GridRow {
                     ForEach(Array(row.enumerated()), id: \.offset) { _, cell in
-                        Text(AttributedString(inlineMarkdown: cell))
+                        Text(AttributedString(inlineMarkdown: cell).highlighting(findHighlight))
                     }
                 }
             }

@@ -8,6 +8,7 @@
 //   e2e-ax PID focus TEXT           focuses the first element whose placeholder contains TEXT
 //   e2e-ax PID disclose TEXT        presses the first disclosure triangle with a child whose value is TEXT
 //   e2e-ax PID focused-value        prints the value of the app's focused element
+//   e2e-ax PID focused-placeholder  prints the placeholder of the app's focused element
 // Exits 1 when the window or element is missing, 2 on a usage or access error.
 
 import ApplicationServices
@@ -77,16 +78,17 @@ if arguments == ["check"] {
     exit(0)
 }
 guard arguments.count >= 2, let pid = pid_t(arguments[0]) else {
-    fail("usage: e2e-ax PID text|dump|press|focus|disclose|focused-value [ARGUMENT...]", status: 2)
+    fail("usage: e2e-ax PID text|dump|press|focus|disclose|focused-value|focused-placeholder [ARGUMENT...]", status: 2)
 }
 let app = AXUIElementCreateApplication(pid)
 AXUIElementSetMessagingTimeout(app, 5)
 let command = arguments[1]
 let operand = arguments.count > 2 ? arguments[2] : ""
 
-if command == "focused-value" {
+if command == "focused-value" || command == "focused-placeholder" {
+    let name = command == "focused-value" ? kAXValueAttribute : "AXPlaceholderValue"
     guard let focused = attribute(app, kAXFocusedUIElementAttribute),
-        let value = text(attribute(focused as! AXUIElement, kAXValueAttribute))
+        let value = text(attribute(focused as! AXUIElement, name))
     else { exit(1) }
     print(value)
     exit(0)
