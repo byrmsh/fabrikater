@@ -150,6 +150,11 @@ e2e_expect_focus() {
     e2e_wait "a focused field holding \"$1\"" _e2e_focus_is "$1"
 }
 
+# e2e_expect_focused_field PLACEHOLDER: waits until the focused element is the field whose placeholder is PLACEHOLDER.
+e2e_expect_focused_field() {
+    e2e_wait "the focused field \"$1\"" _e2e_focused_placeholder_is "$1"
+}
+
 # e2e_key KEY [modifier...]: presses a key in the app. KEY is a character or down, up, left, right, return, escape;
 # modifiers are command, shift, option, control. Example: e2e_key down command
 e2e_key() {
@@ -313,6 +318,10 @@ _e2e_has_text() {
 
 _e2e_focus_is() {
     [ "$(_e2e_ax focused-value)" = "$1" ]
+}
+
+_e2e_focused_placeholder_is() {
+    [ "$(_e2e_ax focused-placeholder)" = "$1" ]
 }
 
 _e2e_lacks_text() {
