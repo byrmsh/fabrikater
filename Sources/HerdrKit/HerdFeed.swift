@@ -8,28 +8,31 @@ public enum HerdUpdate: Equatable, Sendable {
 }
 
 /// Keeps the herd current: re-reads the snapshot shortly after any Herdr event, and every `pollInterval` in case
-/// the event channel silently stalls (docs/architecture.md, "Events").
+/// the event channel silently stalls (docs/architecture.md, "Events"). After a failed read it polls again sooner, on
+/// the `ReconnectPolicy`'s backoff.
 public actor HerdFeed {
     private let service: any HerdrService
     private let coalesceDelay: Duration
     private let pollInterval: Duration
-    private let reconnectDelays: [Duration]
+    private let reconnect: ReconnectPolicy
+    private let clock = ContinuousClock()
     private let log = Log(category: "HerdrKit")
-    private var refreshScheduled = false
+    /// Pokes the reader when the next poll is due.
+    private var pollTimer: Task<Void, Never>?
 
     /// - Parameters:
     ///   - coalesceDelay: events arriving within this window after the first one cause a single re-read.
-    ///   - reconnectDelays: waits between reconnects of the event channel; the last one repeats.
+    ///   - reconnect: the waits between reconnects of the event channel, and between reads while they fail.
     public init(
         service: any HerdrService,
         coalesceDelay: Duration = .milliseconds(250),
         pollInterval: Duration = .seconds(20),
-        reconnectDelays: [Duration] = [.seconds(1), .seconds(2), .seconds(5), .seconds(15), .seconds(30)]
+        reconnect: ReconnectPolicy = ReconnectPolicy()
     ) {
         self.service = service
         self.coalesceDelay = coalesceDelay
         self.pollInterval = pollInterval
-        self.reconnectDelays = reconnectDelays.isEmpty ? [.seconds(1)] : reconnectDelays
+        self.reconnect = reconnect
     }
 
     /// Starts reading. The first update follows at once; the work stops when the consumer stops iterating.
@@ -40,67 +43,88 @@ public actor HerdFeed {
         }
     }
 
+    /// Every reason to read (the poll, an event) pokes with the time it happened. One reader serves the pokes in turn,
+    /// so reads never overlap, and skips those that came before its last read began, which that read covered.
     private func run(_ output: AsyncStream<HerdUpdate>.Continuation) async {
+        let (pokes, poke) = AsyncStream<ContinuousClock.Instant>.makeStream(bufferingPolicy: .bufferingNewest(1))
+        poke.yield(clock.now)
         await withDiscardingTaskGroup { group in
-            group.addTask { await self.poll(output) }
-            group.addTask { await self.followEvents(output) }
+            group.addTask { await self.read(on: pokes, into: output, poke: poke) }
+            group.addTask { await self.followEvents(poke: poke) }
         }
+        pollTimer?.cancel()
         output.finish()
     }
 
-    private func poll(_ output: AsyncStream<HerdUpdate>.Continuation) async {
-        while !Task.isCancelled {
-            await refresh(output)
-            do {
-                try await Task.sleep(for: pollInterval)
-            } catch {
-                return
+    private func read(
+        on pokes: AsyncStream<ContinuousClock.Instant>,
+        into output: AsyncStream<HerdUpdate>.Continuation,
+        poke: AsyncStream<ContinuousClock.Instant>.Continuation
+    ) async {
+        var backoff = reconnect.backoff()
+        var lastRead: ContinuousClock.Instant?
+        for await poked in pokes {
+            if let lastRead {
+                guard poked >= lastRead else { continue }
+                do {
+                    try await Task.sleep(for: coalesceDelay)
+                } catch {
+                    return
+                }
             }
+            lastRead = clock.now
+            let wait: Duration
+            if await refresh(output) {
+                backoff.reset()
+                wait = pollInterval
+            } else {
+                wait = min(backoff.delay(), pollInterval)
+            }
+            schedulePoll(after: wait, poke: poke)
         }
     }
 
-    private func followEvents(_ output: AsyncStream<HerdUpdate>.Continuation) async {
-        var failures = 0
+    private func schedulePoll(after wait: Duration, poke: AsyncStream<ContinuousClock.Instant>.Continuation) {
+        pollTimer?.cancel()
+        pollTimer = Task { [reconnect, clock] in
+            do {
+                try await reconnect.pause(wait)
+            } catch {
+                return
+            }
+            poke.yield(clock.now)
+        }
+    }
+
+    private func followEvents(poke: AsyncStream<ContinuousClock.Instant>.Continuation) async {
+        var backoff = reconnect.backoff()
         while !Task.isCancelled {
+            let started = clock.now
             do {
                 for try await _ in service.events() {
-                    failures = 0
-                    scheduleRefresh(output)
+                    poke.yield(clock.now)
                 }
                 log.info("event channel closed")
             } catch {
                 log.error("event channel failed: \(error)")
             }
-            let delay = reconnectDelays[min(failures, reconnectDelays.count - 1)]
-            failures += 1
             do {
-                try await Task.sleep(for: delay)
+                try await reconnect.pause(backoff.delay(afterHolding: clock.now - started))
             } catch {
                 return
             }
         }
     }
 
-    private func scheduleRefresh(_ output: AsyncStream<HerdUpdate>.Continuation) {
-        guard !refreshScheduled else { return }
-        refreshScheduled = true
-        Task {
-            try? await Task.sleep(for: coalesceDelay)
-            await self.runScheduledRefresh(output)
-        }
-    }
-
-    private func runScheduledRefresh(_ output: AsyncStream<HerdUpdate>.Continuation) async {
-        refreshScheduled = false
-        await refresh(output)
-    }
-
-    private func refresh(_ output: AsyncStream<HerdUpdate>.Continuation) async {
+    /// Reads the snapshot and publishes it, or why it failed; true when it succeeded.
+    private func refresh(_ output: AsyncStream<HerdUpdate>.Continuation) async -> Bool {
         do {
             output.yield(.herd(try await service.snapshot()))
+            return true
         } catch {
             log.error("snapshot failed: \(error)")
             output.yield(.failed(String(describing: error)))
+            return false
         }
     }
 }
