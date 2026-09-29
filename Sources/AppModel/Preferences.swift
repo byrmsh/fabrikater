@@ -44,6 +44,8 @@ public struct Preferences: Equatable, Sendable {
     /// Notify when an agent goes from working to done.
     public var notifiesFinished = true
     public var playsSound = true
+    /// Show the Needs You item in the menu bar.
+    public var showsMenuBarItem = true
     /// The conversation's body text in points, before the window's ⌘+ / ⌘− steps.
     public var conversationTextSize = Self.defaultConversationTextSize {
         didSet { conversationTextSize = Self.textSizes.clamp(conversationTextSize) }
@@ -91,6 +93,7 @@ extension Preferences: Codable {
         case notifiesBlocked
         case notifiesFinished
         case playsSound
+        case showsMenuBarItem
         case conversationTextSize
         case terminalTextSize
     }
@@ -106,6 +109,7 @@ extension Preferences: Codable {
         notifiesBlocked = value(.notifiesBlocked, or: defaults.notifiesBlocked)
         notifiesFinished = value(.notifiesFinished, or: defaults.notifiesFinished)
         playsSound = value(.playsSound, or: defaults.playsSound)
+        showsMenuBarItem = value(.showsMenuBarItem, or: defaults.showsMenuBarItem)
         // Observers do not run in an initializer, so the sizes are clamped here.
         conversationTextSize = Self.textSizes.clamp(value(.conversationTextSize, or: defaults.conversationTextSize))
         terminalTextSize = Self.textSizes.clamp(value(.terminalTextSize, or: defaults.terminalTextSize))
