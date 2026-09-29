@@ -15,7 +15,8 @@ extension PaneDetailModel {
     public var composer: ComposerStore { detail.composer }
     public var prompt: PromptCardStore { detail.prompt }
     public var terminal: TerminalStore { detail.terminal }
-    public var panels: PanePanels { detail.panels }
+    /// Which panels show beside the conversation, and where.
+    public var panels: PanelLayout { detail.panels }
     /// Which panel the detail shows: the conversation or the terminal.
     public var layout: WorkspaceLayout { detail.layout }
 

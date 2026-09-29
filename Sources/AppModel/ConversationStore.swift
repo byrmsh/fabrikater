@@ -34,7 +34,7 @@ public final class ConversationStore {
     /// True while the log is followed live, which already shows what a status change would re-read.
     @ObservationIgnored private var isFollowing = false
 
-    /// The session facts popover's rows (B11).
+    /// The Session Info panel's rows (B11).
     public var factRows: [FactRow] { transcript.facts.rows(isClipped: transcript.isClipped) }
 
     /// False when the pane has no conversation this version can read.

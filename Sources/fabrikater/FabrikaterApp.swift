@@ -67,6 +67,7 @@ struct FabrikaterApp: App {
                 terminals: client,
                 notes: UserDefaultsPaneNotesStore(defaults: defaults),
                 drafts: UserDefaultsDraftStorage(defaults: defaults),
+                panelLayouts: UserDefaultsPanelLayoutStorage(defaults: defaults),
                 clipboard: PasteboardClipboard(),
                 opener: WorkspaceURLOpener(),
                 host: host.rawValue,

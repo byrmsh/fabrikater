@@ -55,13 +55,13 @@ struct ChangesPanelTests {
 
     @Test func theToggleOpensAndClosesTheInspector() async throws {
         let store = try await makeStore(Transcript())
-        #expect(store.isEnabled(.toggleChanges))
-        #expect(store.isChecked(.toggleChanges) == false)
-        store.perform(.toggleChanges)
-        #expect(store.panels.isShowingChanges)
-        #expect(store.isChecked(.toggleChanges) == true)
-        store.perform(.setChangesShown(false))
-        #expect(!store.panels.isShowingChanges)
+        #expect(store.isEnabled(.togglePanel(.changes)))
+        #expect(store.isChecked(.togglePanel(.changes)) == false)
+        store.perform(.togglePanel(.changes))
+        #expect(store.panels.isShown(.changes))
+        #expect(store.isChecked(.togglePanel(.changes)) == true)
+        store.perform(.hidePanels(.trailing))
+        #expect(!store.panels.isShown(.changes))
     }
 
     @Test func copyPathPutsThePathOnTheClipboard() async throws {
@@ -77,6 +77,6 @@ struct ChangesPanelTests {
         let store = AppStore(
             herdUpdates: AsyncStream { $0.finish() }, transcripts: FixedTranscripts(transcript: Transcript()),
             control: FakeControl())
-        #expect(!store.isEnabled(.toggleChanges))
+        #expect(!store.isEnabled(.togglePanel(.changes)))
     }
 }

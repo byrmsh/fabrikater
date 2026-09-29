@@ -64,44 +64,31 @@ struct SessionFactsRowsTests {
         return store
     }
 
-    @Test func thePopoverNeedsASelectedPane() async throws {
+    @Test func thePanelNeedsASelectedPane() async throws {
         let store = try await makeStore()
-        #expect(!store.isEnabled(.toggleSessionFacts))
-        store.perform(.toggleSessionFacts)
-        #expect(!store.panels.isShowingSessionFacts)
+        #expect(!store.isEnabled(.togglePanel(.facts)))
+        store.perform(.togglePanel(.facts))
+        #expect(!store.panels.isShown(.facts))
 
         store.perform(.selectPane(PaneID("w2:p1")!))
         await store.conversation.loadTask?.value
-        #expect(store.isEnabled(.toggleSessionFacts))
-        store.perform(.toggleSessionFacts)
-        #expect(store.panels.isShowingSessionFacts)
+        #expect(store.isEnabled(.togglePanel(.facts)))
+        store.perform(.togglePanel(.facts))
+        #expect(store.panels.isShown(.facts))
         #expect(store.conversation.factRows == [FactRow("Branch", "main")])
-        store.perform(.toggleSessionFacts)
-        #expect(!store.panels.isShowingSessionFacts)
-    }
-
-    @Test func theWindowClosesItAndSoDoesClearingTheSelection() async throws {
-        let store = try await makeStore()
-        store.perform(.selectPane(PaneID("w2:p1")!))
-        store.perform(.setSessionFactsShown(true))
-        #expect(store.panels.isShowingSessionFacts)
-        store.perform(.setSessionFactsShown(false))
-        #expect(!store.panels.isShowingSessionFacts)
-
-        store.perform(.toggleSessionFacts)
-        store.perform(.selectPane(nil))
-        #expect(!store.panels.isShowingSessionFacts)
+        store.perform(.togglePanel(.facts))
+        #expect(!store.panels.isShown(.facts))
     }
 
     @Test func staysOpenWhileMovingBetweenPanes() async throws {
         let store = try await makeStore()
         store.perform(.selectPane(PaneID("w2:p1")!))
-        store.perform(.toggleSessionFacts)
+        store.perform(.togglePanel(.facts))
         store.perform(.selectNextPane)
-        #expect(store.panels.isShowingSessionFacts)
+        #expect(store.panels.isShown(.facts))
     }
 
     @Test func hasTheGetInfoShortcut() {
-        #expect(Keymap.chord(for: .toggleSessionFacts) == KeyChord(.character("i")))
+        #expect(Keymap.chord(for: .togglePanel(.facts)) == KeyChord(.character("i")))
     }
 }

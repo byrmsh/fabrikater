@@ -2,7 +2,7 @@ import AppModel
 import SwiftUI
 import TranscriptKit
 
-/// The session facts popover: model, folder, branch, start and context use, from the session's log (B11).
+/// The Session Info panel: model, folder, branch, start and context use, from the session's log (B11).
 struct SessionFactsView: View {
     let rows: [FactRow]
 
@@ -28,7 +28,8 @@ struct SessionFactsView: View {
             }
         }
         .font(.callout)
-        .frame(maxWidth: 420, alignment: .leading)
-        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 12)
+        .padding(.bottom, 8)
     }
 }

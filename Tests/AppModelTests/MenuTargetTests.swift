@@ -28,9 +28,9 @@ struct MenuTargetTests {
     @Test func withTheMainWindowInFrontEveryCommandGoesToIt() throws {
         let store = try makeStore()
         let target = MenuTarget(app: store, window: nil)
-        target.perform(.toggleChanges)
-        #expect(store.panels.isShowingChanges)
-        #expect(target.isChecked(.toggleChanges) == true)
+        target.perform(.togglePanel(.changes))
+        #expect(store.panels.isShown(.changes))
+        #expect(target.isChecked(.togglePanel(.changes)) == true)
         #expect(target.windowPane == scratch)
         #expect(target.route(.renamePane(nil)) == .app(.renamePane(nil)))
     }
@@ -40,15 +40,16 @@ struct MenuTargetTests {
         let window = store.paneWindow(refactor)
         let target = MenuTarget(app: store, window: window)
 
-        target.perform(.toggleChanges)
-        #expect(window.panels.isShowingChanges)
-        #expect(!store.panels.isShowingChanges)
-        #expect(target.isChecked(.toggleChanges) == true)
-        #expect(MenuTarget(app: store, window: nil).isChecked(.toggleChanges) == false)
+        target.perform(.togglePanel(.changes))
+        #expect(window.panels.isShown(.changes))
+        #expect(!store.panels.isShown(.changes))
+        #expect(target.isChecked(.togglePanel(.changes)) == true)
+        #expect(MenuTarget(app: store, window: nil).isChecked(.togglePanel(.changes)) == false)
 
-        target.perform(.toggleSessionFacts)
-        #expect(window.panels.isShowingSessionFacts)
-        #expect(!store.panels.isShowingSessionFacts)
+        target.perform(.movePanel(.facts, to: .leading))
+        #expect(window.panels.panels(in: .leading) == [.facts])
+        #expect(store.panels.panels(in: .leading).isEmpty)
+        #expect(target.isChecked(.movePanel(.facts, to: .leading)) == true)
     }
 
     @Test func aPaneWindowsPaneCommandsNameItsPane() throws {

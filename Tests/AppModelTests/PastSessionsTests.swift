@@ -147,8 +147,8 @@ struct PastSessionsTests {
         let target = MenuTarget(app: store, session: store.sessionWindow(id))
 
         for command in [
-            AppCommand.send, .sendKey(.escape), .toggleTerminal, .toggleChanges, .togglePin(nil), .openInVSCode(nil),
-            .openInNewWindow(nil), .showPastSessions(nil), .renamePane(nil),
+            AppCommand.send, .sendKey(.escape), .toggleTerminal, .togglePanel(.changes), .togglePin(nil),
+            .openInVSCode(nil), .openInNewWindow(nil), .showPastSessions(nil), .renamePane(nil),
         ] {
             #expect(target.route(command) == .unavailable)
             #expect(!target.isEnabled(command))

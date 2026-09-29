@@ -68,10 +68,6 @@ public enum AppCommand: Hashable, Sendable {
     case collapseEntry(String)
     /// Opens a pane's folder in VS Code over Remote-SSH; nil means the selected pane.
     case openInVSCode(PaneID?)
-    /// Opens the selected pane's session facts, or closes them.
-    case toggleSessionFacts
-    /// The facts popover was opened or closed by the window itself (Esc, a click outside).
-    case setSessionFactsShown(Bool)
     /// Opens a pane's conversation in a window of its own; nil means the selected pane.
     case openInNewWindow(PaneID?)
     /// Lists the other sessions kept beside a pane's live log, in a sheet; nil means the selected pane.
@@ -79,10 +75,18 @@ public enum AppCommand: Hashable, Sendable {
     case closePastSessions
     /// Opens a listed session in a window of its own and closes the sheet; the view opens the window.
     case openPastSession(SessionWindowID)
-    /// Shows or hides the inspector listing the files the selected pane's session changed.
-    case toggleChanges
-    /// The inspector was shown or hidden by the window itself.
-    case setChangesShown(Bool)
+    /// Shows or hides one of the window's panels (the plan, changes, session info).
+    case togglePanel(InfoPanel)
+    /// Hides every panel in a dock, as closing the inspector column does.
+    case hidePanels(PanelDock)
+    /// Moves a panel to a dock, last in it, and shows it.
+    case movePanel(InfoPanel, to: PanelDock)
+    /// Swaps a panel with the shown panel above it in its dock.
+    case movePanelUp(InfoPanel)
+    /// Swaps a panel with the shown panel below it in its dock.
+    case movePanelDown(InfoPanel)
+    /// Puts every panel back where it starts.
+    case resetPanels
     /// Copies a changed file's path.
     case copyPath(String)
     /// Switches the detail between the conversation and the terminal.
@@ -135,14 +139,16 @@ public enum AppCommand: Hashable, Sendable {
         case .expandEntry: "Show All"
         case .collapseEntry: "Show Less"
         case .openInVSCode: "Open Folder in VS Code"
-        case .toggleSessionFacts: "Session Info"
-        case .setSessionFactsShown(let shown): shown ? "Show Session Info" : "Hide Session Info"
         case .openInNewWindow: "Open in New Window"
         case .showPastSessions: "Past Sessions…"
         case .closePastSessions: "Close Past Sessions"
         case .openPastSession: PastSessionsStore.openTitle
-        case .toggleChanges: "Show Changes"
-        case .setChangesShown(let shown): shown ? "Show Changes" : "Hide Changes"
+        case .togglePanel(let panel): "Show \(panel.title)"
+        case .hidePanels: "Hide Panels"
+        case .movePanel(_, let dock): dock.title
+        case .movePanelUp: "Move Up"
+        case .movePanelDown: "Move Down"
+        case .resetPanels: "Reset Panels"
         case .copyPath: "Copy Path"
         case .toggleTerminal: "Show Terminal"
         case .showPanel(let panel): panel.title

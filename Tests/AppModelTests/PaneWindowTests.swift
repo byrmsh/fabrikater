@@ -186,19 +186,18 @@ struct PaneWindowPanelsTests {
     @Test func aWindowOpensItsOwnChangesAndSessionInfo() throws {
         let store = try makeStore()
         let window = store.paneWindow(refactor)
-        #expect(window.isEnabled(.toggleChanges))
-        #expect(window.isEnabled(.toggleSessionFacts))
-        #expect(window.isChecked(.toggleChanges) == false)
+        #expect(window.isEnabled(.togglePanel(.changes)))
+        #expect(window.isEnabled(.togglePanel(.facts)))
+        #expect(window.isChecked(.togglePanel(.changes)) == false)
 
-        window.perform(.toggleChanges)
-        window.perform(.toggleSessionFacts)
-        #expect(window.panels.isShowingChanges)
-        #expect(window.panels.isShowingSessionFacts)
-        #expect(window.isChecked(.toggleChanges) == true)
-        #expect(!store.panels.isShowingChanges)
+        window.perform(.togglePanel(.changes))
+        window.perform(.togglePanel(.facts))
+        #expect(window.panels.panels(in: .trailing) == [.changes, .facts])
+        #expect(window.isChecked(.togglePanel(.changes)) == true)
+        #expect(!store.panels.isShown(.changes))
 
-        window.perform(.setSessionFactsShown(false))
-        #expect(!window.panels.isShowingSessionFacts)
+        window.perform(.hidePanels(.trailing))
+        #expect(window.panels.panels(in: .trailing).isEmpty)
     }
 
     @Test func aWindowCopiesAChangedFilesPath() throws {
@@ -211,8 +210,8 @@ struct PaneWindowPanelsTests {
         let store = AppStore(
             herdUpdates: AsyncStream { $0.finish() }, transcripts: EmptyTranscripts(), control: FakeControl())
         let window = store.paneWindow(refactor)
-        #expect(!window.isEnabled(.toggleSessionFacts))
-        window.perform(.toggleSessionFacts)
-        #expect(!window.panels.isShowingSessionFacts)
+        #expect(!window.isEnabled(.togglePanel(.facts)))
+        window.perform(.togglePanel(.facts))
+        #expect(!window.panels.isShown(.facts))
     }
 }

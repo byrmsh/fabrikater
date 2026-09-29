@@ -1,17 +1,16 @@
 import SwiftUI
 import TranscriptKit
 
-/// The agent's current plan as a compact checklist above the conversation; the caller hides it when there is none.
+/// The agent's current plan as a compact checklist, in its panel under a header with its progress.
 struct TodoPlanView: View {
     let todos: [Todo]
-    @ViewState private var isExpanded = true
     @Environment(\.textScale) private var scale
 
     /// Longer plans scroll inside the panel so the conversation keeps its room.
     private static let visibleRows = 6
 
     var body: some View {
-        DisclosureGroup(isExpanded: $isExpanded) {
+        Group {
             if todos.count > Self.visibleRows {
                 ScrollView {
                     rows
@@ -20,19 +19,9 @@ struct TodoPlanView: View {
             } else {
                 rows
             }
-        } label: {
-            HStack(spacing: 6) {
-                Text("Plan")
-                    .scaledFont(.callout)
-                    .fontWeight(.semibold)
-                Text(Todo.progress(of: todos))
-                    .scaledFont(.callout)
-                    .foregroundStyle(.secondary)
-            }
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
-        .background(.bar)
+        .padding(.horizontal, 12)
+        .padding(.bottom, 8)
     }
 
     private var rows: some View {
@@ -42,7 +31,6 @@ struct TodoPlanView: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.top, 4)
     }
 }
 

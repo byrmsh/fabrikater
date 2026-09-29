@@ -1,9 +1,9 @@
-// B11: the session facts popover's rows, from the facts TranscriptKit reads out of the log.
+// B11: the Session Info panel's rows, from the facts TranscriptKit reads out of the log.
 
 import Foundation
 import TranscriptKit
 
-/// One line of the session facts popover: "Branch" and "main".
+/// One line of the Session Info panel: "Branch" and "main".
 public struct FactRow: Equatable, Sendable, Identifiable {
     public var label: String
     public var value: String
