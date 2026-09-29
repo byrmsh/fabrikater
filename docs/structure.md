@@ -42,7 +42,7 @@ FabrikaterCore ◄── HostKit ◄── HerdrKit ◄──┐
 - No Combine and no bare `DispatchQueue`: use Observation, `async`/`await`, actors and `AsyncSequence`. `scripts/check.sh` rejects both.
 - Never await the host on the main actor while handling input. Change local state first (clear the composer, mark the draft as sending, update the selection), then let the host catch up in a task.
 - Every host call has a timeout and throws a typed error. The UI shows the error; nothing hangs.
-- A long-lived feed (a stream, or a poll that runs while something is on screen) retries through the shared `ReconnectPolicy`: a `Backoff` for its failures in a row and `pause` for each wait, so the wake handler's `retryNow()` reaches it. Never a private list of delays, and never two reads of the same thing at once.
+- A long-lived feed (a stream, or a poll that runs while something is on screen) retries through the shared `ReconnectPolicy`: a `Backoff` for its failures in a row and `pause` for each wait, so `retryNow()` reaches it after a wake or a network change. Never a private list of delays, and never two reads of the same thing at once.
 - When the host is unreachable, show the last known data and say that it is stale. Never clear it.
 - Never write the SwiftUI state wrapper as `@State`: write `@ViewState`. Also avoid `#Preview`, `@Previewable`, `@Entry` and SwiftData. `scripts/check.sh` rejects them, because they break the Command Line Tools build (see [macos-tooling.md](macos-tooling.md) section 1).
 - A `TODO` or `FIXME` names its milestone, like `TODO(M3)`. There is no commented-out code.
