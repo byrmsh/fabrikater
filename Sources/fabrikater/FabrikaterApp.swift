@@ -10,7 +10,7 @@ import TranscriptKit
 
 @main
 struct FabrikaterApp: App {
-    private let store: AppStore
+    private let session: HostSession
 
     /// The composition root: the only place that builds services (docs/structure.md, "Dependency rules").
     init() {
@@ -30,14 +30,6 @@ struct FabrikaterApp: App {
         let preferences = PreferencesStore(
             storage: preferenceStorage, connectedHost: host.rawValue,
             hostIsOverridden: environment["FABRIKATER_HOST"] != nil, isValidHost: { HostAlias($0) != nil })
-        let runner: any HostCommandRunner
-        if let fixtures {
-            log.info("replaying fixtures")
-            runner = ReplayRunner(directory: URL(filePath: fixtures))
-        } else {
-            runner = SSHRunner(host: host)
-        }
-        let client = HerdrClient(runner: runner)
         #if DEBUG
             let isDebugBuild = true
         #else
@@ -47,56 +39,68 @@ struct FabrikaterApp: App {
         let notifier =
             fixtures == nil && Bundle.main.bundleIdentifier != nil ? SystemNotifier() : nil
         let policy = SendPolicy(environment: environment, isDebugBuild: isDebugBuild)
-        let fresh: @Sendable () async throws -> Herd = { try await client.snapshot() }
-        store = AppStore(
-            herdUpdates: HerdFeed(service: client).updates(),
-            transcripts: HostTranscriptService(runner: runner),
-            history: HostTranscriptService(runner: runner),
-            control: PolicedControl(SendGuard(client, reader: client), policy: policy, fresh: fresh),
-            screens: client,
-            answers: PolicedControl(client, policy: policy, fresh: fresh),
-            terminals: client,
-            notes: UserDefaultsPaneNotesStore(defaults: defaults),
-            drafts: UserDefaultsDraftStorage(defaults: defaults),
-            clipboard: PasteboardClipboard(),
-            opener: WorkspaceURLOpener(),
-            host: host.rawValue,
-            notifier: notifier ?? RecordingNotifier(),
-            isAppActive: { NSApplication.shared.isActive },
-            preferences: preferences
-        )
-        let store = store
-        notifier?.onOpen = { store.perform(.selectPane($0)) }
+        // Everything tied to a host, built again when Settings connects to another one.
+        session = HostSession(preferences: preferences) { alias in
+            let host = HostAlias(alias) ?? HostAlias(Preferences.defaultHost)!
+            let runner: any HostCommandRunner
+            if let fixtures {
+                log.info("replaying fixtures")
+                runner = ReplayRunner(directory: URL(filePath: fixtures))
+            } else {
+                runner = SSHRunner(host: host)
+            }
+            let client = HerdrClient(runner: runner)
+            let fresh: @Sendable () async throws -> Herd = { try await client.snapshot() }
+            return AppStore(
+                herdUpdates: HerdFeed(service: client).updates(),
+                transcripts: HostTranscriptService(runner: runner),
+                history: HostTranscriptService(runner: runner),
+                control: PolicedControl(SendGuard(client, reader: client), policy: policy, fresh: fresh),
+                screens: client,
+                answers: PolicedControl(client, policy: policy, fresh: fresh),
+                terminals: client,
+                notes: UserDefaultsPaneNotesStore(defaults: defaults),
+                drafts: UserDefaultsDraftStorage(defaults: defaults),
+                clipboard: PasteboardClipboard(),
+                opener: WorkspaceURLOpener(),
+                host: host.rawValue,
+                notifier: notifier ?? RecordingNotifier(),
+                isAppActive: { NSApplication.shared.isActive },
+                preferences: preferences
+            )
+        }
+        let session = session
+        notifier?.onOpen = { session.store.perform(.selectPane($0)) }
         log.info("launched")
     }
 
     var body: some Scene {
         WindowGroup("fabrikater") {
-            RootView(store: store)
+            MainWindow(session: session)
         }
         .defaultSize(width: 1100, height: 720)
         .windowToolbarStyle(.unified)
         .commands {
-            ViewCommands(store: store)
-            PaneCommands(store: store)
-            FindCommands(store: store)
+            ViewCommands(session: session)
+            PaneCommands(session: session)
+            FindCommands(session: session)
         }
         WindowGroup("Pane", for: PaneID.self) { $id in
             if let id {
-                PaneWindowView(store: store, paneID: id)
+                PaneWindowView(session: session, paneID: id)
             }
         }
         .defaultSize(width: 720, height: 720)
         .windowToolbarStyle(.unified)
         WindowGroup("Session", for: SessionWindowID.self) { $id in
             if let id {
-                SessionWindowView(store: store, id: id)
+                SessionWindowView(session: session, id: id)
             }
         }
         .defaultSize(width: 720, height: 720)
         .windowToolbarStyle(.unified)
         Settings {
-            SettingsView(preferences: store.preferences)
+            SettingsView(preferences: session.preferences)
         }
     }
 }

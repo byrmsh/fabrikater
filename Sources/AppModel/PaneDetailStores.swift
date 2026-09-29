@@ -33,6 +33,14 @@ public final class PaneDetailStores {
         self.clipboard = clipboard
     }
 
+    /// Stops every read and follow for good, when the window or the host it reads from goes. A send already on its way
+    /// finishes.
+    func close() {
+        conversation.close()
+        prompt.close()
+        terminal.close()
+    }
+
     /// Whether `command` acts on a window's pane detail rather than on the sidebar or the app.
     static func handles(_ command: AppCommand) -> Bool {
         switch command {

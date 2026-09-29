@@ -14,6 +14,8 @@ public final class PaneWindowStore {
     public private(set) var notice: String?
     /// This window's conversation, composer, prompt card, terminal and panels.
     public let detail: PaneDetailStores
+    /// Set once the host the pane runs on is let go of; the window closes.
+    public private(set) var isClosed = false
 
     init(paneID: PaneID, detail: PaneDetailStores) {
         self.paneID = paneID
@@ -33,6 +35,11 @@ public final class PaneWindowStore {
         detail.show(pane.pane)
     }
 
+    func close() {
+        detail.close()
+        isClosed = true
+    }
+
     /// Handles the pane detail's commands for this window; ignores every other.
     public func perform(_ command: AppCommand) {
         detail.perform(command, hasPane: header != nil)
@@ -48,17 +55,17 @@ public final class PaneWindowStore {
     }
 }
 
-/// The open pane windows, held weakly so closing a window frees its store.
-struct PaneWindowList {
+/// The open windows of one kind, held weakly so closing a window frees its store.
+struct WindowList<Store: AnyObject> {
     private struct Entry {
-        weak var store: PaneWindowStore?
+        weak var store: Store?
     }
 
     private var entries: [Entry] = []
 
-    var stores: [PaneWindowStore] { entries.compactMap(\.store) }
+    var stores: [Store] { entries.compactMap(\.store) }
 
-    mutating func add(_ store: PaneWindowStore) {
+    mutating func add(_ store: Store) {
         entries.removeAll { $0.store == nil }
         entries.append(Entry(store: store))
     }

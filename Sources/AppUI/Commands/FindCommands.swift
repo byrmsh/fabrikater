@@ -5,15 +5,18 @@ import SwiftUI
 /// find and text editing items, which would otherwise claim ⌘F for a text field.
 @MainActor
 public struct FindCommands: Commands {
-    let store: AppStore
+    let session: HostSession
     /// The pane window in front, if one is; nil while the main window is.
     @FocusedValue(PaneWindowStore.self) private var paneWindow
     /// The past session's window in front, if one is.
     @FocusedValue(SessionWindowStore.self) private var sessionWindow
 
-    public init(store: AppStore) {
-        self.store = store
+    public init(session: HostSession) {
+        self.session = session
     }
+
+    /// The store of the host connected to now.
+    private var store: AppStore { session.store }
 
     private var target: MenuTarget {
         MenuTarget(app: store, window: paneWindow, session: sessionWindow)

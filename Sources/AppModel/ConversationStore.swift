@@ -89,6 +89,14 @@ public final class ConversationStore {
         start(nil, log, unavailable: nil)
     }
 
+    /// Stops reading and following the log, for good: the window or the host it read from is gone.
+    func close() {
+        loadTask?.cancel()
+        loadTask = nil
+        isLoading = false
+        isFollowing = false
+    }
+
     private func start(_ paneID: PaneID?, _ sessionLog: SessionLog?, unavailable: String?) {
         loadTask?.cancel()
         self.paneID = paneID
