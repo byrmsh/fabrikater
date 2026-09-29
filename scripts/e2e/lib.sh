@@ -210,6 +210,54 @@ _e2e_menu_item_is() {
     end tell" 2>>"${E2E_OUT}/${E2E_FLOW:-app}.osascript.log")" = "${want}" ]
 }
 
+# e2e_expect_status_item COUNT: waits until the app has COUNT items in the menu bar's status area (menu bar 2).
+e2e_expect_status_item() {
+    e2e_wait "$1 menu bar items" _e2e_status_item_count_is "$1"
+}
+
+_e2e_status_item_count_is() {
+    [ "$(osascript -e "tell application \"System Events\" to tell process \"${E2E_PROCESS}\"
+        if (count menu bars) < 2 then return 0
+        return count menu bar items of menu bar 2
+    end tell" 2>>"${E2E_OUT}/${E2E_FLOW:-app}.osascript.log")" = "$1" ]
+}
+
+# e2e_expect_status_menu_item ITEM: waits until the app's menu bar item's menu holds ITEM, opening the menu to look and
+# closing it again.
+e2e_expect_status_menu_item() {
+    e2e_wait "\"$1\" in the menu bar item's menu" _e2e_status_menu_has "$1"
+}
+
+_e2e_status_menu_has() {
+    local names
+    names="$(osascript -e "tell application \"System Events\" to tell process \"${E2E_PROCESS}\"
+        click menu bar item 1 of menu bar 2
+        delay 0.3
+        set names to name of every menu item of menu 1 of menu bar item 1 of menu bar 2
+        key code 53
+        set AppleScript's text item delimiters to linefeed
+        return names as text
+    end tell" 2>>"${E2E_OUT}/${E2E_FLOW:-app}.osascript.log")"
+    grep -qxF -- "$1" <<<"${names}"
+}
+
+# e2e_status_menu ITEM: opens the app's menu bar item and chooses ITEM. E2E_SHOT=NAME also saves the whole screen with
+# the menu open, as build/e2e/NAME.png.
+e2e_status_menu() {
+    osascript -e "tell application \"System Events\" to tell process \"${E2E_PROCESS}\"
+        click menu bar item 1 of menu bar 2
+        delay 0.5
+    end tell" >/dev/null
+    if [ -n "${E2E_SHOT:-}" ]; then
+        screencapture -x "${E2E_OUT}/${E2E_SHOT}.png"
+        echo "screenshot: ${E2E_OUT}/${E2E_SHOT}.png"
+    fi
+    osascript -e "tell application \"System Events\" to tell process \"${E2E_PROCESS}\"
+        click menu item \"$1\" of menu 1 of menu bar item 1 of menu bar 2
+    end tell" >/dev/null
+    sleep 0.5
+}
+
 # e2e_focus_field PLACEHOLDER: clicks into the text field whose placeholder contains PLACEHOLDER.
 e2e_focus_field() {
     e2e_wait "a field with placeholder \"$1\"" _e2e_focus_field "$1"

@@ -5,6 +5,8 @@ import SwiftUI
 /// The main window for the host connected to now: connecting to another host builds it afresh on the new host's store.
 public struct MainWindow: View {
     let session: HostSession
+    /// The main window's scene id, which SwiftUI also prefixes its windows' identifiers with.
+    public static let sceneID = "main"
 
     public init(session: HostSession) {
         self.session = session

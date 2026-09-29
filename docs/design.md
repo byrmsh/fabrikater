@@ -61,6 +61,8 @@ As built in M5 ([decisions/0013](decisions/0013-prompt-cards.md)): the card's he
 
 A macOS notification fires when a pane becomes `blocked`, or goes from `working` to `done`, while the app is not frontmost or that pane is not selected. Clicking it selects the pane. The notification's title is the pane's label, its subtitle the workspace and tab, and its text "Needs input" or "Finished its turn". fabrikater asks for permission the first time it has something to show, and fixture runs never notify. Notifications are on by default and can be turned off per workspace: Turn Off Notifications in a workspace heading's context menu and the Pane menu (for the selected pane's workspace), kept with the other pane notes. The Dock badge shows the number of panes in "Needs You".
 
+**Menu bar item.** A bell in the menu bar, with the number of Needs You panes beside it while any wait (badged bell), struck through while the host is unreachable. Its menu starts with the host and how many panes need you ("arch: 2 panes need you"), lists the Needs You panes as "label · status" in the sidebar group's order, and ends with Open fabrikater. Choosing a pane selects it and brings the main window forward, opening one when all were closed. Settings › Menu Bar › Show Needs You in the menu bar (on by default) hides it; ⌘-dragging it out of the menu bar turns the setting off. After a host switch it shows the new host.
+
 ## Connection state
 
 A small indicator in the sidebar footer: connected, reconnecting (with the last error), or offline. When offline, everything already loaded stays readable, and sending is disabled with the reason shown. When nothing has loaded yet, the sidebar says Offline with the reason and does not claim a last known state.
@@ -74,6 +76,7 @@ As built: fabrikater › Settings… (⌘,) is one grouped form, saved as each v
 - Connection: the host alias, with `arch` as the placeholder, and a Connect button. Return in the field or Connect switches to the typed alias at once and keeps it for the next launch: the sidebar reloads from the new host, and the pane and past-session windows of the old one close. Until then the note under the field names the host connected to and the one Return would switch to; text ssh could read as an option is refused and not saved. `FABRIKATER_HOST`, when set, chooses the host at each launch, and the note says that too.
 - Composer: Send with Return or ⌘Return, with what the other key does underneath.
 - Notifications: when a pane needs input, when an agent finishes its turn, and whether they play a sound. Per-workspace muting stays in the workspace's context menu.
+- Menu Bar: whether the Needs You bell is in the menu bar.
 - Text Size: the conversation's body text (13 pt by default, the system size) and the terminal's (12 pt), 9 to 24 pt; View › Bigger and Smaller scale both in the front window.
 
 ## Visual style
