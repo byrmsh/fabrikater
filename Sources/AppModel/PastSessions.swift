@@ -145,6 +145,8 @@ public final class PastSessionsStore {
 public final class SessionWindowStore {
     public let id: SessionWindowID
     public let conversation: ConversationStore
+    /// Set once the host the session was read from is let go of; the window closes.
+    public private(set) var isClosed = false
     private let clipboard: any Clipboard
 
     init(_ id: SessionWindowID, transcripts: any TranscriptService, clipboard: any Clipboard) {
@@ -157,6 +159,11 @@ public final class SessionWindowStore {
     public var title: String { id.title }
     /// Says the conversation is read here, not answered.
     public var subtitle: String { "Past Session" }
+
+    func close() {
+        conversation.close()
+        isClosed = true
+    }
 
     /// Whether `command` acts on the conversation, the only thing this window has.
     func handles(_ command: AppCommand) -> Bool {

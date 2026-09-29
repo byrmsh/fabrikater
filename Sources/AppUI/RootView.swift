@@ -2,6 +2,20 @@ import AppKit
 import AppModel
 import SwiftUI
 
+/// The main window for the host connected to now: connecting to another host builds it afresh on the new host's store.
+public struct MainWindow: View {
+    let session: HostSession
+
+    public init(session: HostSession) {
+        self.session = session
+    }
+
+    public var body: some View {
+        RootView(store: session.store)
+            .id(ObjectIdentifier(session.store))
+    }
+}
+
 /// The main window: the herd sidebar and the selected pane (docs/design.md, "Window").
 public struct RootView: View {
     let store: AppStore

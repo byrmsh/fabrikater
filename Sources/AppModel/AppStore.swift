@@ -51,12 +51,17 @@ public final class AppStore {
     private let focus: FocusSync
     private var notes: PaneNotes
     private let notesStore: any PaneNotesStore
-    @ObservationIgnored private var paneWindows = PaneWindowList()
+    @ObservationIgnored private var paneWindows = WindowList<PaneWindowStore>()
+    @ObservationIgnored private var sessionWindows = WindowList<SessionWindowStore>()
     private let opener: any URLOpener
     private let notifier: any Notifier
     private let isAppActive: @MainActor () -> Bool
     private let host: String
     @ObservationIgnored private var herdUpdates: AsyncStream<HerdUpdate>?
+    /// Applies `herdUpdates` while `run()` waits on it.
+    @ObservationIgnored private(set) var updatesTask: Task<Void, Never>?
+    /// Set by `close()`: the host is let go of, and nothing more is read from it.
+    public private(set) var isClosed = false
     private let log = Log(category: "AppModel")
 
     /// - Parameters:
@@ -111,13 +116,38 @@ public final class AppStore {
         makeSessionWindow = { SessionWindowStore($0, transcripts: transcripts, clipboard: clipboard) }
     }
 
-    /// Applies herd updates until the stream ends. Call once, for the lifetime of the window.
+    /// Applies herd updates until the stream ends, `close()` is called or the caller is cancelled. Call once, for the
+    /// lifetime of the window.
     public func run() async {
         guard let updates = herdUpdates else { return }
         herdUpdates = nil
-        for await update in updates {
-            apply(update)
+        let task = Task {
+            for await update in updates {
+                apply(update)
+            }
         }
+        updatesTask = task
+        await withTaskCancellationHandler {
+            await task.value
+        } onCancel: {
+            task.cancel()
+        }
+    }
+
+    /// Lets go of the host for good: stops the herd updates, every read and follow, and closes the pane and past
+    /// session windows, whose panes and logs are on this host. A send already on its way finishes.
+    public func close() {
+        guard !isClosed else { return }
+        isClosed = true
+        // A feed never run stops once its stream is let go of.
+        herdUpdates = nil
+        updatesTask?.cancel()
+        focus.stop()
+        detail.close()
+        pastSessions.close()
+        for window in paneWindows.stores { window.close() }
+        for window in sessionWindows.stores { window.close() }
+        log.info("closed the connection to the host")
     }
 
     var focusTask: Task<Void, Never>? { focus.task }
@@ -279,7 +309,9 @@ public final class AppStore {
 
     /// A past session's window store, with its own read-only conversation.
     public func sessionWindow(_ id: SessionWindowID) -> SessionWindowStore {
-        makeSessionWindow(id)
+        let window = makeSessionWindow(id)
+        sessionWindows.add(window)
+        return window
     }
 
     private func refreshPaneWindows() {

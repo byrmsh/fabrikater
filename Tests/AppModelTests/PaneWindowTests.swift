@@ -157,7 +157,7 @@ struct PaneWindowTests {
     }
 
     @Test func aClosedWindowIsLetGo() async throws {
-        var list = PaneWindowList()
+        var list = WindowList<PaneWindowStore>()
         var window: PaneWindowStore? = try makeStore().0.paneWindow(refactor)
         list.add(try #require(window))
         #expect(list.stores.count == 1)

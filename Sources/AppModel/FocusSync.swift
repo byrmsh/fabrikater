@@ -16,6 +16,10 @@ final class FocusSync {
         self.settle = settle
     }
 
+    func stop() {
+        task?.cancel()
+    }
+
     func follow(_ pane: PaneID?) {
         task?.cancel()
         guard let pane else { return }

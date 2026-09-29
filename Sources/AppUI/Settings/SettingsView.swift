@@ -13,8 +13,13 @@ public struct SettingsView: View {
     public var body: some View {
         Form {
             Section {
-                TextField("Host", text: host, prompt: Text(preferences.hostPlaceholder))
-                    .autocorrectionDisabled()
+                HStack {
+                    TextField("Host", text: host, prompt: Text(preferences.hostPlaceholder))
+                        .autocorrectionDisabled()
+                        .onSubmit { preferences.connect() }
+                    Button(PreferencesStore.connectTitle) { preferences.connect() }
+                        .disabled(!preferences.canConnect)
+                }
             } header: {
                 Text("Connection")
             } footer: {

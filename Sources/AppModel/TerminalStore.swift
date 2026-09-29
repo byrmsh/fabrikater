@@ -57,6 +57,12 @@ public final class TerminalStore {
         restart()
     }
 
+    /// Stops reading, for good: the window or the host it read from is gone.
+    func close() {
+        isVisible = false
+        restart()
+    }
+
     /// The view appeared or disappeared.
     func setVisible(_ visible: Bool) {
         guard visible != isVisible else { return }

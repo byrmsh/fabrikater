@@ -2,16 +2,20 @@ import AppModel
 import SwiftUI
 
 /// A window reading one past session's conversation, opened from the Past Sessions sheet. It holds its own store, so
-/// closing the window frees it, and offers that store to the menu bar while it is in front. There is no composer: the session is not running in a pane.
+/// closing the window frees it, and offers that store to the menu bar while it is in front. There is no composer: the
+/// session is not running in a pane. Connecting to another host closes it.
 public struct SessionWindowView: View {
-    let store: AppStore
+    let session: HostSession
     let id: SessionWindowID
     @ViewState private var window: SessionWindowStore?
+    @Environment(\.dismiss) private var dismiss
 
-    public init(store: AppStore, id: SessionWindowID) {
-        self.store = store
+    public init(session: HostSession, id: SessionWindowID) {
+        self.session = session
         self.id = id
     }
+
+    private var store: AppStore { session.store }
 
     public var body: some View {
         Group {
@@ -32,6 +36,9 @@ public struct SessionWindowView: View {
             if window == nil {
                 window = store.sessionWindow(id)
             }
+        }
+        .onChange(of: window?.isClosed == true) { _, closed in
+            if closed { dismiss() }
         }
     }
 }
