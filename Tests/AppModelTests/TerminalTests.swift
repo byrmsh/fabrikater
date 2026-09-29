@@ -28,13 +28,19 @@ struct TerminalTests {
     /// A fake clock for the pause between reads: each pause waits until the test calls `tick()`.
     private final class Ticker: @unchecked Sendable {
         private var waiters: [CheckedContinuation<Void, Never>] = []
+        private var durations: [Duration] = []
         private let lock = NSLock()
 
         var waiting: Int { lock.withLock { waiters.count } }
+        /// How long each pause so far was asked to wait.
+        var waits: [Duration] { lock.withLock { durations } }
 
         @Sendable func pause(_ duration: Duration) async throws {
             await withCheckedContinuation { continuation in
-                lock.withLock { waiters.append(continuation) }
+                lock.withLock {
+                    durations.append(duration)
+                    waiters.append(continuation)
+                }
             }
         }
 
@@ -62,7 +68,25 @@ struct TerminalTests {
     }
 
     private func makeTerminal(_ reader: FakeTerminals) -> TerminalStore {
-        TerminalStore(reader: reader, pause: ticker.pause)
+        TerminalStore(
+            reader: reader, interval: .seconds(1), backoff: Backoff(delays: [.seconds(2), .seconds(5)]),
+            pause: ticker.pause)
+    }
+
+    @Test func failedReadsBackOffAndASuccessfulOneReturnsToTheInterval() async {
+        let reader = FakeTerminals("one")
+        reader.error = HerdrError("timed out")
+        let terminal = makeTerminal(reader)
+        terminal.show(refactor)
+        terminal.setVisible(true)
+        for reads in 1...3 {
+            await settle { ticker.waiting == 1 && reader.reads.count == reads }
+            if reads == 3 { reader.error = nil }
+            ticker.tick()
+        }
+        await settle { ticker.waiting == 1 && reader.reads.count == 4 }
+        #expect(ticker.waits == [.seconds(2), .seconds(5), .seconds(5), .seconds(1)])
+        #expect(terminal.screen == TerminalScreen(ansi: "one"))
     }
 
     @Test func readsOnlyWhileVisible() async {
