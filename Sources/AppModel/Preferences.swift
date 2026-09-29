@@ -97,27 +97,18 @@ extension Preferences: Codable {
 
     public init(from decoder: any Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        func value<Value: Decodable>(_ key: CodingKeys, or fallback: Value) -> Value {
+            (try? container.decodeIfPresent(Value.self, forKey: key)) ?? fallback
+        }
+        let defaults = Preferences()
         host = try? container.decodeIfPresent(String.self, forKey: .host)
-        sendKey = (try? container.decodeIfPresent(SendKey.self, forKey: .sendKey)) ?? .return
-        notifiesBlocked = (try? container.decodeIfPresent(Bool.self, forKey: .notifiesBlocked)) ?? true
-        notifiesFinished = (try? container.decodeIfPresent(Bool.self, forKey: .notifiesFinished)) ?? true
-        playsSound = (try? container.decodeIfPresent(Bool.self, forKey: .playsSound)) ?? true
-        conversationTextSize = Self.textSizes.clamp(
-            (try? container.decodeIfPresent(Int.self, forKey: .conversationTextSize))
-                ?? Self.defaultConversationTextSize)
-        terminalTextSize = Self.textSizes.clamp(
-            (try? container.decodeIfPresent(Int.self, forKey: .terminalTextSize)) ?? Self.defaultTerminalTextSize)
-    }
-
-    public func encode(to encoder: any Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encodeIfPresent(host, forKey: .host)
-        try container.encode(sendKey, forKey: .sendKey)
-        try container.encode(notifiesBlocked, forKey: .notifiesBlocked)
-        try container.encode(notifiesFinished, forKey: .notifiesFinished)
-        try container.encode(playsSound, forKey: .playsSound)
-        try container.encode(conversationTextSize, forKey: .conversationTextSize)
-        try container.encode(terminalTextSize, forKey: .terminalTextSize)
+        sendKey = value(.sendKey, or: defaults.sendKey)
+        notifiesBlocked = value(.notifiesBlocked, or: defaults.notifiesBlocked)
+        notifiesFinished = value(.notifiesFinished, or: defaults.notifiesFinished)
+        playsSound = value(.playsSound, or: defaults.playsSound)
+        // Observers do not run in an initializer, so the sizes are clamped here.
+        conversationTextSize = Self.textSizes.clamp(value(.conversationTextSize, or: defaults.conversationTextSize))
+        terminalTextSize = Self.textSizes.clamp(value(.terminalTextSize, or: defaults.terminalTextSize))
     }
 }
 
