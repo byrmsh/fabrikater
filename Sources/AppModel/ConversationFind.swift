@@ -82,7 +82,7 @@ public struct ConversationFind: Equatable, Sendable {
     static func matches(of query: String, in entries: [TranscriptEntry]) -> [String] {
         guard !isBlank(query) else { return [] }
         return entries.filter { entry in
-            entry.searchableTexts.contains { !ranges(of: query, in: $0).isEmpty }
+            entry.searchableTexts.contains { $0.range(of: query, options: options) != nil }
         }.map(\.id)
     }
 
@@ -92,14 +92,15 @@ public struct ConversationFind: Equatable, Sendable {
         var found: [Range<String.Index>] = []
         var start = text.startIndex
         while start < text.endIndex,
-            let range = text.range(
-                of: query, options: [.caseInsensitive, .diacriticInsensitive], range: start..<text.endIndex)
+            let range = text.range(of: query, options: options, range: start..<text.endIndex)
         {
             found.append(range)
             start = range.upperBound
         }
         return found
     }
+
+    private static let options: String.CompareOptions = [.caseInsensitive, .diacriticInsensitive]
 
     private static func isBlank(_ query: String) -> Bool {
         query.allSatisfy(\.isWhitespace)

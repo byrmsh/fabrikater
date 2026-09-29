@@ -362,16 +362,20 @@ public final class AppStore {
         }
     }
 
-    /// The sidebar pipeline: Herdr's structure, then each local feature in turn.
+    /// The sidebar pipeline: Herdr's structure, then each local feature in turn. A herd that changes nothing the sidebar
+    /// shows leaves it alone, so an idle poll redraws nothing.
     private func refreshSections() {
-        sections = SidebarSection.sections(for: herd)
+        let sections = SidebarSection.sections(for: herd)
             .named(notes.names)
             .active(activity.times)
             .unread(notes.unread)
             .hiding(notes.hiding)
             .sorted(notes.order)
             .pinned(notes.pins)
-        needsYou = sections.needingYou
+        if sections != self.sections {
+            self.sections = sections
+            needsYou = sections.needingYou
+        }
         switcher = switcher?.refreshing(sections.switcherItems(in: herd))
     }
 

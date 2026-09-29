@@ -43,18 +43,7 @@ extension Transcript {
     /// The items of the latest `TodoWrite` call in a Claude session log, oldest item first. Empty when the log has
     /// no such call, or when the latest one's input is malformed: an older plan is never shown in its place.
     public static func latestTodos(inClaudeLog data: Data) -> [Todo] {
-        let marker = Data("\"TodoWrite\"".utf8)
-        // Newest first, and only lines naming the tool are decoded, so the rest of the log costs one byte scan.
-        for line in data.split(separator: 0x0A).reversed() where line.range(of: marker) != nil {
-            guard let row = ClaudeLog.row(line), row["type"] as? String == "assistant",
-                let blocks = ClaudeLog.blocks(of: row),
-                let call = blocks.last(where: {
-                    $0["type"] as? String == "tool_use" && $0["name"] as? String == "TodoWrite"
-                })
-            else { continue }
-            return todos(fromInput: call["input"]) ?? []
-        }
-        return []
+        TodoReader.reading(data).todos
     }
 
     /// Nil when any item is missing its content or has an unknown status.
@@ -68,5 +57,19 @@ extension Transcript {
             todos.append(Todo(content: content, activeForm: item["activeForm"] as? String ?? "", status: status))
         }
         return todos
+    }
+}
+
+/// The plan of the latest `TodoWrite` call read so far.
+struct TodoReader: ClaudeRowReader {
+    private(set) var todos: [Todo] = []
+
+    mutating func read(_ row: [String: Any], number: Int) {
+        guard row["type"] as? String == "assistant", let blocks = ClaudeLog.blocks(of: row),
+            let call = blocks.last(where: {
+                $0["type"] as? String == "tool_use" && $0["name"] as? String == "TodoWrite"
+            })
+        else { return }
+        todos = Transcript.todos(fromInput: call["input"]) ?? []
     }
 }

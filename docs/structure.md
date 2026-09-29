@@ -53,6 +53,7 @@ FabrikaterCore ◄── HostKit ◄── HerdrKit ◄──┐
 Test fixtures live in `Tests/Fixtures/` and are shared by every test target. Load them by path relative to the test file (see `Tests/FabrikaterCoreTests/Fixture.swift`), not as resources.
 
 - `*.synthetic.*` files are hand-written from the shapes documented in [architecture.md](architecture.md). They say what the docs claim, not what the host does.
+- The scale fixtures (`claude-scale.synthetic.jsonl`, `claude-scale-more.synthetic.jsonl`, `snapshot-scale.synthetic.json`) are the one exception to hand-writing: `swift scripts/make-scale-fixtures.swift` generates them, deterministically, for the scale measurements and guards in [performance.md](performance.md). Change the script, never the files.
 - Other files are captured from the host with `scripts/capture-fixtures.sh`, which runs on the Mac, uses read-only commands only, and scrubs paths, titles, labels and session ids (`scripts/scrub-snapshot.jq`). Claude session logs (`claude-capture-N.jsonl`: the last lines of the two newest logs and of the newest one calling a task-tracking tool) are scrubbed down to their shape by `scripts/scrub-claude-log.jq`: every prompt, reply, command, result and path becomes a placeholder, keeping types, roles, tool names, statuses, tags and ids of the same shape, and `CaptureScrubTests` checks that the scrub keeps what the parsers read. `claude-tools.txt` counts the built-in tools the newest 50 logs call. It refuses to write if the host's home, the host user or the local user survives the scrub. Add every new capture there, with its own scrub, rather than copying files by hand.
 - Scrubbed free text is an opaque placeholder. `terminal_title` and `terminal_title_stripped` are scrubbed independently (a pane's pair reads `Title 61` / `Title 25`), and labels become `Workspace N` / `Tab N`, so no spinner glyph, prefix or real label survives. Captures show shapes, ids, statuses and how records relate; test any logic that reads titles or labels (stripping, label fallback, `fabrikater-test` matching beyond the kept label) against a synthetic fixture.
 
@@ -76,7 +77,7 @@ M1 settled the host, Herdr and store recipes below, and M7 the parser recipe. If
 
 ### Add an agent parser
 
-1. Add the resolution rules and a parser type in `TranscriptKit`, keyed by exact `AgentKind` (`omp` maps to the pi parser; see [parsing.md](parsing.md) 1.1).
+1. Add the resolution rules and a parser type in `TranscriptKit`, keyed by exact `AgentKind` (`omp` maps to the pi parser; see [parsing.md](parsing.md) 1.1). The parser is a `LogReader` that reads one line at a time, so a followed log parses only what it adds, and gets a case in `SessionLog.Format.reader(reading:)` and in `LogReaderTests.logs`.
 2. Ported code keeps the Collie attribution header (`// Ported from AltanS/collie@b7ddc17 <path> (MIT)`) and THIRD_PARTY_NOTICES.md stays current.
 3. Add trimmed and scrubbed host logs to `Tests/Fixtures/` plus Collie's own test cases, and test on Linux: parsing, tool-result folding, and a clipped first line and a partial last line.
 4. Views need no change if the parser emits the normalized transcript model.

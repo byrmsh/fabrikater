@@ -108,52 +108,7 @@ extension Transcript {
     /// first touched. Only calls whose result arrived and is not an error count: a rejected edit, a failed one and one
     /// still waiting for permission changed nothing.
     public static func changes(inClaudeLog data: Data) -> [FileChange] {
-        let tools = ["Edit", "MultiEdit", "Write"].map { Data("\"\($0)\"".utf8) }
-        let resultMarker = Data("\"tool_result\"".utf8)
-        var pending: [String: [PendingEdit]] = [:]
-        var applied: [PendingEdit] = []
-        // Only lines naming an editing tool, or a result for one still waiting, are decoded.
-        for line in data.split(separator: 0x0A) {
-            let namesTool = tools.contains { line.range(of: $0) != nil }
-            let answers =
-                !pending.isEmpty && line.range(of: resultMarker) != nil
-                && pending.keys.contains { line.range(of: Data($0.utf8)) != nil }
-            guard namesTool || answers, let row = ClaudeLog.row(line), let blocks = ClaudeLog.blocks(of: row)
-            else { continue }
-            for block in blocks {
-                switch block["type"] as? String {
-                case "tool_use" where row["type"] as? String == "assistant":
-                    guard let id = block["id"] as? String, let name = block["name"] as? String,
-                        let edits = PendingEdit.edits(tool: name, id: id, input: block["input"])
-                    else { continue }
-                    pending[id] = edits
-                case "tool_result":
-                    guard let id = block["tool_use_id"] as? String, let edits = pending.removeValue(forKey: id),
-                        block["is_error"] as? Bool != true
-                    else { continue }
-                    applied += edits
-                default:
-                    continue
-                }
-            }
-        }
-        return group(applied)
-    }
-
-    /// Groups edits by path, each file placed where it was first touched.
-    static func group(_ edits: [PendingEdit]) -> [FileChange] {
-        var changes: [FileChange] = []
-        var index: [String: Int] = [:]
-        for edit in edits {
-            let fileEdit = edit.fileEdit
-            if let at = index[edit.path] {
-                changes[at].edits.append(fileEdit)
-            } else {
-                index[edit.path] = changes.count
-                changes.append(FileChange(path: edit.path, edits: [fileEdit]))
-            }
-        }
-        return changes
+        ChangeReader.reading(data).changes
     }
 
     /// An edit read from a tool call, not yet turned into diff lines.
@@ -239,5 +194,44 @@ extension Transcript {
         var lines = text.split(separator: "\n", omittingEmptySubsequences: false).map(String.init)
         if lines.last == "" { lines.removeLast() }
         return lines
+    }
+}
+
+/// The files changed so far, each edit turned into diff lines once, when its result arrives.
+struct ChangeReader: ClaudeRowReader {
+    private(set) var changes: [FileChange] = []
+    /// Where each path sits in `changes`.
+    private var index: [String: Int] = [:]
+    /// The edits of each call still waiting for its result, by call id.
+    private var pending: [String: [Transcript.PendingEdit]] = [:]
+
+    mutating func read(_ row: [String: Any], number: Int) {
+        guard let blocks = ClaudeLog.blocks(of: row) else { return }
+        for block in blocks {
+            switch block["type"] as? String {
+            case "tool_use" where row["type"] as? String == "assistant":
+                guard let id = block["id"] as? String, let name = block["name"] as? String,
+                    let edits = Transcript.PendingEdit.edits(tool: name, id: id, input: block["input"])
+                else { continue }
+                pending[id] = edits
+            case "tool_result":
+                guard let id = block["tool_use_id"] as? String, let edits = pending.removeValue(forKey: id),
+                    block["is_error"] as? Bool != true
+                else { continue }
+                for edit in edits { apply(edit) }
+            default:
+                continue
+            }
+        }
+    }
+
+    /// Adds `edit` to its file, placing a file where it was first touched.
+    private mutating func apply(_ edit: Transcript.PendingEdit) {
+        if let at = index[edit.path] {
+            changes[at].edits.append(edit.fileEdit)
+        } else {
+            index[edit.path] = changes.count
+            changes.append(FileChange(path: edit.path, edits: [edit.fileEdit]))
+        }
     }
 }

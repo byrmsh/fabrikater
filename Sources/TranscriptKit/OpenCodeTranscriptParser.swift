@@ -10,9 +10,17 @@ import Foundation
 /// followed, replaces its earlier entry in place. Reasoning is dropped, as the design hides thinking.
 public enum OpenCodeTranscriptParser {
     public static func parse(_ data: Data) -> [TranscriptEntry] {
-        var entries: [TranscriptEntry] = []
-        var positions: [String: Int] = [:]
-        for (_, number, row) in JSONLines.rows(in: data) {
+        Reader.reading(data).transcript.entries
+    }
+
+    struct Reader: LogReader {
+        private var entries: [TranscriptEntry] = []
+        private var positions: [String: Int] = [:]
+
+        var transcript: Transcript { Transcript(entries: entries) }
+
+        mutating func read(_ line: Data.SubSequence, number: Int) {
+            guard let row = JSONLines.row(line) else { return }
             let record = row["data"] as? [String: Any] ?? [:]
             let id = (row["id"] as? String).flatMap { $0.isEmpty ? nil : $0 } ?? "line-\(number)"
             let entry: TranscriptEntry? =
@@ -35,7 +43,6 @@ public enum OpenCodeTranscriptParser {
                 entries.append(entry)
             }
         }
-        return entries
     }
 
     private static func entry(

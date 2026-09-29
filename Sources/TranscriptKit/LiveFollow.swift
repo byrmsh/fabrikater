@@ -59,7 +59,8 @@ extension HostTranscriptService {
     }
 }
 
-/// The part of a log read so far, grown line by line as the log is followed.
+/// The part of a log read so far, grown line by line as the log is followed. Each new line is parsed once, onto what
+/// was read before; only dropping the oldest lines reads the window again.
 struct LogWindow {
     let format: SessionLog.Format
     private(set) var data: Data
@@ -70,6 +71,10 @@ struct LogWindow {
     /// Hashes of the lines in the window, so a line the follow delivers again is added once. Log rows carry a unique
     /// id or a timestamp, so equal lines are the same row.
     private var seen: Set<Int>
+    /// Everything in `data`, parsed.
+    private var reader: any LogReader
+    /// The lines in `data`, which always ends with a newline.
+    private var lineCount: Int
 
     init(_ format: SessionLog.Format, read: Data, limit: Int) {
         self.format = format
@@ -79,22 +84,30 @@ struct LogWindow {
         isClipped = read.count >= limit
         self.limit = limit
         seen = Set(data.split(separator: 0x0A).map { String(decoding: $0, as: UTF8.self).hashValue })
+        reader = format.reader(reading: data)
+        lineCount = data.count { $0 == 0x0A }
     }
 
     /// Adds `line`; false when it is blank or already in the window.
     mutating func append(_ line: String) -> Bool {
         guard !line.isEmpty, seen.insert(line.hashValue).inserted else { return false }
-        data.append(contentsOf: line.utf8)
+        let bytes = Data(line.utf8)
+        data.append(bytes)
         data.append(0x0A)
         if data.count > 2 * limit {
             data = Data(data.suffix(limit))
             isClipped = true
+            reader = format.reader(reading: data)
+            lineCount = data.count { $0 == 0x0A }
+        } else {
+            lineCount += 1
+            reader.read(bytes[...], number: lineCount)
         }
         return true
     }
 
     var transcript: Transcript {
-        var transcript = Transcript(format, data: data, window: limit)
+        var transcript = reader.transcript
         transcript.isClipped = isClipped
         return transcript
     }

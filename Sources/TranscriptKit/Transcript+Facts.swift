@@ -33,40 +33,9 @@ public struct SessionFacts: Equatable, Sendable {
 }
 
 extension SessionFacts {
-    /// Reads the facts from a Claude Code session log (JSONL). Scans from the end for the latest values and stops once
-    /// it has them all, and from the start for the first timestamp, so a long log is not parsed twice over.
+    /// Reads the facts from a Claude Code session log (JSONL).
     public static func claude(_ data: Data) -> SessionFacts {
-        let lines = data.split(separator: 0x0A)
-        var facts = SessionFacts()
-        for line in lines.reversed() {
-            guard let row = ClaudeLog.row(line) else { continue }
-            facts.takeLatest(from: row)
-            if facts.hasEveryLatestValue { break }
-        }
-        for line in lines {
-            if let stamp = ClaudeLog.row(line)?["timestamp"] as? String, let date = parseTimestamp(stamp) {
-                facts.firstSeen = date
-                break
-            }
-        }
-        return facts
-    }
-
-    private var hasEveryLatestValue: Bool {
-        model != nil && workingDirectory != nil && gitBranch != nil && contextTokens != nil
-    }
-
-    private mutating func takeLatest(from row: [String: Any]) {
-        if workingDirectory == nil { workingDirectory = nonEmpty(row["cwd"]) }
-        if gitBranch == nil { gitBranch = nonEmpty(row["gitBranch"]) }
-        guard row["type"] as? String == "assistant", let message = row["message"] as? [String: Any] else { return }
-        // Claude Code writes "<synthetic>" for replies it made up itself, such as an API error; they have no real usage.
-        let model = nonEmpty(message["model"])
-        guard model != "<synthetic>" else { return }
-        if self.model == nil { self.model = model }
-        if contextTokens == nil, let usage = message["usage"] as? [String: Any] {
-            contextTokens = Self.contextTokens(usage)
-        }
+        reading(data)
     }
 
     static func contextTokens(_ usage: [String: Any]) -> Int? {
@@ -80,7 +49,7 @@ extension SessionFacts {
             ?? (try? Date.ISO8601FormatStyle().parse(text))
     }
 
-    private func nonEmpty(_ value: Any?) -> String? {
+    fileprivate func nonEmpty(_ value: Any?) -> String? {
         guard let text = value as? String, !text.isEmpty else { return nil }
         return text
     }
@@ -97,5 +66,26 @@ extension SessionFacts {
         case ..<999_950: return scaled(Double(count) / 1000, "k")
         default: return scaled(Double(count) / 1_000_000, "M")
         }
+    }
+}
+
+extension SessionFacts: ClaudeRowReader {
+    public init() {
+        self.init(model: nil)
+    }
+
+    /// Takes each value from the row when it has one, so the latest row wins; the first timestamp stays.
+    mutating func read(_ row: [String: Any], number: Int) {
+        if firstSeen == nil, let stamp = row["timestamp"] as? String {
+            firstSeen = Self.parseTimestamp(stamp)
+        }
+        workingDirectory = nonEmpty(row["cwd"]) ?? workingDirectory
+        gitBranch = nonEmpty(row["gitBranch"]) ?? gitBranch
+        guard row["type"] as? String == "assistant", let message = row["message"] as? [String: Any] else { return }
+        // Claude Code writes "<synthetic>" for replies it made up itself, such as an API error; they have no real usage.
+        let model = nonEmpty(message["model"])
+        guard model != "<synthetic>" else { return }
+        self.model = model ?? self.model
+        contextTokens = (message["usage"] as? [String: Any]).flatMap(Self.contextTokens) ?? contextTokens
     }
 }

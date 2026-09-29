@@ -10,20 +10,27 @@ import Foundation
 /// `custom_tool_call` rows (`apply_patch`) are read like function calls.
 public enum CodexTranscriptParser {
     public static func parse(_ data: Data) -> [TranscriptEntry] {
-        var builder = TranscriptBuilder()
-        var ids = JSONLines.RowIDs()
-        for (line, _, row) in JSONLines.rows(in: data) {
-            guard row["type"] as? String == "response_item", let payload = row["payload"] as? [String: Any] else {
-                continue
-            }
+        Reader.reading(data).transcript.entries
+    }
+
+    struct Reader: LogReader {
+        private var builder = TranscriptBuilder()
+        private var ids = JSONLines.RowIDs()
+
+        var transcript: Transcript { Transcript(entries: builder.entries) }
+
+        mutating func read(_ line: Data.SubSequence, number: Int) {
+            guard let row = JSONLines.row(line), row["type"] as? String == "response_item",
+                let payload = row["payload"] as? [String: Any]
+            else { return }
             // Every response_item advances the ids, rendered or not, so ids depend on the window alone.
             let id = ids.next(for: line, prefix: "cx")
             let timestamp = row["timestamp"] as? String ?? ""
             switch payload["type"] as? String {
             case "message":
                 guard let role = speaker(payload["role"]), let part = TextRules.textPart(text(of: payload["content"]))
-                else { continue }
-                if role == .user, case .text(let text, _) = part, isInjectedContext(text) { continue }
+                else { return }
+                if role == .user, case .text(let text, _) = part, isInjectedContext(text) { return }
                 builder.add([part], id: id, timestamp: timestamp, role: role)
             case "function_call", "custom_tool_call":
                 let name = payload["name"] as? String ?? "tool"
@@ -35,15 +42,14 @@ public enum CodexTranscriptParser {
             case "function_call_output", "custom_tool_call_output":
                 let result = TextRules.result(output(payload["output"]))
                 guard !builder.fold(result, into: payload["call_id"] as? String), !TextRules.isBlank(result.text)
-                else { continue }
+                else { return }
                 builder.add(
                     [.tool(ToolCall(name: "result", summary: "", result: result))], id: id, timestamp: timestamp,
                     role: .assistant, joiningLast: true)
             default:
-                continue
+                return
             }
         }
-        return builder.entries
     }
 
     /// User and assistant speak; `developer` rows carry injected system prompts and anything else is plumbing.

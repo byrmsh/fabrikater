@@ -33,6 +33,9 @@ Every check from the merged PRs that only the Mac or the host can do, most impor
 - [ ] Sleep and wake (#57). With a `working` pane selected, sleep the Mac (Apple menu › Sleep) for at least two minutes, then wake it: the footer says Connected and new rows appear within a few seconds, not a minute. `log show --last 5m --predicate 'subsystem BEGINSWITH "sh.bayram"' | grep -E "woke|shared connection"` shows "woke from sleep; reconnecting" and "closed the shared connection".
 - [ ] After either check above, `ssh arch pgrep -af 'tail -c 65536 -F'` shows one tail per open conversation, not one per reconnect. [#57]
 
+- [ ] Scale, offline with fixtures (docs/performance.md): `d=$(mktemp -d); cp Tests/Fixtures/snapshot-scale.synthetic.json "$d/snapshot.synthetic.json"; cp Tests/Fixtures/events.synthetic.jsonl "$d"; cp Tests/Fixtures/claude-scale.synthetic.jsonl "$d/claude.synthetic.jsonl"; FABRIKATER_FIXTURES="$d" build/fabrikater.app/Contents/MacOS/fabrikater`, then ⌘↓. Scrolling from the latest reply to the top and back stays smooth, typing `retry` in ⌘F does not stutter, and Load Earlier Messages reads the whole log without a beachball. [#59]
+- [ ] Scale, on the host: with a long conversation open on a `working` Claude pane, Activity Monitor shows fabrikater under about 10% CPU while rows stream in. [#59]
+
 ## 3. Sending (scratch pane only)
 
 - [ ] A one-line prompt is submitted (the pane goes `working`). [#7, #37]

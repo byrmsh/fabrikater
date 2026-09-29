@@ -59,6 +59,7 @@ struct TranscriptView: View {
         return EntryView(
             entry: entry, isCollapsed: conversation.isCollapsed(entry), toggle: toggle, perform: perform
         )
+        .equatable()
         .environment(\.findHighlight, conversation.find.highlight(for: entry))
         .overlay {
             // The current match is outlined just outside the entry, so moving between matches never shifts the layout.

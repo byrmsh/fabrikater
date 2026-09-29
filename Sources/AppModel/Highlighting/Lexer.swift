@@ -144,7 +144,8 @@ struct Lexer {
     }
 
     private static func isLetter(_ scalar: Unicode.Scalar) -> Bool {
-        scalar.properties.isAlphabetic
+        // Most code is ASCII, and the Unicode property lookup costs far more than a range check.
+        scalar.isASCII ? ("a"..."z").contains(scalar) || ("A"..."Z").contains(scalar) : scalar.properties.isAlphabetic
     }
 
     private static func isDigit(_ scalar: Unicode.Scalar) -> Bool {

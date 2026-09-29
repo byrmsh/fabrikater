@@ -1,5 +1,6 @@
 import FabrikaterCore
 import HerdrKit
+import Observation
 import Testing
 import TranscriptKit
 
@@ -46,6 +47,26 @@ struct AppStoreTests {
         let (store, _) = try makeStore()
         #expect(store.connection == .connected)
         #expect(store.sections.count == 2)
+    }
+
+    @Test func aHerdThatChangesNothingTheSidebarShowsLeavesItAlone() throws {
+        final class Flag: @unchecked Sendable {
+            var isSet = false
+        }
+        let (store, herd) = try makeStore()
+        let changed = Flag()
+        withObservationTracking {
+            _ = store.sections
+        } onChange: {
+            changed.isSet = true
+        }
+        store.apply(.herd(herd))
+        #expect(!changed.isSet)
+
+        var renamed = herd
+        renamed.workspaces[0].label = "Renamed"
+        store.apply(.herd(renamed))
+        #expect(store.sections.first?.title == "Renamed")
     }
 
     @Test func aFailedReadKeepsTheLastHerdAndSaysItIsStale() throws {
