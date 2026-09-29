@@ -103,6 +103,26 @@ struct PromptCardTests {
         #expect(store.notice == "Could not read the pane's screen: ssh failed")
     }
 
+    @Test func anUnreadableScreenIsReadAgainOnceTheHostIsBack() async throws {
+        let screens = Screens(permission)
+        screens.error = HerdrError("ssh failed")
+        let store = store(screens)
+        store.show(try pane(), isOnline: true)
+        await store.task?.value
+        screens.error = nil
+        store.show(try pane(), isOnline: false)
+        await store.task?.value
+        #expect(screens.reads == 1)
+        store.show(try pane(), isOnline: true)
+        await store.task?.value
+        #expect(screens.reads == 2)
+        #expect(store.card == .prompt(try prompt(permission)))
+        #expect(store.notice == nil)
+        store.show(try pane(), isOnline: true)
+        await store.task?.value
+        #expect(screens.reads == 2)
+    }
+
     @Test func theScreenIsReadAgainOnlyWhenThePaneChanges() async throws {
         let screens = Screens(permission, question)
         let store = store(screens)
