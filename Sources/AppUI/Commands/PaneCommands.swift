@@ -4,16 +4,19 @@ import SwiftUI
 /// The Pane menu: every pane command with its shortcut from `Keymap`, acting on the front window's pane.
 @MainActor
 public struct PaneCommands: Commands {
-    let store: AppStore
+    let session: HostSession
     /// The pane window in front, if one is; nil while the main window is.
     @FocusedValue(PaneWindowStore.self) private var paneWindow
     /// The past session's window in front, if one is.
     @FocusedValue(SessionWindowStore.self) private var sessionWindow
     @Environment(\.openWindow) private var openWindow
 
-    public init(store: AppStore) {
-        self.store = store
+    public init(session: HostSession) {
+        self.session = session
     }
+
+    /// The store of the host connected to now.
+    private var store: AppStore { session.store }
 
     private var target: MenuTarget {
         MenuTarget(app: store, window: paneWindow, session: sessionWindow)

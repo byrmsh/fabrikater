@@ -71,7 +71,7 @@ Host alias (default `arch`), notification preferences, Return-to-send behaviour,
 
 As built: fabrikater › Settings… (⌘,) is one grouped form, saved as each value changes (`Preferences` behind `PreferencesStorage`, one JSON value under the `preferences` key; fixture runs keep theirs in the fixtures domain).
 
-- Connection: the host alias, with `arch` as the placeholder. A new alias applies the next time fabrikater opens, and the note under the field says so; text ssh could read as an option is refused and not saved. `FABRIKATER_HOST`, when set, still wins, and the note says that too.
+- Connection: the host alias, with `arch` as the placeholder, and a Connect button. Return in the field or Connect switches to the typed alias at once and keeps it for the next launch: the sidebar reloads from the new host, and the pane and past-session windows of the old one close. Until then the note under the field names the host connected to and the one Return would switch to; text ssh could read as an option is refused and not saved. `FABRIKATER_HOST`, when set, chooses the host at each launch, and the note says that too.
 - Composer: Send with Return or ⌘Return, with what the other key does underneath.
 - Notifications: when a pane needs input, when an agent finishes its turn, and whether they play a sound. Per-workspace muting stays in the workspace's context menu.
 - Text Size: the conversation's body text (13 pt by default, the system size) and the terminal's (12 pt), 9 to 24 pt; View › Bigger and Smaller scale both in the front window.

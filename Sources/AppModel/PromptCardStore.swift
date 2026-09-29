@@ -210,6 +210,13 @@ public final class PromptCardStore {
         }
     }
 
+    /// Stops reading the pane's screen: the window or the host it read from is gone. An answer already on its way
+    /// finishes, rather than being cut off between its keys.
+    func close() {
+        guard answering == nil else { return }
+        reset()
+    }
+
     private func reset() {
         task?.cancel()
         task = nil

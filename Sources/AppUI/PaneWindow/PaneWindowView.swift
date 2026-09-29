@@ -4,16 +4,20 @@ import SwiftUI
 import TranscriptKit
 
 /// A window showing one pane's conversation, opened with Open in New Window (docs/design.md, "Pane windows"). It holds
-/// its own store, so closing the window frees it, and offers that store to the menu bar while it is in front.
+/// its own store, so closing the window frees it, and offers that store to the menu bar while it is in front. Connecting
+/// to another host closes it.
 public struct PaneWindowView: View {
-    let store: AppStore
+    let session: HostSession
     let paneID: PaneID
     @ViewState private var window: PaneWindowStore?
+    @Environment(\.dismiss) private var dismiss
 
-    public init(store: AppStore, paneID: PaneID) {
-        self.store = store
+    public init(session: HostSession, paneID: PaneID) {
+        self.session = session
         self.paneID = paneID
     }
+
+    private var store: AppStore { session.store }
 
     public var body: some View {
         Group {
@@ -34,6 +38,9 @@ public struct PaneWindowView: View {
             if window == nil {
                 window = store.paneWindow(paneID)
             }
+        }
+        .onChange(of: window?.isClosed == true) { _, closed in
+            if closed { dismiss() }
         }
     }
 }

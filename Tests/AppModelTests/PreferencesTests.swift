@@ -63,32 +63,51 @@ struct PreferencesTests {
         #expect(PreferencesStore(storage: storage).preferences.sendKey == .commandReturn)
     }
 
-    @Test func aValidHostIsSavedForTheNextLaunch() {
+    @Test func connectingSavesTheHostAndSaysWhereItGoes() {
         let storage = InMemoryPreferencesStorage()
         let store = store(storage)
+        var connected: [String] = []
+        store.onConnect = { connected.append($0) }
         #expect(store.hostText.isEmpty)
+        #expect(!store.canConnect)
         #expect(store.hostNotice == "An alias from ~/.ssh/config. Connected to arch.")
         store.setHostText(" devbox ")
-        #expect(storage.preferences.host == "devbox")
-        #expect(store.hostNotice == "fabrikater connects to devbox the next time it opens.")
-        store.setHostText("")
         #expect(storage.preferences.host == nil)
-        #expect(!store.hostIsInvalid)
+        #expect(store.canConnect)
+        #expect(store.hostNotice == "Connected to arch. Press Return to connect to devbox.")
+        store.connect()
+        #expect(connected == ["devbox"])
+        #expect(storage.preferences.host == "devbox")
+        #expect(store.connectedHost == "devbox")
+        #expect(store.hostText == "devbox")
+        #expect(!store.canConnect)
+        #expect(store.hostNotice == "An alias from ~/.ssh/config. Connected to devbox.")
+        store.setHostText("")
+        #expect(store.canConnect)
+        store.connect()
+        #expect(connected == ["devbox", "arch"])
+        #expect(storage.preferences.host == nil)
     }
 
-    @Test func anInvalidHostIsNotSaved() {
+    @Test func anInvalidHostIsNotConnected() {
         let storage = InMemoryPreferencesStorage()
         let store = store(storage)
-        store.setHostText("devbox")
+        var connected: [String] = []
+        store.onConnect = { connected.append($0) }
         store.setHostText("-oProxyCommand")
         #expect(store.hostIsInvalid)
-        #expect(storage.preferences.host == "devbox")
+        #expect(!store.canConnect)
+        store.connect()
+        #expect(connected.isEmpty)
+        #expect(storage.preferences.host == nil)
         #expect(store.hostNotice.hasPrefix("Not an ssh alias"))
     }
 
     @Test func theEnvironmentsHostIsSaid() {
         let store = PreferencesStore(connectedHost: "ci", hostIsOverridden: true)
-        #expect(store.hostNotice == "FABRIKATER_HOST is set, so fabrikater connects to ci.")
+        #expect(store.hostText == "ci")
+        #expect(!store.canConnect)
+        #expect(store.hostNotice == "Connected to ci. FABRIKATER_HOST chooses the host each time fabrikater opens.")
     }
 
     @Test func notificationsFollowTheirKinds() throws {
