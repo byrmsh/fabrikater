@@ -5,7 +5,7 @@ e2e_expect_label "Synthetic refactor, Claude, Working"
 e2e_key down command
 e2e_expect_text "Rename the helper and run the tests"
 e2e_key f command
-e2e_expect_focus ""
+e2e_expect_focused_field "Find in Conversation"
 e2e_key "helper"
 e2e_expect_text "3 of 3"
 e2e_shot find

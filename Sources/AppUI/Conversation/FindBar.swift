@@ -42,8 +42,12 @@ struct FindBar: View {
         .controlSize(.small)
         .padding(.horizontal, 10)
         .padding(.vertical, 6)
-        .onAppear { isFocused = true }
-        .onChange(of: conversation.find.focusRequests) { isFocused = true }
+        // Focusing as the bar appears races the composer, which keeps focus; focus once the bar has settled, and again
+        // on every Find while it is open.
+        .task(id: conversation.find.focusRequests) {
+            try? await Task.sleep(for: .milliseconds(100))
+            isFocused = true
+        }
     }
 
     private func stepButton(_ command: AppCommand, systemImage: String) -> some View {
