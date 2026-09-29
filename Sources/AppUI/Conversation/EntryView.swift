@@ -3,14 +3,21 @@ import SwiftUI
 import TranscriptKit
 
 /// One transcript entry: a user turn, assistant text and tool calls, or a muted summary or note.
-struct EntryView: View {
+///
+/// Equal when it shows the same thing, so a conversation that grows by a row lays out only that row again rather than
+/// re-parsing the markdown and code of every row on screen (docs/performance.md). `perform` never changes what shows.
+struct EntryView: View, Equatable {
     let entry: TranscriptEntry
     /// Shows only the first lines of the entry's text.
-    var isCollapsed = false
+    let isCollapsed: Bool
     /// Show All or Show Less, when the entry is long enough to collapse.
-    var toggle: AppCommand?
-    var perform: @MainActor (AppCommand) -> Void = { _ in }
+    let toggle: AppCommand?
+    let perform: @MainActor (AppCommand) -> Void
     @Environment(\.findHighlight) private var findHighlight
+
+    nonisolated static func == (lhs: EntryView, rhs: EntryView) -> Bool {
+        lhs.entry == rhs.entry && lhs.isCollapsed == rhs.isCollapsed && lhs.toggle == rhs.toggle
+    }
 
     var body: some View {
         switch entry.role {
