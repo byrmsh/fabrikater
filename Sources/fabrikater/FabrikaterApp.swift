@@ -50,11 +50,12 @@ struct FabrikaterApp: App {
                 runner = SSHRunner(host: host)
             }
             let client = HerdrClient(runner: runner)
+            let transcripts = HostTranscriptService(runner: runner)
             let fresh: @Sendable () async throws -> Herd = { try await client.snapshot() }
             return AppStore(
                 herdUpdates: HerdFeed(service: client).updates(),
-                transcripts: HostTranscriptService(runner: runner),
-                history: HostTranscriptService(runner: runner),
+                transcripts: transcripts,
+                history: transcripts,
                 control: PolicedControl(SendGuard(client, reader: client), policy: policy, fresh: fresh),
                 screens: client,
                 answers: PolicedControl(client, policy: policy, fresh: fresh),
