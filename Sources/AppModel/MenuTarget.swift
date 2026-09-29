@@ -26,29 +26,37 @@ public struct MenuTarget {
     }
 
     func route(_ command: AppCommand) -> Route {
-        if let session { return Self.route(command, session: session) }
-        guard let window else { return .app(command) }
-        let pane = window.paneID
-        if PaneDetailStores.handles(command) { return .window(command) }
-        switch command {
-        case .togglePin(nil): return .app(.togglePin(pane))
-        case .toggleHidden(nil): return .app(.toggleHidden(pane))
-        case .openInVSCode(nil): return .app(.openInVSCode(pane))
-        case .openInNewWindow(nil): return .app(.openInNewWindow(pane))
-        case .renamePane(nil), .toggleHiddenWorkspace(nil), .toggleNotifications(nil), .showPastSessions(nil):
-            return .unavailable
-        default: return .app(command)
+        if let session {
+            if session.handles(command) { return .session(command) }
+            let isAboutPane = PaneDetailStores.handles(command) || Self.isAboutSelection(command)
+            return isAboutPane ? .unavailable : .app(command)
         }
+        guard let window else { return .app(command) }
+        if PaneDetailStores.handles(command) { return .window(command) }
+        if let aimed = Self.aim(command, at: window.paneID) { return .app(aimed) }
+        return Self.isAboutSelection(command) ? .unavailable : .app(command)
     }
 
-    private static func route(_ command: AppCommand, session: SessionWindowStore) -> Route {
-        if session.handles(command) { return .session(command) }
-        if PaneDetailStores.handles(command) { return .unavailable }
+    /// Whether `command` acts on the selected pane or its workspace, which a window other than the main one does not
+    /// have.
+    private static func isAboutSelection(_ command: AppCommand) -> Bool {
         switch command {
         case .togglePin(nil), .toggleHidden(nil), .openInVSCode(nil), .openInNewWindow(nil), .renamePane(nil),
             .toggleHiddenWorkspace(nil), .toggleNotifications(nil), .showPastSessions(nil):
-            return .unavailable
-        default: return .app(command)
+            true
+        default: false
+        }
+    }
+
+    /// `command` aimed at a pane window's own pane, for the selection commands the main window can carry out on any
+    /// pane; nil for every other command.
+    private static func aim(_ command: AppCommand, at pane: PaneID) -> AppCommand? {
+        switch command {
+        case .togglePin(nil): .togglePin(pane)
+        case .toggleHidden(nil): .toggleHidden(pane)
+        case .openInVSCode(nil): .openInVSCode(pane)
+        case .openInNewWindow(nil): .openInNewWindow(pane)
+        default: nil
         }
     }
 
