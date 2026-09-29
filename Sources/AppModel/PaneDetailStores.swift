@@ -38,7 +38,8 @@ public final class PaneDetailStores {
         switch command {
         case .send, .sendKey, .answerPrompt, .toggleChanges, .setChangesShown, .toggleSessionFacts,
             .setSessionFactsShown, .copyPath, .toggleTerminal, .showPanel, .setTerminalVisible, .reloadConversation,
-            .loadEarlier, .copyMessage, .copyConversation, .expandEntry, .collapseEntry:
+            .loadEarlier, .copyMessage, .copyConversation, .expandEntry, .collapseEntry, .findInConversation,
+            .searchConversation, .findNext, .findPrevious, .closeFind:
             true
         default: false
         }
@@ -82,6 +83,8 @@ public final class PaneDetailStores {
         case .sendKey(let key): composer.canSend(key)
         case .answerPrompt: prompt.canAnswer
         case .copyPath, .setTerminalVisible: true
+        case .findInConversation, .findNext, .findPrevious:
+            layout.detail == .conversation && conversation.isEnabled(command) == true
         default:
             PanePanels.isEnabled(command, hasPane: hasPane)
                 ?? layout.isEnabled(command, hasPane: hasPane)

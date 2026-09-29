@@ -54,6 +54,14 @@ public enum AppCommand: Hashable, Sendable {
     /// Copies one conversation entry, by id, as markdown.
     case copyMessage(String)
     case copyConversation
+    /// Opens the find bar over the conversation, or focuses its field when it is open.
+    case findInConversation
+    /// The text typed into the find bar.
+    case searchConversation(String)
+    case findNext
+    case findPrevious
+    /// Hides the find bar and its highlights.
+    case closeFind
     /// Shows a collapsed conversation entry, by id, in full.
     case expandEntry(String)
     /// Collapses an expanded entry, by id, back to its first lines.
@@ -119,6 +127,11 @@ public enum AppCommand: Hashable, Sendable {
         case .chooseQuickSwitcherResult: "Open Pane"
         case .copyMessage: "Copy Message"
         case .copyConversation: "Copy Conversation as Markdown"
+        case .findInConversation: "Find…"
+        case .searchConversation: "Find"
+        case .findNext: "Find Next"
+        case .findPrevious: "Find Previous"
+        case .closeFind: "Done"
         case .expandEntry: "Show All"
         case .collapseEntry: "Show Less"
         case .openInVSCode: "Open Folder in VS Code"

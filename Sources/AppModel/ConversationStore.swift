@@ -12,7 +12,9 @@ import TranscriptKit
 @Observable
 public final class ConversationStore {
     public private(set) var paneID: PaneID?
-    public private(set) var transcript = Transcript()
+    public private(set) var transcript = Transcript() {
+        didSet { find.refresh(transcript.entries) }
+    }
     public private(set) var isLoading = false
     /// Why there is no conversation, or why the last load failed (the transcript shown is then stale).
     public private(set) var message: String?
@@ -20,6 +22,8 @@ public final class ConversationStore {
     public private(set) var expansion = EntryExpansion()
     /// How much of the log the conversation reads; grows with Load Earlier Messages, reset when another pane is shown.
     public private(set) var window = TranscriptWindow.full
+    /// The find bar (⌘F): it stays open, with its query, when another pane is shown.
+    public private(set) var find = ConversationFind()
 
     private let transcripts: any TranscriptService
     private let log = Log(category: "AppModel")
@@ -46,6 +50,19 @@ public final class ConversationStore {
         guard transcript.isClipped else { return nil }
         if isLoading { return "Loading earlier messages…" }
         return canLoadEarlier ? nil : "Earlier messages are too far back to load."
+    }
+
+    /// True when the find bar may offer to read further back, so a search covers older messages too.
+    public var canFindEarlier: Bool { find.status != nil && canLoadEarlier }
+
+    /// True when `entry` shows only its first lines: collapsed, and not a find match, whose highlights must show.
+    public func isCollapsed(_ entry: TranscriptEntry) -> Bool {
+        expansion.isCollapsed(entry) && !find.reveals(entry)
+    }
+
+    /// The entry's Show All or Show Less, or nil when it is too short to collapse or a find match shows it whole.
+    public func toggle(for entry: TranscriptEntry) -> AppCommand? {
+        find.reveals(entry) ? nil : expansion.toggle(for: entry)
     }
 
     public init(transcripts: any TranscriptService) {
@@ -107,6 +124,16 @@ public final class ConversationStore {
         case .copyConversation:
             guard !transcript.entries.isEmpty else { return }
             clipboard.copy(Transcript.markdown(of: transcript.entries))
+        case .findInConversation:
+            find.show()
+        case .searchConversation(let query):
+            find.search(query, in: transcript.entries)
+        case .findNext:
+            find.step(1)
+        case .findPrevious:
+            find.step(-1)
+        case .closeFind:
+            find.hide()
         case .expandEntry(let id):
             expansion = expansion.expanding(id)
         case .collapseEntry(let id):
@@ -124,6 +151,9 @@ public final class ConversationStore {
         case .copyMessage(let id): transcript.entries.contains { $0.id == id }
         case .copyConversation: !transcript.entries.isEmpty
         case .expandEntry, .collapseEntry: true
+        case .findInConversation: !transcript.entries.isEmpty
+        case .searchConversation, .closeFind: find.isShown
+        case .findNext, .findPrevious: !find.matches.isEmpty
         default: nil
         }
     }
