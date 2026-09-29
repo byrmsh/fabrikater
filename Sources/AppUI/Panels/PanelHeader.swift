@@ -24,12 +24,12 @@ struct PanelHeader: View {
                 menuItems
             } label: {
                 Image(systemName: "ellipsis.circle")
+                    .accessibilityLabel(panel.menuTitle)
             }
             .menuStyle(.borderlessButton)
             .menuIndicator(.hidden)
             .fixedSize()
             .controlSize(.small)
-            .accessibilityLabel(panel.menuTitle)
             .help(panel.menuTitle)
         }
         .padding(.horizontal, 12)
