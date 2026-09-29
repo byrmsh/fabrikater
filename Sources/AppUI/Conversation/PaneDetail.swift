@@ -11,6 +11,8 @@ struct PaneDetail: View {
     let header: PaneHeader
     /// Shown over the conversation's foot, such as a pane window's pane having left Herdr.
     var notice: String?
+    /// Only the window in front speaks its prompt and notices, so a pane open in two windows is announced once.
+    @Environment(\.appearsActive) private var appearsActive
 
     var body: some View {
         // The split keeps the conversation as its last child whether or not the left column shows, so opening the
@@ -81,6 +83,10 @@ struct PaneDetail: View {
             }
             ComposerView(composer: model.composer, perform: perform)
         }
+        .announcing(model.prompt.announcement, when: appearsActive)
+        .announcing(model.prompt.notice, when: appearsActive)
+        .announcing(model.composer.notice, when: appearsActive)
+        .announcing(notice, when: appearsActive)
     }
 
     /// The inspector column on the right, open while it has a panel to show; closing it hides its panels.
