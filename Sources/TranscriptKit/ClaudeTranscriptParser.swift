@@ -8,28 +8,20 @@ import Foundation
 /// one API response (same `message.id`) become one entry. Thinking blocks are dropped, since the design hides them.
 public enum ClaudeTranscriptParser {
     public static func parse(_ data: Data) -> [TranscriptEntry] {
-        var parser = State()
-        var lineNumber = 0
-        for line in data.split(separator: 0x0A, omittingEmptySubsequences: false) {
-            lineNumber += 1
-            // A clipped first line or a half-written last line fails to parse and is skipped.
-            guard let row = try? JSONSerialization.jsonObject(with: line) as? [String: Any] else { continue }
-            parser.consume(row, lineNumber: lineNumber)
-        }
-        return parser.entries
+        Entries.reading(data).entries
     }
 
-    private struct State {
-        var entries: [TranscriptEntry] = []
+    /// The entries, grown row by row.
+    struct Entries: ClaudeRowReader {
+        private(set) var entries: [TranscriptEntry] = []
         /// Where each unanswered `tool_use` sits, so its result can fold onto it.
-        var pendingTools: [String: (entry: Int, part: Int)] = [:]
+        private var pendingTools: [String: (entry: Int, part: Int)] = [:]
         /// The `message.id` of the last entry, when it is an assistant entry.
-        var lastAssistantMessageID: String?
+        private var lastAssistantMessageID: String?
 
-        mutating func consume(_ row: [String: Any], lineNumber: Int) {
+        mutating func read(_ row: [String: Any], number lineNumber: Int) {
             let type = row["type"] as? String
-            guard type == "user" || type == "assistant" else { return }
-            guard row["isSidechain"] as? Bool != true, row["isMeta"] as? Bool != true else { return }
+            guard type == "user" || type == "assistant", row["isMeta"] as? Bool != true else { return }
             guard let message = row["message"] as? [String: Any] else { return }
 
             let id = (row["uuid"] as? String).flatMap { $0.isEmpty ? nil : $0 } ?? "line-\(lineNumber)"
@@ -94,7 +86,7 @@ public enum ClaudeTranscriptParser {
         }
 
         /// Attaches a result to its call and returns nil, or returns an orphan part when the call was not read.
-        mutating func foldResult(_ block: [String: Any]) -> ToolCall? {
+        private mutating func foldResult(_ block: [String: Any]) -> ToolCall? {
             let raw: String
             if let text = block["content"] as? String {
                 raw = text

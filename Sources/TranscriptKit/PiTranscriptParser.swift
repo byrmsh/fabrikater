@@ -8,9 +8,18 @@ import Foundation
 /// does not carry yet.
 public enum PiTranscriptParser {
     public static func parse(_ data: Data) -> [TranscriptEntry] {
-        var builder = TranscriptBuilder()
-        for (_, number, row) in JSONLines.rows(in: data) {
-            guard row["type"] as? String == "message", let message = row["message"] as? [String: Any] else { continue }
+        Reader.reading(data).transcript.entries
+    }
+
+    struct Reader: LogReader {
+        private var builder = TranscriptBuilder()
+
+        var transcript: Transcript { Transcript(entries: builder.entries) }
+
+        mutating func read(_ line: Data.SubSequence, number: Int) {
+            guard let row = JSONLines.row(line), row["type"] as? String == "message",
+                let message = row["message"] as? [String: Any]
+            else { return }
             let id = (row["id"] as? String).flatMap { $0.isEmpty ? nil : $0 } ?? "line-\(number)"
             let timestamp = row["timestamp"] as? String ?? ""
             let blocks = message["content"] as? [[String: Any]] ?? []
@@ -20,12 +29,12 @@ public enum PiTranscriptParser {
                     .joined(separator: "\n")
                 let result = TextRules.result(text, isError: message["isError"] as? Bool == true)
                 guard !builder.fold(result, into: message["toolCallId"] as? String), !TextRules.isBlank(result.text)
-                else { continue }
+                else { return }
                 let name = message["toolName"] as? String ?? "result"
                 builder.add(
                     [.tool(ToolCall(name: name, summary: "", result: result))], id: id, timestamp: timestamp,
                     role: .assistant)
-                continue
+                return
             }
 
             var parts: [TranscriptPart] = []
@@ -50,6 +59,5 @@ public enum PiTranscriptParser {
             let role: TranscriptEntry.Role = message["role"] as? String == "assistant" ? .assistant : .user
             builder.add(parts, id: id, timestamp: timestamp, role: role, calls: calls)
         }
-        return builder.entries
     }
 }
