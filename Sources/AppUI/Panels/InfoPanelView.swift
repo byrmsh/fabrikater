@@ -1,5 +1,6 @@
 import AppModel
 import SwiftUI
+import TranscriptKit
 
 /// One panel's content, wherever it is docked.
 struct InfoPanelView: View {

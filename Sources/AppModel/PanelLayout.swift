@@ -105,7 +105,7 @@ public struct PanelLayout: Codable, Equatable, Sendable {
     }
 
     /// Whether a panel command's menu item shows a checkmark; nil for any other command.
-    func isChecked(_ command: AppCommand) -> Bool? {
+    public func isChecked(_ command: AppCommand) -> Bool? {
         switch command {
         case .togglePanel(let panel): isShown(panel)
         case .movePanel(let panel, let dock): isShown(panel) && self.dock(of: panel) == dock
