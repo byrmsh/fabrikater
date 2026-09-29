@@ -1,30 +1,21 @@
 import AppModel
 import SwiftUI
 
-/// The toolbar's status, as a button that opens the session facts popover (B11), in the main window and pane windows.
+/// The toolbar's status, as a button that shows or hides the Session Info panel (B11), in the main window and pane
+/// windows.
 struct SessionFactsButton: View {
     let model: any PaneDetailModel
     let header: PaneHeader
 
     var body: some View {
         Button {
-            model.perform(.toggleSessionFacts)
+            model.perform(.togglePanel(.facts))
         } label: {
             PaneStatusView(header: header)
         }
-        .disabled(!model.isEnabled(.toggleSessionFacts))
+        .disabled(!model.isEnabled(.togglePanel(.facts)))
         .accessibilityLabel(header.summary)
-        .accessibilityHint(AppCommand.toggleSessionFacts.title)
+        .accessibilityHint(AppCommand.togglePanel(.facts).title)
         .help(header.summary)
-        .popover(isPresented: isShowingFacts, arrowEdge: .bottom) {
-            SessionFactsView(rows: model.conversation.factRows)
-        }
-    }
-
-    private var isShowingFacts: Binding<Bool> {
-        Binding(
-            get: { model.panels.isShowingSessionFacts },
-            set: { model.perform(.setSessionFactsShown($0)) }
-        )
     }
 }

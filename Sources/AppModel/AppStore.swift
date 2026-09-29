@@ -69,6 +69,7 @@ public final class AppStore {
     ///   - screens: reads a blocked pane's screen for its prompt card.
     ///   - answers: sends a prompt card's answers; `control` when nil. Not the composer's `SendGuard`, which refuses them.
     ///   - terminals: reads panes' recent output for the terminal views.
+    ///   - panelLayouts: keeps the last panel layout, which each new window starts from.
     ///   - host: the ssh alias the panes run on, for links that reach them from this Mac.
     ///   - now: the clock that stamps each pane's last activity.
     ///   - notifier: shows an alert when a pane becomes blocked or finishes a turn.
@@ -84,6 +85,7 @@ public final class AppStore {
         terminals: any TerminalReader = BlankTerminalReader(),
         notes: any PaneNotesStore = InMemoryPaneNotesStore(),
         drafts: any DraftStorage = InMemoryDraftStorage(),
+        panelLayouts: any PanelLayoutStorage = InMemoryPanelLayoutStorage(),
         clipboard: any Clipboard = InMemoryClipboard(),
         opener: any URLOpener = RecordingURLOpener(),
         host: String = "arch",
@@ -108,7 +110,7 @@ public final class AppStore {
                 conversation: ConversationStore(transcripts: transcripts),
                 composer: ComposerStore(control: control, drafts: drafts),
                 prompt: PromptCardStore(reader: screens, control: answers),
-                terminal: TerminalStore(reader: terminals), clipboard: clipboard)
+                terminal: TerminalStore(reader: terminals), clipboard: clipboard, panelStorage: panelLayouts)
         }
         detail = makeDetail()
         focus = FocusSync(control: control)
@@ -283,7 +285,7 @@ public final class AppStore {
         switch command {
         case .toggleShowHidden: notes.hiding.showHidden
         case .toggleShowShells: notes.hiding.showShells
-        case .toggleChanges, .toggleTerminal: detail.isChecked(command)
+        case .toggleTerminal, .togglePanel, .movePanel: detail.isChecked(command)
         case .sortPanes(let order): notes.order == order
         default: nil
         }

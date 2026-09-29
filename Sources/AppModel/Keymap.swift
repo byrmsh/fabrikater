@@ -48,8 +48,8 @@ public enum Keymap {
         .findInConversation: KeyChord(.character("f")),
         .findNext: KeyChord(.character("g")),
         .findPrevious: KeyChord(.character("g"), [.command, .shift]),
-        .toggleSessionFacts: KeyChord(.character("i")),
-        .toggleChanges: KeyChord(.character("0"), [.command, .option]),
+        .togglePanel(.facts): KeyChord(.character("i")),
+        .togglePanel(.changes): KeyChord(.character("0"), [.command, .option]),
         .toggleTerminal: KeyChord(.character("t")),
         .showPastSessions(nil): KeyChord(.character("y")),
     ].merging(NeedsYou.numbers.map { (.selectNeedsYou($0), KeyChord(.character(Character(String($0))))) }) { $1 }

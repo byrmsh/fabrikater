@@ -51,7 +51,6 @@ public struct PaneCommands: Commands {
             button(.reloadConversation)
             button(.loadEarlier)
             button(.copyConversation)
-            button(.toggleSessionFacts)
             Divider()
             button(.send)
             Menu(PaneKey.menuTitle) {
