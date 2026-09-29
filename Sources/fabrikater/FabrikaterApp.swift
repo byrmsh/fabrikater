@@ -43,6 +43,7 @@ struct FabrikaterApp: App {
         let notifier =
             fixtures == nil && Bundle.main.bundleIdentifier != nil ? SystemNotifier() : nil
         let policy = SendPolicy(environment: environment, isDebugBuild: isDebugBuild)
+        let reconnect = ReconnectPolicy()
         // Everything tied to a host, built again when Settings connects to another one.
         session = HostSession(preferences: preferences) { alias in
             let host = hostAlias(alias)
@@ -54,10 +55,10 @@ struct FabrikaterApp: App {
                 runner = SSHRunner(host: host)
             }
             let client = HerdrClient(runner: runner)
-            let transcripts = HostTranscriptService(runner: runner)
+            let transcripts = HostTranscriptService(runner: runner, reconnect: reconnect)
             let fresh: @Sendable () async throws -> Herd = { try await client.snapshot() }
             return AppStore(
-                herdUpdates: HerdFeed(service: client).updates(),
+                herdUpdates: HerdFeed(service: client, reconnect: reconnect).updates(),
                 transcripts: transcripts,
                 history: transcripts,
                 control: PolicedControl(SendGuard(client, reader: client), policy: policy, fresh: fresh),
@@ -72,11 +73,13 @@ struct FabrikaterApp: App {
                 host: host.rawValue,
                 notifier: notifier ?? RecordingNotifier(),
                 isAppActive: { NSApplication.shared.isActive },
-                preferences: preferences
+                preferences: preferences,
+                reconnect: reconnect
             )
         }
         let session = session
         notifier?.onOpen = { session.store.perform(.selectPane($0)) }
+        WakeRecovery.start(session: session, reconnect: reconnect, usesSSH: fixtures == nil)
         log.info("launched")
     }
 

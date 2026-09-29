@@ -29,6 +29,9 @@ Every check from the merged PRs that only the Mac or the host can do, most impor
 - [ ] A row shows "now" after its turn starts or ends, then "1m", "2m"…; with View › Sort Panes By › Recent Activity, a pane that finishes a turn moves to the top, and the choice survives a relaunch. [#19, #25]
 - [ ] Select the scratch pane, let another Claude pane finish a turn: its row shows the unread dot, and clicking it clears it. The dot reads well with a non-blue accent colour. [#20]
 - [ ] Turn off Wi-Fi: the footer says offline and the sidebar keeps the last herd. [#4]
+- [ ] Connection loss (#57). With a Claude conversation and the terminal view open, turn Wi-Fi off for a minute: within about a minute the footer says "Offline, showing the last known state", the conversation says "Live updates stopped: … Reconnecting…" above the last messages, and the terminal keeps its last screen marked stale. `pgrep -fl cm-fabrikater | wc -l` stays small (one master plus one ssh per open feed) the whole time. Turn Wi-Fi on: within about 30 s everything is live again with no relaunch, and the conversation's note goes away.
+- [ ] Sleep and wake (#57). With a `working` pane selected, sleep the Mac (Apple menu › Sleep) for at least two minutes, then wake it: the footer says Connected and new rows appear within a few seconds, not a minute. `log show --last 5m --predicate 'subsystem BEGINSWITH "sh.bayram"' | grep -E "woke|shared connection"` shows "woke from sleep; reconnecting" and "closed the shared connection".
+- [ ] After either check above, `ssh arch pgrep -af 'tail -c 65536 -F'` shows one tail per open conversation, not one per reconnect. [#57]
 
 ## 3. Sending (scratch pane only)
 

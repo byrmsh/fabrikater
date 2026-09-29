@@ -8,7 +8,7 @@ One SwiftPM package. Each layer is its own target, so the compiler enforces the 
 
 | Target | Builds on | Exists since | Holds | Depends on |
 |---|---|---|---|---|
-| `FabrikaterCore` | Linux, macOS | M0 | Plain value types shared by every layer (`PaneID`, `AgentKind`, `AgentStatus`, `SessionLog`) and the `Log` wrapper. Foundation only. | nothing |
+| `FabrikaterCore` | Linux, macOS | M0 | Plain value types shared by every layer (`PaneID`, `AgentKind`, `AgentStatus`, `SessionLog`), the `Log` wrapper, and `ReconnectPolicy` with `Backoff`: the one retry rule every long-lived host feed follows (since #57). Foundation only. | nothing |
 | `HostKit` | Linux, macOS | M1 | `HostCommand` (every remote script, its timeout and replay fixture, including the Past Sessions listings since M8), `HostAlias` (a validated ssh alias), `SSHArguments`, the `HostCommandRunner` protocol with `SSHRunner` (`/usr/bin/ssh` through `Process`) and `ReplayRunner` (fixture files), `LineBuffer`, and `HostError`. | Core |
 | `HerdrKit` | Linux, macOS | M1 | `Herd` (the snapshot, decoded leniently), `HerdrClient` (snapshot and events channel), `HerdFeed` (coalesced refresh plus safety poll), `HerdrRequest` and `HerdrControl` (focus and sends over the API socket), `PaneReader` (the visible screen, for the send guard), `ScreenCheck` (what the host checks right before a keystroke), and `SendPolicy` with `PolicedControl`. `TerminalReader`, the terminal view's reads (M4). | Core, HostKit |
 | `TranscriptKit` | Linux, macOS | M1 (minimal) | The transcript model, the Claude, Codex, pi and OpenCode parsers (since M7) and `HostTranscriptService` (one read of the log's last 512 KB, then a live `tail -F` follow). Since M8 `PastSession` parses the Past Sessions listing, `ListedSessions` holds each agent's naming and prompt rules, and `HostTranscriptService` is also the `SessionHistory`. Hand-over resolution runs on the host, in `HostKit`'s Claude log prefix; backfill (Load Earlier Messages, larger `TranscriptWindow`s) since M2 ([parsing.md](parsing.md) sections 1 to 3). | Core, HostKit |
@@ -42,6 +42,7 @@ FabrikaterCore ◄── HostKit ◄── HerdrKit ◄──┐
 - No Combine and no bare `DispatchQueue`: use Observation, `async`/`await`, actors and `AsyncSequence`. `scripts/check.sh` rejects both.
 - Never await the host on the main actor while handling input. Change local state first (clear the composer, mark the draft as sending, update the selection), then let the host catch up in a task.
 - Every host call has a timeout and throws a typed error. The UI shows the error; nothing hangs.
+- A long-lived feed (a stream, or a poll that runs while something is on screen) retries through the shared `ReconnectPolicy`: a `Backoff` for its failures in a row and `pause` for each wait, so the wake handler's `retryNow()` reaches it. Never a private list of delays, and never two reads of the same thing at once.
 - When the host is unreachable, show the last known data and say that it is stale. Never clear it.
 - Never write the SwiftUI state wrapper as `@State`: write `@ViewState`. Also avoid `#Preview`, `@Previewable`, `@Entry` and SwiftData. `scripts/check.sh` rejects them, because they break the Command Line Tools build (see [macos-tooling.md](macos-tooling.md) section 1).
 - A `TODO` or `FIXME` names its milestone, like `TODO(M3)`. There is no commented-out code.

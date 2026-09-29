@@ -4,11 +4,11 @@ import HostKit
 
 extension TranscriptService {
     /// No live follow: one read of the window, then the stream ends.
-    public func followTranscript(of log: SessionLog, bytes: Int) -> AsyncThrowingStream<Transcript, any Error> {
+    public func followTranscript(of log: SessionLog, bytes: Int) -> AsyncThrowingStream<FollowUpdate, any Error> {
         AsyncThrowingStream { continuation in
             let task = Task {
                 do {
-                    continuation.yield(try await transcript(of: log, bytes: bytes))
+                    continuation.yield(.transcript(try await transcript(of: log, bytes: bytes)))
                     continuation.finish()
                 } catch {
                     continuation.finish(throwing: error)
@@ -21,31 +21,36 @@ extension TranscriptService {
 
 extension HostTranscriptService {
     /// Reads the last `bytes` bytes, then follows the log with `tail -F` and yields the conversation again for each new line
-    /// (docs/architecture.md, "Transcript tail"). A dropped follow starts over with a fresh read after a backoff; only a
-    /// failure before the first read throws.
-    public func followTranscript(of log: SessionLog, bytes: Int) -> AsyncThrowingStream<Transcript, any Error> {
+    /// (docs/architecture.md, "Transcript tail"). A dropped follow says so, then starts over with a fresh read on the
+    /// `ReconnectPolicy`'s backoff; only a failure before the first read throws.
+    public func followTranscript(of log: SessionLog, bytes: Int) -> AsyncThrowingStream<FollowUpdate, any Error> {
         AsyncThrowingStream { continuation in
             let task = Task {
-                var failures = 0
+                let clock = ContinuousClock()
+                var backoff = reconnect.backoff()
                 var hasRead = false
                 while !Task.isCancelled {
+                    let started = clock.now
                     do {
                         var window = LogWindow(log.format, read: try await tail(of: log, bytes: bytes), limit: bytes)
-                        continuation.yield(window.transcript)
+                        continuation.yield(.transcript(window.transcript))
                         hasRead = true
-                        failures = 0
                         let follow = runner.lines(
                             .logFollow(log, bytes: TranscriptWindow.overlap), input: nil)
                         // The overlap starts mid-line, and that line was read in full already.
                         for try await line in follow.dropFirst() where window.append(line) {
-                            continuation.yield(window.transcript)
+                            continuation.yield(.transcript(window.transcript))
                         }
+                        continuation.yield(.interrupted("The host stopped following the log"))
                     } catch {
                         guard hasRead else { return continuation.finish(throwing: error) }
+                        continuation.yield(.interrupted(String(describing: error)))
                     }
-                    let delay = reconnectDelays[min(failures, reconnectDelays.count - 1)]
-                    failures += 1
-                    try? await Task.sleep(for: delay)
+                    do {
+                        try await reconnect.pause(backoff.delay(afterHolding: clock.now - started))
+                    } catch {
+                        break
+                    }
                 }
                 continuation.finish()
             }

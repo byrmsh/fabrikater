@@ -275,6 +275,25 @@ struct AppStoreTests {
         #expect(!store.isEnabled(.send))
         #expect(store.composer.disabledReason != nil)
     }
+
+    @Test func aSendThatFailedWhileTheHostWasDownIsNeverResentAfterReconnecting() async throws {
+        let (store, herd) = try makeStore()
+        store.perform(.selectPane(scratch))
+        store.composer.draft = "hello"
+        control.error = HerdrError("ssh failed: connection lost")
+        store.perform(.send)
+        await store.composer.sendTask?.value
+        store.apply(.failed("ssh failed: connection lost"))
+        store.perform(.selectPane(codex))
+
+        control.error = nil
+        store.apply(.herd(herd))
+        let typed = control.performed.flatMap { $0 }.filter { if case .focus = $0 { false } else { true } }
+        #expect(typed.isEmpty)
+        #expect(store.composer.draft.isEmpty)
+        store.perform(.selectPane(scratch))
+        #expect(store.composer.draft == "hello")
+    }
 }
 
 /// Records the requests it performs, or throws `error`.

@@ -182,13 +182,19 @@ public final class ConversationStore {
                     message = nil
                     isLoading = quick.isClipped
                 }
-                for try await transcript in transcripts.followTranscript(of: sessionLog, bytes: window) {
+                for try await update in transcripts.followTranscript(of: sessionLog, bytes: window) {
                     guard !Task.isCancelled, self.paneID == paneID, self.sessionLog == sessionLog else { return }
-                    self.transcript = transcript
-                    cache.store(transcript, for: sessionLog)
-                    message = nil
-                    isLoading = false
-                    isFollowing = true
+                    switch update {
+                    case .transcript(let transcript):
+                        self.transcript = transcript
+                        cache.store(transcript, for: sessionLog)
+                        message = nil
+                        isLoading = false
+                        isFollowing = true
+                    case .interrupted(let reason):
+                        message = Self.interruptedMessage(reason)
+                        isFollowing = false
+                    }
                 }
             } catch {
                 guard !Task.isCancelled, self.paneID == paneID, self.sessionLog == sessionLog else { return }
@@ -199,6 +205,11 @@ public final class ConversationStore {
             isLoading = false
             isFollowing = false
         }
+    }
+
+    /// What shows above a conversation whose live follow dropped, until the follow reconnects.
+    static func interruptedMessage(_ reason: String) -> String {
+        "Live updates stopped: \(reason). Reconnecting…"
     }
 
     /// True when the pane runs an agent whose log this version can read; the detail shows the terminal otherwise.

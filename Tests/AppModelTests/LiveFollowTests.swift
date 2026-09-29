@@ -11,27 +11,31 @@ struct LiveFollowTests {
     private final class FollowedTranscripts: TranscriptService, @unchecked Sendable {
         private(set) var reads = 0
         private(set) var follows = 0
-        private var feeds: [AsyncThrowingStream<Transcript, any Error>.Continuation] = []
+        private var feeds: [AsyncThrowingStream<FollowUpdate, any Error>.Continuation] = []
 
         func transcript(of log: SessionLog, bytes: Int) async throws -> Transcript {
             reads += 1
             return Transcript()
         }
 
-        func followTranscript(of log: SessionLog, bytes: Int) -> AsyncThrowingStream<Transcript, any Error> {
+        func followTranscript(of log: SessionLog, bytes: Int) -> AsyncThrowingStream<FollowUpdate, any Error> {
             follows += 1
-            let (stream, feed) = AsyncThrowingStream<Transcript, any Error>.makeStream()
+            let (stream, feed) = AsyncThrowingStream<FollowUpdate, any Error>.makeStream()
             feeds.append(feed)
             return stream
         }
 
         /// What the log reads after `count` rows, on the latest follow.
         func grow(to count: Int) {
-            feeds.last?.yield(rows(count))
+            feeds.last?.yield(.transcript(rows(count)))
         }
 
         func endFollow() {
             feeds.last?.finish()
+        }
+
+        func interrupt(_ reason: String) {
+            feeds.last?.yield(.interrupted(reason))
         }
     }
 
@@ -106,6 +110,24 @@ struct LiveFollowTests {
         await settle { transcripts.follows == 2 }
         #expect(transcripts.follows == 2)
         #expect(store.conversation.transcript == transcript(1))
+    }
+
+    @Test func aDroppedFollowKeepsTheConversationAndSaysItIsStaleUntilItReconnects() async throws {
+        let (store, _) = try makeStore()
+        store.perform(.selectPane(refactor))
+        await settle { transcripts.follows == 1 }
+        transcripts.grow(to: 2)
+        await settle { store.conversation.transcript.entries.count == 2 }
+
+        transcripts.interrupt("ssh failed: connection lost")
+        await settle { store.conversation.message != nil }
+        #expect(store.conversation.message == ConversationStore.interruptedMessage("ssh failed: connection lost"))
+        #expect(store.conversation.transcript == transcript(2))
+
+        transcripts.grow(to: 3)
+        await settle { store.conversation.message == nil }
+        #expect(store.conversation.transcript == transcript(3))
+        #expect(transcripts.follows == 1)
     }
 }
 

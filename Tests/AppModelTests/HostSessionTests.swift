@@ -16,9 +16,9 @@ struct HostSessionTests {
 
         func transcript(of log: SessionLog, bytes: Int) async throws -> Transcript { Transcript() }
 
-        func followTranscript(of log: SessionLog, bytes: Int) -> AsyncThrowingStream<Transcript, any Error> {
+        func followTranscript(of log: SessionLog, bytes: Int) -> AsyncThrowingStream<FollowUpdate, any Error> {
             started += 1
-            let (stream, feed) = AsyncThrowingStream<Transcript, any Error>.makeStream()
+            let (stream, feed) = AsyncThrowingStream<FollowUpdate, any Error>.makeStream()
             feed.onTermination = { [weak self] _ in Task { @MainActor in self?.ended += 1 } }
             return stream
         }
