@@ -59,9 +59,9 @@ Every check from the merged PRs that only the Mac or the host can do, most impor
 - [ ] App in the background, scratch agent finishes a task: a "Finished its turn" notification (macOS asks for permission the first time); clicking it brings fabrikater forward on that pane. [#43]
 - [ ] Scratch agent asks for permission: a "Needs input" notification, and the pane is in Needs You. The Dock badge equals the Needs You rows. [#43]
 - [ ] Turn Off Notifications on the scratch workspace heading silences it; Turn On brings it back. [#43]
-- [ ] The menu bar bell shows the same count as the Dock badge, badged while panes wait and plain when none do; it reads well in a light and a dark menu bar and next to other items. [this PR]
-- [ ] Choosing a pane from the bell's menu while another app is in front brings fabrikater forward on that pane, un-minimising the main window if it was minimised. [this PR]
-- [ ] ⌘-drag the bell out of the menu bar: Settings › Show Needs You in the menu bar turns off, and turning it on brings the bell back. After a host switch (section 9) the bell's heading names the new host. [this PR]
+- [ ] The menu bar bell shows the same count as the Dock badge, badged while panes wait and plain when none do; it reads well in a light and a dark menu bar and next to other items. [#54]
+- [ ] Choosing a pane from the bell's menu while another app is in front brings fabrikater forward on that pane, un-minimising the main window if it was minimised. [#54]
+- [ ] ⌘-drag the bell out of the menu bar: Settings › Show Needs You in the menu bar turns off, and turning it on brings the bell back. After a host switch (section 9) the bell's heading names the new host. [#54]
 - [ ] Settings (⌘,): turning off "When an agent finishes its turn" stops those notifications; turning off the sound makes them silent. [#48]
 
 ## 7. Other agents (host, if any are running)

@@ -120,7 +120,7 @@ Manual on the Mac: set the host to another alias, quit and reopen, and the sideb
 
 Movable, dockable panels (IDE-style) on the layout model from `.claude/skills/macos-design`; creating and closing tabs and panes; starting agents; search across all conversations; image attachments in the composer.
 
-**Done:** the `MenuBarExtra` with the "Needs you" list (this PR). A bell in the menu bar counts the Needs You panes of the host connected to now and lists them; choosing one brings the main window forward on it, opening one if all were closed. Settings › Menu Bar hides it. `MenuBarStatus` (AppModel) decides the icon, count, heading and rows; `AppUI/MenuBar/` draws it. e2e flow `menu-bar`.
+**Done:** the `MenuBarExtra` with the "Needs you" list ([#54](https://github.com/byrmsh/fabrikater/pull/54)). A bell in the menu bar counts the Needs You panes of the host connected to now and lists them; choosing one brings the main window forward on it, opening one if all were closed. Settings › Menu Bar hides it. `MenuBarStatus` (AppModel) decides the icon, count, heading and rows; `AppUI/MenuBar/` draws it. e2e flow `menu-bar`.
 
 ## Backlog: UX features
 
