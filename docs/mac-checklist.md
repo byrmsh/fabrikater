@@ -79,6 +79,9 @@ Every check from the merged PRs that only the Mac or the host can do, most impor
 
 - [ ] Set the host to another alias, quit and reopen: the sidebar shows that host's herd. [#48]
 - [ ] The Text Size steppers change conversation and terminal text in open windows. [#48]
+- [ ] In Settings, type another working alias and press Return: the sidebar shows that host's herd within a few seconds, and open pane or past-session windows close. [#52]
+- [ ] After switching, `ps -ef | grep "ssh .*<old alias>"` shows no ssh processes left for the old host, once in-flight sends have finished. [#52]
+- [ ] Quit and reopen: the app opens on the host you connected to. [#52]
 
 ## 10. Once, when convenient
 
