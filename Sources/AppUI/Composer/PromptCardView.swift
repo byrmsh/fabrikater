@@ -13,6 +13,7 @@ struct PromptCardView: View {
         VStack(alignment: .leading, spacing: 8) {
             Label(prompt.title, systemImage: "questionmark.bubble")
                 .font(.headline)
+                .accessibilityAddTraits(.isHeader)
             if let subject = prompt.subject {
                 Text(subject)
                     .font(.callout.monospaced())
@@ -51,6 +52,9 @@ struct PromptCardView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(12)
         .background(.quinary, in: .rect(cornerRadius: 8))
+        // One group VoiceOver can find by the card's heading and step into.
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(prompt.title)
         .padding([.horizontal, .top], 12)
     }
 }
@@ -87,6 +91,7 @@ private struct OptionButton: View {
         .buttonStyle(.bordered)
         .help(option.help)
         .accessibilityLabel(option.label)
+        .accessibilityValue(isAnswering ? Announcement.sendingValue : "")
         .accessibilityHint(option.help)
     }
 }

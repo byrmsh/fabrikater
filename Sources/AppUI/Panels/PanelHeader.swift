@@ -13,6 +13,7 @@ struct PanelHeader: View {
             Text(panel.title)
                 .scaledFont(.callout)
                 .fontWeight(.semibold)
+                .accessibilityAddTraits(.isHeader)
             if let detail {
                 Text(detail)
                     .scaledFont(.callout)

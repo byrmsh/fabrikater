@@ -52,6 +52,7 @@ struct PastSessionsView: View {
             List(sheet.rows, selection: $selection) { row in
                 PastSessionRowView(row: row)
             }
+            .accessibilityLabel(sheet.title)
             .contextMenu(forSelectionType: SessionID.self) { ids in
                 Button(AppCommand.openInNewWindow(nil).title) { open(row(ids.first)) }
             } primaryAction: { ids in

@@ -20,5 +20,7 @@ struct KeyBar: View {
         }
         .buttonStyle(.bordered)
         .controlSize(.small)
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel(PaneKey.menuTitle)
     }
 }
