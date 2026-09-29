@@ -15,6 +15,12 @@ struct SSHArgumentsTests {
             ])
     }
 
+    @Test func closingTheSharedConnectionAsksTheMasterOnTheSamePathToExit() {
+        let arguments = SSHArguments.closeSharedConnection(host: host)
+        #expect(arguments.starts(with: SSHArguments.options))
+        #expect(Array(arguments.suffix(3)) == ["-O", "exit", "arch"])
+    }
+
     @Test func eventsStreamWithoutATerminal() {
         let arguments = SSHArguments.arguments(for: .herdrEvents, host: host)
         #expect(

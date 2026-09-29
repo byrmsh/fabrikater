@@ -74,6 +74,7 @@ public final class AppStore {
     ///   - notifier: shows an alert when a pane becomes blocked or finishes a turn.
     ///   - isAppActive: whether the app is frontmost, when the selected pane needs no alert.
     ///   - preferences: the Settings window's values.
+    ///   - reconnect: the terminal views' backoff while reads fail, cut short when the host is probably back.
     public init(
         herdUpdates: AsyncStream<HerdUpdate>,
         transcripts: any TranscriptService,
@@ -90,7 +91,8 @@ public final class AppStore {
         now: @escaping @Sendable () -> Date = { Date() },
         notifier: any Notifier = RecordingNotifier(),
         isAppActive: @escaping @MainActor () -> Bool = { true },
-        preferences: PreferencesStore = PreferencesStore()
+        preferences: PreferencesStore = PreferencesStore(),
+        reconnect: ReconnectPolicy = ReconnectPolicy()
     ) {
         self.preferences = preferences
         self.herdUpdates = herdUpdates
@@ -108,7 +110,8 @@ public final class AppStore {
                 conversation: ConversationStore(transcripts: transcripts),
                 composer: ComposerStore(control: control, drafts: drafts),
                 prompt: PromptCardStore(reader: screens, control: answers),
-                terminal: TerminalStore(reader: terminals), clipboard: clipboard)
+                terminal: TerminalStore(reader: terminals, backoff: reconnect.backoff(), pause: reconnect.pause),
+                clipboard: clipboard)
         }
         detail = makeDetail()
         focus = FocusSync(control: control)
