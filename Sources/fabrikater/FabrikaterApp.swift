@@ -22,11 +22,15 @@ struct FabrikaterApp: App {
             fixtures == nil
             ? UserDefaults.standard : UserDefaults(suiteName: "sh.bayram.fabrikater.fixtures") ?? .standard
         let preferenceStorage = UserDefaultsPreferencesStorage(defaults: defaults)
-        let alias = environment["FABRIKATER_HOST"] ?? preferenceStorage.load().host ?? Preferences.defaultHost
-        let host = HostAlias(alias) ?? HostAlias(Preferences.defaultHost)!
-        if host.rawValue != alias {
-            log.error("the host is not a valid ssh alias; using arch")
+        /// The alias to connect to, or `arch` when it is not one ssh can be given.
+        func hostAlias(_ alias: String) -> HostAlias {
+            guard let host = HostAlias(alias) else {
+                log.error("the host is not a valid ssh alias; using arch")
+                return HostAlias(Preferences.defaultHost)!
+            }
+            return host
         }
+        let host = hostAlias(environment["FABRIKATER_HOST"] ?? preferenceStorage.load().host ?? Preferences.defaultHost)
         let preferences = PreferencesStore(
             storage: preferenceStorage, connectedHost: host.rawValue,
             hostIsOverridden: environment["FABRIKATER_HOST"] != nil, isValidHost: { HostAlias($0) != nil })
@@ -41,7 +45,7 @@ struct FabrikaterApp: App {
         let policy = SendPolicy(environment: environment, isDebugBuild: isDebugBuild)
         // Everything tied to a host, built again when Settings connects to another one.
         session = HostSession(preferences: preferences) { alias in
-            let host = HostAlias(alias) ?? HostAlias(Preferences.defaultHost)!
+            let host = hostAlias(alias)
             let runner: any HostCommandRunner
             if let fixtures {
                 log.info("replaying fixtures")
