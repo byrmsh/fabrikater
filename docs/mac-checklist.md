@@ -94,7 +94,7 @@ Every check from the merged PRs that only the Mac or the host can do, most impor
 
 ## 10. VoiceOver and keyboard (fixtures are enough)
 
-Run with fixtures: `FABRIKATER_FIXTURES=Tests/Fixtures build/fabrikater.app/Contents/MacOS/fabrikater`. Turn VoiceOver on and off with ⌘F5. [#PR]
+Run with fixtures: `FABRIKATER_FIXTURES=Tests/Fixtures build/fabrikater.app/Contents/MacOS/fabrikater`. Turn VoiceOver on and off with ⌘F5. [#58]
 
 - [ ] With the prompt-card flow's fixtures: `d=$(mktemp -d); cp Tests/Fixtures/{events,claude,requests}.synthetic.jsonl Tests/Fixtures/screen-w1-p1.synthetic.txt "$d"; cp Tests/Fixtures/snapshot-prompt.synthetic.json "$d/snapshot.synthetic.json"; FABRIKATER_FIXTURES="$d" build/fabrikater.app/Contents/MacOS/fabrikater`, then ⌘↓: VoiceOver says "Permission Needed. Do you want to proceed?" as the card appears; ⌃⌥→ into the card reads each option by its label, and its hint says which key it presses.
 - [ ] ⌃⌥→ through the key bar: "Send Key, group", then Escape, Control-C, Tab, Shift-Tab, Up Arrow, Down Arrow, Return. The Send button reads Send (or Queue).
