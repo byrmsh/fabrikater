@@ -44,6 +44,8 @@ public struct Preferences: Equatable, Sendable {
     /// Notify when an agent goes from working to done.
     public var notifiesFinished = true
     public var playsSound = true
+    /// Show the Needs You item in the menu bar.
+    public var showsMenuBarItem = true
     /// The conversation's body text in points, before the window's ⌘+ / ⌘− steps.
     public var conversationTextSize = Self.defaultConversationTextSize {
         didSet { conversationTextSize = Self.textSizes.clamp(conversationTextSize) }
@@ -91,6 +93,7 @@ extension Preferences: Codable {
         case notifiesBlocked
         case notifiesFinished
         case playsSound
+        case showsMenuBarItem
         case conversationTextSize
         case terminalTextSize
     }
@@ -102,6 +105,7 @@ extension Preferences: Codable {
         notifiesBlocked = (try? container.decodeIfPresent(Bool.self, forKey: .notifiesBlocked)) ?? true
         notifiesFinished = (try? container.decodeIfPresent(Bool.self, forKey: .notifiesFinished)) ?? true
         playsSound = (try? container.decodeIfPresent(Bool.self, forKey: .playsSound)) ?? true
+        showsMenuBarItem = (try? container.decodeIfPresent(Bool.self, forKey: .showsMenuBarItem)) ?? true
         conversationTextSize = Self.textSizes.clamp(
             (try? container.decodeIfPresent(Int.self, forKey: .conversationTextSize))
                 ?? Self.defaultConversationTextSize)
@@ -116,6 +120,7 @@ extension Preferences: Codable {
         try container.encode(notifiesBlocked, forKey: .notifiesBlocked)
         try container.encode(notifiesFinished, forKey: .notifiesFinished)
         try container.encode(playsSound, forKey: .playsSound)
+        try container.encode(showsMenuBarItem, forKey: .showsMenuBarItem)
         try container.encode(conversationTextSize, forKey: .conversationTextSize)
         try container.encode(terminalTextSize, forKey: .terminalTextSize)
     }

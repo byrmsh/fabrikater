@@ -75,7 +75,7 @@ struct FabrikaterApp: App {
     }
 
     var body: some Scene {
-        WindowGroup("fabrikater") {
+        WindowGroup("fabrikater", id: MainWindow.sceneID) {
             MainWindow(session: session)
         }
         .defaultSize(width: 1100, height: 720)
@@ -102,5 +102,6 @@ struct FabrikaterApp: App {
         Settings {
             SettingsView(preferences: session.preferences)
         }
+        NeedsYouMenuBar(session: session)
     }
 }

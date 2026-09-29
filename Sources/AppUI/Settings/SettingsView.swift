@@ -51,6 +51,14 @@ public struct SettingsView: View {
                     .foregroundStyle(.secondary)
             }
             Section {
+                Toggle("Show Needs You in the menu bar", isOn: binding(\.showsMenuBarItem))
+            } header: {
+                Text("Menu Bar")
+            } footer: {
+                Text("A bell counts the panes waiting on you; its menu opens one.")
+                    .foregroundStyle(.secondary)
+            }
+            Section {
                 sizeStepper("Conversation", binding(\.conversationTextSize))
                 sizeStepper("Terminal", binding(\.terminalTextSize))
             } header: {

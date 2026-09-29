@@ -27,6 +27,7 @@ struct PreferencesTests {
         #expect(preferences.host == nil)
         #expect(preferences.sendKey == .return)
         #expect(preferences.notifiesBlocked && preferences.notifiesFinished && preferences.playsSound)
+        #expect(preferences.showsMenuBarItem)
         #expect(preferences.conversationScale(.actual) == 1)
         #expect(preferences.terminalFontSize(.actual) == 12)
         #expect(SendKey.commandReturn.composerPlaceholder == "Message the agent. ⌘Return sends, Return adds a line.")
