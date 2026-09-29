@@ -9,7 +9,14 @@ public protocol TranscriptService: Sendable {
 
     /// The conversation in the log's last `bytes` bytes, then again each time the log grows, until cancelled. The
     /// default reads once and ends; `HostTranscriptService` follows the log live (`LiveFollow.swift`).
-    func followTranscript(of log: SessionLog, bytes: Int) -> AsyncThrowingStream<Transcript, any Error>
+    func followTranscript(of log: SessionLog, bytes: Int) -> AsyncThrowingStream<FollowUpdate, any Error>
+}
+
+/// What a followed log yields.
+public enum FollowUpdate: Equatable, Sendable {
+    case transcript(Transcript)
+    /// The follow dropped and is reconnecting; the last transcript stands until the next one.
+    case interrupted(String)
 }
 
 /// How much of a log to read.
@@ -43,15 +50,12 @@ public enum TranscriptError: Error, Equatable, Sendable, CustomStringConvertible
 /// Reads the tail of the session log over a `HostCommandRunner` and parses it.
 public struct HostTranscriptService: TranscriptService {
     let runner: any HostCommandRunner
-    let reconnectDelays: [Duration]
+    let reconnect: ReconnectPolicy
 
-    /// - Parameter reconnectDelays: waits before following the log again after the follow drops; the last repeats.
-    public init(
-        runner: any HostCommandRunner,
-        reconnectDelays: [Duration] = [.seconds(1), .seconds(2), .seconds(5), .seconds(15), .seconds(30)]
-    ) {
+    /// - Parameter reconnect: the waits before following the log again after the follow drops.
+    public init(runner: any HostCommandRunner, reconnect: ReconnectPolicy = ReconnectPolicy()) {
         self.runner = runner
-        self.reconnectDelays = reconnectDelays.isEmpty ? [.seconds(1)] : reconnectDelays
+        self.reconnect = reconnect
     }
 
     public func transcript(of log: SessionLog, bytes: Int) async throws -> Transcript {
