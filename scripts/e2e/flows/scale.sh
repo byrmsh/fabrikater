@@ -3,7 +3,7 @@
 _scale_now() { perl -MTime::HiRes=time -e 'printf "%.1f", time'; }
 _scale_took() { echo "scale: $1 after $(perl -e "printf '%.1f', $(_scale_now) - $2") s"; }
 
-e2e_launch snapshot-scale.synthetic.json events.synthetic.jsonl claude-scale.synthetic.jsonl=claude.synthetic.jsonl
+e2e_launch snapshot-scale.synthetic.json=snapshot.synthetic.json events.synthetic.jsonl claude-scale.synthetic.jsonl=claude.synthetic.jsonl
 e2e_expect_label "Scale pane 1, Claude, Idle"
 started=$(_scale_now)
 e2e_key down command
