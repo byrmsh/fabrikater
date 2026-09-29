@@ -267,8 +267,8 @@ _e2e_focus_field() {
     _e2e_ax focus "$1"
 }
 
-# e2e_click TITLE: presses the first element whose title, description or help tag is TITLE (a link button has only
-# its help tag).
+# e2e_click TITLE: presses the first element whose title, description, help tag or label text is TITLE (a link button
+# has only its help tag; a switch in a grouped form only its label).
 e2e_click() {
     e2e_wait "a button titled \"$1\"" _e2e_click "$1"
     sleep 0.5

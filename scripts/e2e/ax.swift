@@ -46,6 +46,12 @@ func texts(_ element: AXUIElement, _ names: [String]) -> [String?] {
     return values.map { text($0) }
 }
 
+/// The text of the element that titles this one, as a grouped form's label titles its switch.
+func titleText(_ element: AXUIElement) -> String? {
+    guard let title = attribute(element, kAXTitleUIElementAttribute) else { return nil }
+    return text(attribute(title as! AXUIElement, kAXValueAttribute))
+}
+
 func children(_ element: AXUIElement) -> [AXUIElement] {
     (attribute(element, kAXChildrenAttribute) as? [AXUIElement]) ?? []
 }
@@ -120,7 +126,7 @@ case "dump":
 case "press":
     guard
         let target = elements.first(where: {
-            texts($0, ["AXTitle", "AXDescription", "AXHelp"]).contains(operand)
+            texts($0, ["AXTitle", "AXDescription", "AXHelp"]).contains(operand) || titleText($0) == operand
         })
     else { exit(1) }
     guard AXUIElementPerformAction(target, kAXPressAction as CFString) == .success else { exit(1) }
