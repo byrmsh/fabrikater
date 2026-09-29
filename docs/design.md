@@ -81,6 +81,15 @@ As built: fabrikater › Settings… (⌘,) is one grouped form, saved as each v
 - Menu Bar: whether the Needs You bell is in the menu bar.
 - Text Size: the conversation's body text (13 pt by default, the system size) and the terminal's (12 pt), 9 to 24 pt; View › Bigger and Smaller scale both in the front window.
 
+## Accessibility
+
+Every control reads by name to VoiceOver, and nothing is told by colour alone.
+
+- Names: a pane row reads its label, agent, status and Unread or Hidden; the key bar is a group named Send Key whose keys read by full name (Escape, Shift-Tab); the prompt card is a group named by its heading, whose options read their label, with the key they press as the hint and Sending while one goes; Send reads its title while its spinner shows; the connection footer reads its state with the last error as its value; each docked panel is a group named by its title, under a heading; the Settings steppers read "Conversation Text Size" and "Terminal Text Size" with the size.
+- Announcements (`Announcement`): while the app is frontmost, VoiceOver says when a pane joins Needs You ("Refactor needs input", "Scratch finished its turn", or "3 panes need you"), when the host goes offline and when it is back ("Reconnected"). The front window says a prompt card's heading and question as it appears, and a composer or prompt card notice. The first fill of Needs You at launch or on reconnecting is not announced; behind other apps the notifications speak instead.
+- Colour: with Differentiate Without Color (System Settings › Accessibility › Display), status dots become shapes: an ellipsis for working, an exclamation mark for needs input, a check for done, an outline for idle. Notices carry a warning symbol as well as their colour.
+- Keyboard: every action is in a menu, most with a shortcut (⌘1…⌘9 for Needs You, Pane › Answer Prompt and Send Key for the card and key bar). With Full Keyboard Access on, Tab reaches every button with the system focus ring.
+
 ## Visual style
 
 Native macOS: system fonts for prose, the system monospaced font for code and terminal, standard materials and accent colour, full light and dark mode. No custom chrome.

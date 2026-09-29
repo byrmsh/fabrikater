@@ -46,6 +46,9 @@ struct ComposerView: View {
                     }
                 }
                 // The window's own shortcut, so ⌘Return in a pane window sends that window's draft, not the Pane menu's.
+                // The spinner that stands in for the title while sending has no name of its own.
+                .accessibilityLabel(composer.sendTitle)
+                .accessibilityValue(composer.isSending ? Announcement.sendingValue : "")
                 .keyboardShortcut(Keymap.chord(for: .send)?.shortcut)
                 .disabled(!composer.canSend)
                 .help(composer.disabledReason ?? "\(composer.sendTitle) (⌘Return)")

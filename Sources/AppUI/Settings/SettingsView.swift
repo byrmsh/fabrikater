@@ -69,6 +69,7 @@ public struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
+        .announcing(preferences.hostIsInvalid ? preferences.hostNotice : nil)
         .frame(width: 460)
         .fixedSize(horizontal: false, vertical: true)
     }
@@ -77,6 +78,9 @@ public struct SettingsView: View {
         Stepper(value: size, in: Preferences.textSizes) {
             LabeledContent(title, value: Preferences.pointsTitle(size.wrappedValue))
         }
+        // The stepper itself reads as its row's name and size, and says the new size as it steps.
+        .accessibilityLabel("\(title) Text Size")
+        .accessibilityValue(Preferences.pointsTitle(size.wrappedValue))
     }
 
     /// A preference the form edits; the key path is captured by the binding's closures, so it must be `Sendable`.

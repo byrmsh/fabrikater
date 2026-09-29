@@ -16,10 +16,15 @@ struct PanelDockView: View {
                 if index > 0 {
                     Divider()
                 }
-                PanelHeader(panel: panel, detail: model.detail.headerDetail(of: panel), model: model)
-                InfoPanelView(panel: panel, model: model)
-                    .frame(maxHeight: dock == .top ? Self.topPanelHeight : .infinity, alignment: .top)
-                    .fixedSize(horizontal: false, vertical: panel != .changes)
+                VStack(alignment: .leading, spacing: 0) {
+                    PanelHeader(panel: panel, detail: model.detail.headerDetail(of: panel), model: model)
+                    InfoPanelView(panel: panel, model: model)
+                        .frame(maxHeight: dock == .top ? Self.topPanelHeight : .infinity, alignment: .top)
+                        .fixedSize(horizontal: false, vertical: panel != .changes)
+                }
+                // A group VoiceOver names by the panel, so its rotor and ⌃⌥⇧↓ step into one panel at a time.
+                .accessibilityElement(children: .contain)
+                .accessibilityLabel(panel.title)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: dock == .top ? nil : .infinity, alignment: .top)

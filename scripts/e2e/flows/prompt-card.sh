@@ -5,7 +5,7 @@ e2e_key down command
 e2e_expect_text "Permission Needed"
 e2e_expect_text "Do you want to proceed?"
 e2e_expect_text "rm -rf build"
-# The bordered buttons show their names only through their help tags in the accessibility tree.
+# Found by help tag; the accessibility flow checks the names VoiceOver reads.
 e2e_expect_text "Press 2 in the pane: Yes, and don"
 e2e_shot prompt-card
 e2e_click "Press 3 in the pane: No"

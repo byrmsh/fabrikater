@@ -113,8 +113,9 @@ case "dump":
         let count = children(element).count
         if count > 0 { line += " children=\(count)" }
         var names: CFArray?
-        if AXUIElementCopyAttributeNames(element, &names) == .success, let names = names as? [String] {
-            for name in names {
+        if AXUIElementCopyAttributeNames(element, &names) == .success, let listed = names as? [String] {
+            // SwiftUI answers for labels it does not list, such as a bordered button's description: ask for those too.
+            for name in listed + ["AXTitle", "AXDescription", "AXValue"].filter({ !listed.contains($0) }) {
                 guard let value = attribute(element, name) else { continue }
                 if let string = text(value) {
                     line += " \(name)=\(string)"

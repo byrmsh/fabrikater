@@ -52,6 +52,7 @@ public struct RootView: View {
         .onChange(of: store.isSidebarVisible) { _, visible in savedSidebarVisible = visible }
         .onChange(of: store.layout.chosen) { _, panel in savedDetailPanel = panel.rawValue }
         .onChange(of: store.needsYou.badge, initial: true) { _, badge in NSApp.dockTile.badgeLabel = badge }
+        .announcingChanges(of: store.announced)
         .task { await store.run() }
     }
 

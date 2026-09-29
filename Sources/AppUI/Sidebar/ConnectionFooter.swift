@@ -18,6 +18,10 @@ struct ConnectionFooter: View {
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
         .help(detail)
+        // One element that reads the state and, when offline, why, which otherwise shows only as a help tag.
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(connection.title)
+        .accessibilityValue(connection.failure ?? "")
     }
 
     private var symbolName: String {

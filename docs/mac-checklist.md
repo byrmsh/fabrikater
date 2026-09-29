@@ -92,7 +92,21 @@ Every check from the merged PRs that only the Mac or the host can do, most impor
 - [ ] After switching, `ps -ef | grep "ssh .*<old alias>"` shows no ssh processes left for the old host, once in-flight sends have finished. [#52]
 - [ ] Quit and reopen: the app opens on the host you connected to. [#52]
 
-## 10. Once, when convenient
+## 10. VoiceOver and keyboard (fixtures are enough)
+
+Run with fixtures: `FABRIKATER_FIXTURES=Tests/Fixtures build/fabrikater.app/Contents/MacOS/fabrikater`. Turn VoiceOver on and off with ⌘F5. [#58]
+
+- [ ] With the prompt-card flow's fixtures: `d=$(mktemp -d); cp Tests/Fixtures/{events,claude,requests}.synthetic.jsonl Tests/Fixtures/screen-w1-p1.synthetic.txt "$d"; cp Tests/Fixtures/snapshot-prompt.synthetic.json "$d/snapshot.synthetic.json"; FABRIKATER_FIXTURES="$d" build/fabrikater.app/Contents/MacOS/fabrikater`, then ⌘↓: VoiceOver says "Permission Needed. Do you want to proceed?" as the card appears; ⌃⌥→ into the card reads each option by its label, and its hint says which key it presses.
+- [ ] ⌃⌥→ through the key bar: "Send Key, group", then Escape, Control-C, Tab, Shift-Tab, Up Arrow, Down Arrow, Return. The Send button reads Send (or Queue).
+- [ ] Against the host, with the scratch `claude` pane selected, send it a prompt that makes it ask permission while another pane is selected: VoiceOver says "<name> needs input" once, and the Dock badge counts it.
+- [ ] Turn Wi-Fi off until the footer says Offline: VoiceOver says "Offline, showing the last known state"; turn it back on: "Reconnected".
+- [ ] ⌃⌥U (rotor) › Headings lists each docked panel's title; a panel reads as a group named Plan, Changes or Session Info.
+- [ ] ⌘, then Tab to the Text Size steppers: "Conversation Text Size, 13 pt"; ⌃⌥↑ says the new size.
+- [ ] System Settings › Accessibility › Display › Differentiate without color: the sidebar's dots turn into shapes (ellipsis, exclamation mark, check, outline) and stay aligned with the labels; turning it off brings the dots back.
+- [ ] System Settings › Keyboard › Keyboard navigation (Full Keyboard Access) on: Tab from the composer reaches the key bar, Send, the prompt card's options and the panel ⋯ menus, each with a visible focus ring; Space presses them.
+- [ ] VoiceOver on the terminal view (⌘T): note what it reads (SwiftTerm's own accessibility); it should at least say Terminal.
+
+## 11. Once, when convenient
 
 - [ ] VoiceOver (⌘F5) through the sidebar: pane rows read name, agent, status; Show All and the key bar keys read by name. [#10, #17, #40]
 - [ ] Whether plain ⌘= enlarges text as well as ⌘+. [#12]
