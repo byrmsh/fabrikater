@@ -118,7 +118,7 @@ Manual on the Mac: set the host to another alias, quit and reopen, and the sideb
 
 ## Later
 
-Movable, dockable panels (IDE-style) on the layout model from `.claude/skills/macos-design`; creating and closing tabs and panes; starting agents; search across all conversations (find within one conversation, ⌘F, is done: [#PRNUM](https://github.com/byrmsh/fabrikater/pull/PRNUM)); a `MenuBarExtra` with the "Needs you" list; image attachments in the composer.
+Movable, dockable panels (IDE-style) on the layout model from `.claude/skills/macos-design`; creating and closing tabs and panes; starting agents; search across all conversations (find within one conversation, ⌘F, is done: [#53](https://github.com/byrmsh/fabrikater/pull/53)); a `MenuBarExtra` with the "Needs you" list; image attachments in the composer.
 
 ## Backlog: UX features
 

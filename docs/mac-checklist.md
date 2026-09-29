@@ -73,7 +73,7 @@ Every check from the merged PRs that only the Mac or the host can do, most impor
 - [ ] In a pane window in front, ⌥⌘0, ⌘I and Pane › Load Earlier Messages act on it; click the main window and they act there, with the Show Changes checkmark following. [#33, #45]
 - [ ] ⌘Y on a Claude pane in a folder with hundreds of logs lists them quickly, newest first; opening the same one twice brings its window forward. [#46]
 - [ ] ⌘Y on a Codex pane lists only that project's rollouts, quickly; on an omp or pi pane, its folder's sessions titled by first prompt; on an OpenCode pane, its directory's sessions with OpenCode's titles. `ssh arch "sqlite3 -readonly ~/.local/share/opencode/opencode.db '.schema session'"` shows `directory`, `title` and `parent_id`. [#50]
-- [ ] ⌘F on a long real conversation: typing stays smooth, matches are highlighted in yellow in text, code blocks and tool rows, the current message has an accent outline, ⌘G and ⇧⌘G (and Shift-Return in the field) step and scroll to each, and Edit › Find lists the three items with no second Find menu. In a pane window and a past-session window ⌘F finds in that window. [#PRNUM]
+- [ ] ⌘F on a long real conversation: typing stays smooth, matches are highlighted in yellow in text, code blocks and tool rows, the current message has an accent outline, ⌘G and ⇧⌘G (and Shift-Return in the field) step and scroll to each, and Edit › Find lists the three items with no second Find menu. In a pane window and a past-session window ⌘F finds in that window. [#53]
 - [ ] In a past-session window, ⌘R reloads and ⇧⌘C copies that session; Send and Show Terminal are disabled; ⌘↓ still moves the main window's selection. [#49]
 
 ## 9. Settings
